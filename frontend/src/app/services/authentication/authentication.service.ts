@@ -7,7 +7,7 @@ import { Sex } from '../../model/enum/Sex';
 })
 export class AuthenticationService {
   private authenticatedUser: User = {
-    id: "0",
+    id: "676eb8cdbb6e6a98e88a5a0e",
     firstName: 'Patryk',
     lastName: 'Podgórski',
     username: 'podgorskip',

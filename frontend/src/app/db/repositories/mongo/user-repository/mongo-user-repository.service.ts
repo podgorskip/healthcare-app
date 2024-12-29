@@ -89,8 +89,6 @@ export class MongoUserRepository implements UserRepositoryInterface {
         }
         const cart: ScheduledVisit[] = await response.json();
 
-        console.log(cart)
-  
         cart.forEach(visit => {
           if (visit.date && visit.date.length > 0) {
             visit.date.forEach(dateObj => {

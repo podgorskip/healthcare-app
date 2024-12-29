@@ -22,8 +22,16 @@ export class MongoVisitRepository implements VisitRepositoryInterface {
         if (!response.ok) {
           throw new Error(`Failed to fetch scheduled visits`);
         }
-        const cart: ScheduledVisit[] = await response.json();
-        callback(cart);
+        const visits: ScheduledVisit[] = await response.json();
+
+        visits.forEach(visit => {
+          if (visit.date && visit.date.length > 0) {
+            visit.date.forEach(dateObj => {
+              dateObj.day = new Date(dateObj.day);
+            });
+          }
+        });
+        callback(visits);
       } catch (error) {
         console.error('Error:', error);
         callback([]); 

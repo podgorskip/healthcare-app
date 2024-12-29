@@ -5,10 +5,10 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { TimeSlot } from '../../../model/TimeSlot';
 import { SingleSlotComponent } from '../single-slot/single-slot.component';
 import { CircularSlotsComponent } from '../circular-slots/circular-slots.component';
 import { CircularAvailability } from '../../../model/CircularAvailability';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-availability',
@@ -40,7 +40,10 @@ export class AvailabilityComponent {
   }
   selectedDay: Date = new Date();
 
-  constructor(private availabilityService: AvailabilityService) { }
+  constructor(
+    private availabilityService: AvailabilityService,
+    private router: Router
+  ) { }
 
   onTypeChange = () => {
     console.log(this.selectedType);
@@ -69,6 +72,7 @@ export class AvailabilityComponent {
 
   submitSingleDayAvailability = (): void => {
     this.availabilityService.addAvailability([this.singleDayAvailability], this.selectedType);
+    this.router.navigate(['/calendar/false']);
   }
 
   handleCircularAvailabilityChange = (circular: CircularAvailability): void => {
@@ -77,8 +81,8 @@ export class AvailabilityComponent {
 
   submitCircularAvailability = (): void => {
     let single: SingleDayAvailability[] = this.transformCircularAvailability(this.circularAvailability);
-    console.log(single);
     this.availabilityService.addAvailability(single, this.selectedType);
+    this.router.navigate(['/calendar/false']);
   }
 
   transformCircularAvailability(circularAvailability: CircularAvailability): SingleDayAvailability[] {

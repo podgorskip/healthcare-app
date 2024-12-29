@@ -234,12 +234,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   getSlotStyle(day: Date, hour: number): { className: string, canSchedule: boolean } {
-    if (this.isAbsent(day, hour)) {
+    if (this.isAbsent(day, hour - 0.5)) {
       return { className: 'absence', canSchedule: false };
     } else if (this.isScheduled(day, hour)) {
       return { className: 'scheduled', canSchedule: false };
-    } else if (this.isPresent(day, hour)) {
-      return { className: 'presence', canSchedule: this.shouldScheduleCheck(day, hour)};
+    } else if (this.isPresent(day, hour - 0.5)) {
+      return { className: 'presence', canSchedule: this.shouldScheduleCheck(day, hour - 0.5)};
     } else {
       return { className: '', canSchedule: false };
     }
