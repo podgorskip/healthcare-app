@@ -1,0 +1,24 @@
+<div class="single-slot">
+    <p>Add single day availability</p>
+    <div>
+        <div>
+            <label for="date">Date</label>
+            <input [(ngModel)]="date" type="date" name="date" [min]="getMinDate()">
+            <label for="from">Hour from</label>
+            <input [(ngModel)]="from" type="time" name="from">
+            <label for="to">Hour to</label>
+            <input [(ngModel)]="to" type="time" name="to">
+        </div>
+        <div (click)="addHour()">
+            <img class="add-img" src="assets/add.png">
+        </div>
+    </div>
+    <div>
+        <ul *ngIf="timeSlots.length > 0 && date" class="time-slots">
+            <p>Available hours for {{date}}</p>
+            <li *ngFor="let slot of timeSlots" (click)="removeHour(slot.id)">
+                {{slot.from}} - {{slot.to}}
+            </li>
+        </ul>
+    </div>
+</div>

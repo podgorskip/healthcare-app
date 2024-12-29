@@ -1,0 +1,75 @@
+.circular > div {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 5em;
+}
+
+.circular > p {
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid rgb(190, 190, 190);
+    margin-bottom: 1em;
+}
+
+.circular .data-selection {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.circular .data-selection > div {
+    min-width: 150px;
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+.circular .data-selection > div > div {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    row-gap: 0.5em;
+    column-gap: 1em;
+}
+
+.circular .weekdays > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+.circular .weekdays {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.add-img {
+    width: 20px;
+    align-self: end;
+    padding-top: 0.5em;
+}
+
+.add-img:hover {
+    cursor: pointer;
+}
+
+.removable:hover {
+    color: rgba(222, 46, 46, 0.617);
+    cursor: pointer;
+}
+
+.selection-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.selection-summary > div > p {
+    margin-bottom: 0.5em;
+}
+
+@media(min-width: 577px) {
+    .circular > div {
+        grid-template-columns: repeat(3, auto);
+    }
+}

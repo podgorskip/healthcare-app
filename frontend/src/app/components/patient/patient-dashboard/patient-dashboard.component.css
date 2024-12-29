@@ -1,0 +1,71 @@
+.patient-dashboard {
+    padding: 1em;
+    display: grid;
+    grid-template-columns: auto;
+}
+
+.patient-dashboard h3 {
+    grid-column: 1 / -1;
+}
+
+.reminders {
+    height: 100vh;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    padding-right: 1em;
+}
+
+.reminders > div:first-child {
+    display: flex;
+    gap: 0.5em;
+    font-size: 1em;
+    align-items: center;
+}
+
+.reminders > div:first-child > img {
+    width: 20px;
+}
+
+.visit {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    margin-bottom: 1em;
+    padding: 1.5em 1em;
+    border: 1px solid rgb(216, 216, 216);
+    border-radius: 5px;
+    justify-content: start;
+}
+
+.visit div {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: start;
+}
+
+.visit div:first-child {
+    padding-right: 1.5em;
+    border-right: 1px solid rgb(216, 216, 216);
+}
+
+.visit div:nth-child(2) {
+    padding: 0 1.5em;
+}
+
+.visit img {
+    width: 15px;
+    height: 15px;
+    justify-self: end;
+}
+
+.visit img:hover {
+    cursor: pointer;
+}
+
+@media(min-width: 800px) {
+    .patient-dashboard {
+        grid-template-columns: auto 1fr;
+    }
+}

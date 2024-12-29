@@ -1,0 +1,110 @@
+.calendar {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    margin: 1em;
+}
+
+.calendar-controls {
+    display: flex;
+    padding: 1em 0;
+    justify-content: space-between;
+    font-size: 1em;
+}
+
+.calendar-controls > button {
+    min-width: 100px;
+}
+
+.scroll-container {
+    overflow-y: hidden;
+    white-space: nowrap;
+    width: auto;
+    border: 1px solid #ddd;
+    margin-bottom: 2em;
+}
+
+table {
+    border-collapse: collapse;
+    width: max-content;
+    min-width: 100%;
+}
+
+thead th, tbody td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+    min-width: 100px;
+    height: 60px;
+}
+
+thead th:first-child,
+tbody td:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 1;
+}
+
+.time-block {
+    min-width: 100px;
+}
+
+.absence {
+    background-color: rgba(222, 46, 46, 0.617);
+}
+
+.presence {
+    background-color: rgba(21, 156, 21, 0.738);
+}
+
+.presence:hover {
+    cursor: pointer;
+    background-color: rgba(17, 179, 17, 0.738);
+}
+
+.selected {
+    background-color: rgba(17, 179, 17, 0.738);
+    width: 100%;
+    height: 100%;
+}
+
+.scheduled {
+    background-color: rgba(201, 201, 201, 0.738);
+
+}
+
+@media(max-width: 1200px) {
+    thead th, tbody td {
+        min-width: 90px;
+        height: 50px;
+    }
+}
+
+@media(max-width: 1000px) {
+    thead th, tbody td {
+        min-width: 80px;
+        height: 45px;
+    }
+}
+
+@media(max-width: 800px) {
+    thead th, tbody td {
+        min-width: 70px;
+        height: 40px;
+    }
+}
+
+@media(max-width: 600px) {
+    thead th, tbody td {
+        min-width: 60px;
+        height: 35px;
+    }
+}
+
+@media(max-width: 400px) {
+    thead th, tbody td {
+        min-width: 50px;
+        height: 30px;
+    }
+}

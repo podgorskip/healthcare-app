@@ -1,0 +1,59 @@
+.single-slot {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 1em;
+}
+
+.single-slot > p {
+    grid-column: 1 / -1;
+}
+
+.single-slot > div > div {
+    display: grid;
+    align-content: start;
+    grid-template-columns: auto auto;
+    row-gap: 0.5em;
+    align-items: center;
+    column-gap: 1em;
+}
+
+.single-slot > div {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1em;
+}
+
+.single-slot > p {
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid rgb(190, 190, 190);
+    margin-bottom: 1em;
+}
+
+.time-slots {
+    max-height: 200px;
+    overflow: auto;
+    list-style: none;
+}
+
+.time-slots > p {
+    margin-bottom: 0.5em;
+}
+
+.time-slots > li {
+    margin-bottom: 0.2em;
+}
+
+.time-slots li:hover {
+    color: rgba(222, 46, 46, 0.617);
+    cursor: pointer;
+}
+
+.add-img {
+    width: 20px;
+    align-self: end;
+    padding-top: 0.5em;
+}
+
+.add-img:hover {
+    cursor: pointer;
+}

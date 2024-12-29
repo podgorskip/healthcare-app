@@ -1,0 +1,30 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-dark">
+    <div class="container-fluid">
+      <a routerLink="patient-dashboard" class="nav-link">
+        <img src="assets/user.png" alt="User icon"/>
+      </a>
+      <a routerLink="cart" class="nav-link cart">
+        <p>{{cartItemsCount}}</p>
+        <img src="assets/basket.png" alt="Cart icon">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+          <a [routerLink]="['/calendar', 'false']" class="nav-link">
+              <p>Calendar</p>
+          </a>
+          <a routerLink="availability" class="nav-link">
+              <p>Availability</p>
+          </a>
+          <a routerLink="scheduler" class="nav-link">
+              <p>Scheduler</p>
+          </a>
+          <a routerLink="settings" class="nav-link">
+            <p>Settings</p>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>

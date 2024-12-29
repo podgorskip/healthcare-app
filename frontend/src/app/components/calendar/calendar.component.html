@@ -1,0 +1,32 @@
+<div class="calendar">
+    <h3>Calendar</h3>
+    <div class="calendar-controls">
+      <button (click)="goToPreviousWeek()">Previous week</button>
+      <button (click)="goToNextWeek()">Next week</button>
+    </div>
+    <div class="scroll-container" #scrollContainer>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th *ngFor="let i of getHours" class="time-block">{{ formatHour(i) }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let day of getCurrentWeek" style="position: sticky;">
+            <td>
+              <p>{{ dayNames()[day.getUTCDay()] }}</p>
+              <p>{{ formatDate(day) }}</p>
+            </td>
+            <td *ngFor="let i of getHours" 
+                class="time-block" 
+                [ngClass]="getClasses(day, i)" 
+                (click)="selectSlot(day, i)">
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="selection-btn" *ngIf="getShouldSchedule()" (click)="confirmSelection()">Confirm selection</button>
+  </div>
+  

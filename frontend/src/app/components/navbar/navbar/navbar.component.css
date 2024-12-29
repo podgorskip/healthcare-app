@@ -1,0 +1,45 @@
+.navbar {
+    gap: 2em;
+    padding: 1em;
+    background-color: #048504;
+    align-items: center;
+}
+
+.container-fluid {
+    display: grid;
+    gap: 1em;
+    grid-template-columns: auto auto 1fr;
+}
+
+.navbar-toggler, .collapse {
+    justify-self: end;
+}
+
+p {
+    color: white;
+    text-transform: uppercase;
+}
+
+img {
+    width: 25px;
+}
+
+.cart img {
+    position: relative;
+}
+
+.cart p {
+    position: absolute;
+    z-index: 10;
+    background-color: red;
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    padding: 0;
+    font-size: 0.6em;
+    color: white; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+   
+}

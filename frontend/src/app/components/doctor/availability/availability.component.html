@@ -1,0 +1,58 @@
+<div class="availability">
+    <h3>Availability</h3>
+    <form #availabilityForm="ngForm">
+        <div>
+            <div class="section" [ngStyle]="sectionStyle('default')">
+                <p [ngStyle]="sectionBorderStyle('default')">1</p>
+                <p>Management type</p>
+            </div>
+            <div class="data">
+                <p>Choose whether you want to add presence or absence</p>
+                <div>
+                    <label for="presence">Presence</label>
+                    <input type="radio" name="type" id="presence" [(ngModel)]="selectedType" value="presence" (change)="onTypeChange()">
+                </div>
+                <div>
+                    <label for="absence">Absence</label>
+                    <input type="radio" name="type" id="absence" [(ngModel)]="selectedType" value="absence" (change)="onTypeChange()">
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="section" [ngStyle]="sectionStyle(selectedType)">
+                <p [ngStyle]="sectionBorderStyle(selectedType)">2</p>
+                <p>Date range type</p>
+            </div>
+            <div *ngIf="selectedType" class="data">
+                <p>Choose a date range</p>
+                <div>
+                    <label for="single-day">Single day</label>
+                    <input type="radio" name="single-day" id="single-day" [(ngModel)]="selectedDateRangeType" value="single-day" (change)="onDateRangeChange()">
+                </div>
+                <div>
+                    <label for="circular">Circular</label>
+                    <input type="radio" name="circular" id="circular" [(ngModel)]="selectedDateRangeType" value="periodic" (change)="onDateRangeChange()">
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="section" [ngStyle]="sectionStyle(selectedDateRangeType)">
+                <p [ngStyle]="sectionBorderStyle(selectedDateRangeType)">3</p>
+                <p>Select dates</p>
+            </div>   
+            <div *ngIf="selectedDateRangeType === 'single-day'" class="single">
+                <app-single-slot (timeSlotsChange)="handleSingleAvailabilityChange($event)"/>
+                <button *ngIf="singleDayAvailability.date && singleDayAvailability.slots.length > 0" (click)="submitSingleDayAvailability()">Submit</button>
+            </div>
+            <div *ngIf="selectedDateRangeType === 'periodic'" class="periodic">
+                <app-circular-slots (circularChange)="handleCircularAvailabilityChange($event)"/>
+                <button *ngIf="circularAvailability.dateRanges.length > 0
+                            && circularAvailability.hourRanges.length > 0
+                            && circularAvailability.weekdays.length > 0" (click)="submitCircularAvailability()">
+                    Submit
+                </button>
+            </div>
+        </div>
+    </form>
+  </div>
+  

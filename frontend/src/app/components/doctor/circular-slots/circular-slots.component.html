@@ -1,0 +1,54 @@
+<div class="circular">
+    <p>Add periodic availability</p>
+    <div>
+        <div class="data-selection">
+            <div>
+                <div>
+                    <label>Date from</label>
+                    <input type="date" [(ngModel)]="dateFrom" [min]="getMinDate()">
+                    <label>Date to</label>
+                    <input type="date" [(ngModel)]="dateTo" [min]="getMinDate()">
+                </div>
+                <div>
+                    <img class="add-img" src="assets/add.png" (click)="addDateRange()">
+                </div>
+                
+            </div>
+            <div>
+                <div>
+                    <label>Hour from</label>
+                    <input type="time" [(ngModel)]="hourFrom">
+                    <label>Hour to</label>
+                    <input type="time" [(ngModel)]="hourTo">
+                </div>
+                <div>
+                    <img class="add-img" src="assets/add.png" (click)="addHoursRange()">
+                </div>
+            </div>
+        </div>
+        <div class="weekdays">
+            <div *ngFor="let weekday of weekDays(); let i = index">
+                <label>{{weekday}}</label>
+                <input type="checkbox" [(ngModel)]="selectedWeekdays[i]" (change)="weekdayChange()">
+            </div>
+        </div>
+        <div class="selection-summary">
+            <div class="selected-dates" *ngIf="selectedDateRanges.length > 0">
+                <p>Selected date ranges</p>
+                <div >
+                    <p *ngFor="let range of selectedDateRanges" (click)="removeDateRange(range.id)" class="removable">
+                        {{dateRangeString(range.from, range.to)}}
+                    </p>
+                </div>
+            </div>
+            <div class="selected-hours" *ngIf="selectedHourRanges.length > 0">
+                <p>Selected hour ranges</p>
+                <div>
+                    <p *ngFor="let range of selectedHourRanges" (click)="removeHoursRange(range.id)" class="removable">
+                        {{range.from}} - {{range.to}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

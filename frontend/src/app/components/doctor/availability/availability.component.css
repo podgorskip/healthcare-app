@@ -1,0 +1,65 @@
+.availability {
+    margin: 1em;
+}
+
+.availability > form {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em auto 1em auto;
+    min-height: 500px;
+    padding: 2em;
+}
+
+.availability > form > div {
+    display: flex;
+    gap: 3em;
+}
+
+.availability .section {
+    width: 200px;
+    min-height: 100px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;    
+    gap: 1em;
+}
+
+.availability .section p:first-child {
+    border: 1px solid black;
+    width: 2em;   
+    height: 2em;  
+    border-radius: 50%;
+    text-align: center;
+    line-height: 2em; 
+}
+
+.availability .data {
+    display: grid;
+    width: 40%;
+    grid-template-columns: auto 1fr;
+    row-gap: 0.5em;
+    column-gap: 2em;
+    justify-content: start;
+    align-items: baseline;
+}
+
+.availability .data > div {
+    display: flex;
+    align-items: center;
+    width: auto;
+    gap: 0.5em;
+}
+
+.availability .data > p,
+.availability .periodic > p {
+    grid-column: 1 / -1;
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid rgb(190, 190, 190);
+    color: rgb(52, 52, 52);
+    width: 100%;
+}
+
+.availability button {
+    margin-top: 2em;
+}

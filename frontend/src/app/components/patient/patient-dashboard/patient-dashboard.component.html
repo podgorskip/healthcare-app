@@ -1,0 +1,24 @@
+<div class="patient-dashboard">
+    <h3>Dashboard</h3>
+
+    <div class="reminders">
+        <div>
+            <img src="assets/alarm.png" alt="reminder">
+            <p>Incoming visits</p>
+        </div>
+        <p *ngIf="scheduledVisits.length == 0">
+            Nothing scheduled
+        </p>
+        <div *ngFor="let visit of scheduledVisits" class="visit">
+            <div>
+                <p>{{user.firstName}} {{user.lastName}}</p>
+                <p>{{formatDates(visit.date)}}</p>
+            </div>
+            <div>
+                <p>{{visit.type}}</p>
+                <p>{{visit.details}}</p>
+            </div>
+            <img src="assets/close.png" alt="Cancel" (click)="cancelVisit(visit)">
+        </div>
+    </div>
+</div>

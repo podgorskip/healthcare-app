@@ -1,0 +1,84 @@
+<div class="scheduler">
+    <h3>Scheduler</h3>
+    <div>
+        <div class="section" [ngStyle]="sectionStyle([{}])">
+            <p [ngStyle]="sectionBorderStyle([{}])">1</p>
+            <p>Select date</p>
+        </div>
+        <div class="date-selection">
+            <button (click)="openPopup()">
+                <img src="assets/calendar.png" alt="Calendar icon">
+                <p>Open calendar</p>
+            </button>
+            <div *ngIf="scheduledVisit.date.length">
+                {{formatSelectedDays()}}
+            </div>
+        </div>
+        <div class="section" [ngStyle]="sectionStyle(scheduledVisit.date)">
+            <p [ngStyle]="sectionBorderStyle(scheduledVisit.date)">2</p>
+            <p>Fill in form</p>
+        </div>
+        <div class="form-section" *ngIf="scheduledVisit.date.length">
+            <form #visitDetails="ngForm" (ngSubmit)="onSubmit(visitDetails)">
+                <label for="first-name">First name</label>
+                <div>
+                    <input type="text" id="first-name" name="first-name" [(ngModel)]="user.firstName" required #firstName="ngModel">
+                    <div *ngIf="firstName.invalid && firstName.touched" class="error-message">
+                        First name is required.
+                    </div>
+                </div>
+
+                <label for="last-name">Last name</label>
+                <div>
+                    <input type="text" id="last-name" name="last-name" [(ngModel)]="user.lastName" required #lastName="ngModel">
+                    <div *ngIf="lastName.invalid && lastName.touched" class="error-message">
+                        Last name is required.
+                    </div>
+                </div>
+
+                <p>Visit type</p>
+                <div class="radios">
+                    <div *ngFor="let type of availableVisitTypes">
+                        <label for="{{type}}">{{type}}</label>
+                        <input type="radio" name="type" id="{{type}}" [value]="type" [(ngModel)]="scheduledVisit.type" required>
+                    </div>
+                </div>
+                
+                <label for="age">Age</label>
+                <div>
+                    <input type="number" min="1" id="age" name="age" [(ngModel)]="user.age" required #age="ngModel">
+                    <div *ngIf="age.invalid && age.touched" class="error-message">
+                        Age is required and must be a valid number.
+                    </div>
+                </div>
+
+                <p>Sex</p>
+                <div class="radios">
+                    <div *ngFor="let s of sex">
+                        <label for="{{s}}">{{s}}</label>
+                        <input type="radio" name="sex" id="{{s}}" value="{{s}}" [(ngModel)]="user.sex" required>
+                    </div>
+                </div>
+
+                <label for="details">Details</label>
+                <div>
+                    <input type="text" id="details" name="details" [(ngModel)]="scheduledVisit.details" required #details="ngModel">
+                    <div *ngIf="details.invalid && details.touched" class="error-message">
+                        Details are required.
+                    </div>
+                </div>
+    
+                <button type="submit" [disabled]="visitDetails.invalid">Submit</button>
+            </form>
+        </div>
+    
+        <div class="popup" *ngIf="isPopupOpen">
+        <div class="popup-overlay" (click)="closePopup()"></div>
+        <div class="popup-content">
+            <div class="calendar-scale">
+                <app-calendar (dateSelected)="handleDateSelection($event)" [shouldSchedule]="'true'"></app-calendar>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
