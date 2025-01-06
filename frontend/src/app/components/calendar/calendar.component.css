@@ -97,6 +97,11 @@ tbody td:first-child {
     pointer-events: none; 
 }
 
+.today {
+    background-color: rgb(57, 57, 57) !important;
+    color: white !important;
+}
+
 .popup {
     width: 100%;
     top: 300px;

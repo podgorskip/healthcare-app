@@ -22,7 +22,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let day of getCurrentWeek" style="position: sticky;">
-            <td class="cell">
+            <td [ngClass]="getHeaderClasses(day)">
               <p>{{ dayNames()[day.getUTCDay()] }}</p>
               <p>{{ formatDate(day) }}</p>
             </td>
@@ -32,7 +32,7 @@
               (click)="selectSlot(day, i)"
               (mouseenter)="onMouseEnter(day, i)"
               (mouseleave)="onMouseLeave()">
-          </td>
+            </td>
             <td *ngIf="isToday(day)" 
               class="current-time-stripe" 
               [style.left]="getCurrentTimePosition() + '%'">

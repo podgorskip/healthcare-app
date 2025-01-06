@@ -139,7 +139,6 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     });
   }
   
-  
   ngAfterViewInit(): void {
     const currentHourIndex = this.hours.findIndex((hour) => hour >= this.startHour);
     const scrollPosition = currentHourIndex * 100; 
@@ -249,13 +248,26 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     }
   }
 
+  getHeaderClasses(day: Date): { [key: string]: boolean } {
+    return {
+      'cell': true,
+      'today': this.isSameDay(day, new Date())
+    }
+  };
+
   getClasses(day: Date, hour: number): { [key: string]: boolean } {
     const slotInfo = this.getSlotInfo(day, hour); 
   
     return {
       [slotInfo.className]: true, 
-      'selected': slotInfo.canSchedule && this.isSelected(day, hour), 
+      'selected': slotInfo.canSchedule && this.isSelected(day, hour) 
     };
+  }
+
+  isSameDay(date1: Date, date2: Date): boolean {
+    return date1.getDate() === date2.getDate() &&
+           date1.getMonth() === date2.getMonth() &&
+           date1.getFullYear() === date2.getFullYear();
   }
   
   confirmSelection = (): void => {
