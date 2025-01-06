@@ -1,4 +1,5 @@
 export enum DatabaseType {
     MONGODB = 'mongodb',
-    FIREBASE = 'firebase'
+    FIREBASE = 'firebase',
+    JSON = 'json'
 };

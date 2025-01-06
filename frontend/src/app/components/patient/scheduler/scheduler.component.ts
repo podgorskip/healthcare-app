@@ -31,7 +31,13 @@ export class SchedulerComponent {
     date: [],
     details: '',
     type: null,
-    price: 0
+    price: 0,
+    firstName: '',
+    lastName: '',
+    username: '',
+    sex: Sex.MALE,
+    age: 0,
+    cancelled: false
   };
 
   constructor(
@@ -40,6 +46,11 @@ export class SchedulerComponent {
     private router: Router
   ) {
     this.user = this.authenticationService.getAuthenticatedUser;
+    this.scheduledVisit.firstName = this.user.firstName;
+    this.scheduledVisit.lastName = this.user.lastName;
+    this.scheduledVisit.username = this.user.username;
+    this.scheduledVisit.sex = this.user.sex;
+    this.scheduledVisit.age = this.user.age;
   }
 
   openPopup() {

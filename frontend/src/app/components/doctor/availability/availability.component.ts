@@ -9,12 +9,13 @@ import { SingleSlotComponent } from '../single-slot/single-slot.component';
 import { CircularSlotsComponent } from '../circular-slots/circular-slots.component';
 import { CircularAvailability } from '../../../model/CircularAvailability';
 import { Router } from '@angular/router';
+import { ScheduledVisitService } from '../../../services/scheduled-visit/scheduled-visit.service';
 
 @Component({
   selector: 'app-availability',
   standalone: true,
   imports: [CommonModule, NgIf, FormsModule, HttpClientModule, SingleSlotComponent, CircularSlotsComponent],
-  providers: [AvailabilityService],
+  providers: [AvailabilityService, ScheduledVisitService],
   animations: [
     trigger('sectionAnimation', [
       transition(':enter', [

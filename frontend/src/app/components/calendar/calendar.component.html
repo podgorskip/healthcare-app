@@ -4,6 +4,14 @@
       <button (click)="goToPreviousWeek()">Previous week</button>
       <button (click)="goToNextWeek()">Next week</button>
     </div>
+      <div *ngIf="showDetails" class="popup">
+        <div class="popup-content">
+          <p>{{visitDetails?.firstName}} {{visitDetails?.lastName}}</p>
+          <p>Age {{visitDetails?.age}}, {{visitDetails?.sex}}</p>
+          <p>{{visitDetails?.type }}</p>
+          <p>Details: {{ visitDetails?.details }}</p>
+        </div>
+      </div>
     <div class="scroll-container" #scrollContainer>
       <table>
         <thead>
@@ -14,14 +22,20 @@
         </thead>
         <tbody>
           <tr *ngFor="let day of getCurrentWeek" style="position: sticky;">
-            <td>
+            <td class="cell">
               <p>{{ dayNames()[day.getUTCDay()] }}</p>
               <p>{{ formatDate(day) }}</p>
             </td>
             <td *ngFor="let i of getHours" 
-                class="time-block" 
-                [ngClass]="getClasses(day, i)" 
-                (click)="selectSlot(day, i)">
+              class="time-block cell" 
+              [ngClass]="getClasses(day, i)" 
+              (click)="selectSlot(day, i)"
+              (mouseenter)="onMouseEnter(day, i)"
+              (mouseleave)="onMouseLeave()">
+          </td>
+            <td *ngIf="isToday(day)" 
+              class="current-time-stripe" 
+              [style.left]="getCurrentTimePosition() + '%'">
             </td>
           </tr>
         </tbody>

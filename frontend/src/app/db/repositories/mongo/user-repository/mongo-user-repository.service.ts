@@ -60,7 +60,8 @@ export class MongoUserRepository implements UserRepositoryInterface {
 
   async removeScheduledVisit(userId: string, visitId: string): Promise<void> {
     console.log(`.removeScheduledVisit - invoked, user id=${userId}, visit id=${visitId}`);
-    this.http.delete(`${this.apiUrl}/${userId}/scheduled/${visitId}`);
+    const response = firstValueFrom(this.http.delete(`${this.apiUrl}/${userId}/scheduled/${visitId}`));
+    console.log('Server response: ', response);
   }
 
   async addUser(user: User): Promise<any> {

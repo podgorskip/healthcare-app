@@ -66,6 +66,8 @@
 
 @media(min-width: 800px) {
     .patient-dashboard {
-        grid-template-columns: auto 1fr;
+        grid-template-columns: 1fr 1fr;
+        justify-content: space-between;
+        column-gap: 10em;
     }
 }

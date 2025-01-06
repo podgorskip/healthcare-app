@@ -4,6 +4,7 @@ import { AvailabilityRepositoryInterface } from '../../../interfaces/Availabilit
 import { HttpClient } from '@angular/common/http';
 import { SingleDayAvailability } from '../../../../model/SingleDayAvailability';
 import { environment } from '../../../../../environments/environment';
+import { ScheduledVisit } from '../../../../model/ScheduledVisit';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class MongoAvailabilityRepository implements AvailabilityRepositoryInterf
       const formattedData = response.flatMap(item => 
         item.availabilities.map((availability: SingleDayAvailability) => ({
             ...availability,
-            date: new Date(availability.date).toISOString().split('T')[0] // Format the date as YYYY-MM-DD
+            date: new Date(availability.date).toISOString().split('T')[0] 
         }))
       ) || [];
 
@@ -42,5 +43,28 @@ export class MongoAvailabilityRepository implements AvailabilityRepositoryInterf
       console.error('Error:', error); 
       throw error; 
     }
+  }
+
+  listenToAvailability(type: string, callback: (visits: SingleDayAvailability[]) => void): void {
+    console.log(`.listenToAvailability - invoked, type=${type}`);
+    
+    const fun = async () => {
+      try {
+        const response = await firstValueFrom(this.http.get<any[]>(`${this.apiUrl}/${type}`));        
+        const formattedData = response.flatMap(item => 
+          item.availabilities.map((availability: SingleDayAvailability) => ({
+              ...availability,
+              date: new Date(availability.date).toISOString().split('T')[0]
+          }))
+        ) || [];
+  
+        callback(formattedData);
+      } catch (error) {
+        console.error('Error fetching cart updates:', error);
+        callback([]); 
+      }
+    };
+
+    fun();
   }
 }

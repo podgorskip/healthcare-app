@@ -127,7 +127,7 @@ exports.createUser = async (req, res) => {
 
 exports.addToCart = async (req, res) => {
   const { id } = req.params; 
-  const { date, type, details, price } = req.body;  
+  const { date, type, details, price, firstName, lastName, username, sex, age } = req.body;  
 
   console.log(`.addToCart - invoked, user id=${id}`);
 
@@ -147,7 +147,12 @@ exports.addToCart = async (req, res) => {
       date: date,    
       type: type,
       details: details,
-      price: price
+      price: price,
+      firstName: firstName,
+      lastName: lastName,
+      username: username,
+      sex: sex,
+      age: age
     });
 
     const savedItem = await newItem.save(); 
@@ -222,7 +227,12 @@ exports.getUserCart = async (req, res) => {
         date: item.date,
         type: item.type,
         details: item.details,
-        price: item.price
+        price: item.price,
+        firstName: item.firstName,
+        lastName: item.lastName,
+        username: item.username,
+        age: item.age,
+        sex: item.sex
       };
     });
 

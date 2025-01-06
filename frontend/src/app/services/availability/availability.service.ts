@@ -3,6 +3,9 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { AvailabilityRepositoryInterface } from '../../db/interfaces/AvailabilityRepositoryInterface';
 import { AvailabilityRepositoryFactory } from '../../db/factories/AvailabilityRepositoryFactory';
+import { ScheduledVisitService } from '../scheduled-visit/scheduled-visit.service';
+import { ScheduledVisit } from '../../model/ScheduledVisit';
+import { TimeSlot } from '../../model/TimeSlot';
 
 @Injectable({
   providedIn: 'root'
@@ -15,25 +18,22 @@ export class AvailabilityService {
   public presence$ = this.presenceSubject.asObservable(); 
   public absence$ = this.absenceSubject.asObservable(); 
 
-  constructor(availabilityRepository: AvailabilityRepositoryFactory) { 
+  constructor(
+    availabilityRepository: AvailabilityRepositoryFactory,
+    private scheduledVisitService: ScheduledVisitService
+  ) { 
     this.availabilityRepository = availabilityRepository.getRepository();
   }
 
-  load = (): void => {
-    this.availabilityRepository.getAvailability('presence')
-      .then((presence: SingleDayAvailability[]) => {
-        this.presenceSubject.next(presence);
-      })
-      .catch(error => {
-        console.log('Error while fetching presence: ', error);
-      })
+  startListeningToAvailability = () => {
+    this.availabilityRepository.listenToAvailability('presence', (presence: SingleDayAvailability[]) => {
+      this.presenceSubject.next(presence);
+    });
 
-      this.availabilityRepository.getAvailability('absence')
-        .then((absence: SingleDayAvailability[]) => this.absenceSubject.next(absence))
-        .catch(error => {
-          console.log('Error while fetching absence: ', error);
-        })
-  };
+    this.availabilityRepository.listenToAvailability('absence', (absence: SingleDayAvailability[]) => {
+      this.absenceSubject.next(absence);
+    });
+  }
 
   getFollowingDays = (date: Date): Date[] => {
     const weekDates: Date[] = [];
@@ -60,53 +60,152 @@ export class AvailabilityService {
   }
 
   addAvailability = (availabilities: SingleDayAvailability[], type: 'presence' | 'absence' | '') => {
-    this.checkAndAddAvailability(availabilities, type);
+    this.checkForVisits(availabilities, type);
   };
 
-  private checkAndAddAvailability = (availabilities: SingleDayAvailability[], type: string): void => {
-    this.availabilityRepository.addAvailability(availabilities, type)
+  private checkForVisits = (availabilities: SingleDayAvailability[], type: string): void => {
+    if (type === 'absence') {
+      this.scheduledVisitService.startListeningToScheduledVisits();
+      this.scheduledVisitService.scheduledVisits$.subscribe({
+        next: (visits: ScheduledVisit[]) => {
+          console.log(visits)
+          this.checkAndAddAbsence(availabilities, visits, type);
+        }
+      });
+    } else {
+      this.checkAndAddPresence(availabilities, type);
+    }
+  };
+
+  private checkAndAddAbsence = (availabilities: SingleDayAvailability[], visits: ScheduledVisit[], type: string) => {
+    this.availabilityRepository.getAvailability(type).then((existingAvailability: any[]) => {
+      let updatedAvailability = [...existingAvailability];
+      let conflictingVisitsLog: any[] = [];
+  
+      availabilities.forEach((avail) => {
+        const existingDay = updatedAvailability.find((day) => day.date === avail.date);
+  
+        if (existingDay) {
+          const newSlots = avail.slots.filter((newSlot) => {
+            return !existingDay.slots.some((existingSlot: TimeSlot) => this.isSlotEqual(existingSlot, newSlot));
+          });
+  
+          if (newSlots.length > 0) {
+            existingDay.slots.push(...newSlots);
+          }
+        } else {
+          updatedAvailability.push({ date: avail.date, slots: avail.slots });
+        }
+  
+        const conflictingVisits = this.checkConflictingVisits(avail.date, avail.slots, visits);
+  
+        if (conflictingVisits.length > 0) {
+          conflictingVisitsLog.push({ date: avail.date, slots: avail.slots, conflictingVisits });
+          console.log('Conflicts detected with the following visits:', conflictingVisitsLog);
+  
+          this.cancelConflictingVisits(conflictingVisits).then(() => {
+            this.availabilityRepository.addAvailability(updatedAvailability, type)
+              .then(() => {
+                console.log('Availability successfully added');
+              })
+              .catch((error) => {
+                console.error('Error updating availability:', error);
+              });
+          });
+        }
+      });
+    });
+  };
+
+  private isSlotEqual(slot1: TimeSlot, slot2: TimeSlot): boolean {
+    return slot1.from === slot2.from && slot1.to === slot2.to;
+  }
+  
+  
+  private checkConflictingVisits(date: string, slots: TimeSlot[], visits: ScheduledVisit[]): ScheduledVisit[] {
+    const conflictingVisits: ScheduledVisit[] = [];
+    console.log(`Checking conflicts for date: ${date} with slots:`, slots);
+  
+    visits.forEach((visit) => {
+      console.log(`Analyzing visit:`, visit);
+  
+      visit.date.forEach((visitDate) => {
+        const visitDateString = visitDate.day.toISOString().split('T')[0];
+        console.log(`Comparing visit date ${visitDateString} with availability date ${date}`);
+  
+        if (visitDateString === date) { // Match date
+          slots.forEach((slot) => {
+            const slotStart = this.convertTimeToDecimal(slot.from);
+            const slotEnd = this.convertTimeToDecimal(slot.to);
+            console.log(`Checking slot from ${slot.from} (${slotStart}) to ${slot.to} (${slotEnd}) against visit hour ${visitDate.hour}`);
+  
+            if (visitDate.hour >= slotStart && visitDate.hour < slotEnd) { // Check overlap
+              console.log(`Conflict detected: Visit overlaps with slot.`);
+              conflictingVisits.push(visit);
+            }
+          });
+        }
+      });
+    });
+  
+    console.log(`Conflicting visits for date ${date}:`, conflictingVisits);
+    return conflictingVisits;
+  }
+  
+  private convertTimeToDecimal(time: string): number {
+    const [hours, minutes] = time.split(':').map(Number);
+    return hours + minutes / 60;
+  }
+  
+  async cancelConflictingVisits(conflictingVisits: ScheduledVisit[]): Promise<void> {
+    try {
+      const updatePromises = conflictingVisits.map(async (visit) => {
+        visit.cancelled = true; 
+        await this.scheduledVisitService.updateVisit(visit); 
+        console.log(`Successfully cancelled visit, id=${visit.id}`);
+      });
+  
+      await Promise.all(updatePromises); 
+      console.log('All conflicting visits cancelled successfully');
+    } catch (err) {
+      console.error('Failed to cancel one or more visits', err);
+      throw err; 
+    }
+  }
+
+  private checkAndAddPresence = (availabilities: SingleDayAvailability[], type: string) => {
+    this.availabilityRepository.getAvailability(type).then((existingAvailability: any[]) => {
+      let notAdded: any[] = [];
+      let updatedAvailability = [...existingAvailability];
+
+      availabilities.forEach((avail) => {
+        const existingDay = updatedAvailability.find((day) => day.date === avail.date);
+
+        if (existingDay) {
+          const overlappingSlots = this.checkOverlappingSlots(existingDay.slots, avail.slots);
+          if (overlappingSlots.length === 0) {
+            existingDay.slots.push(...avail.slots);  
+          } else {
+            notAdded.push({ date: avail.date, slots: overlappingSlots });
+          }
+        } else {
+          updatedAvailability.push({ date: avail.date, slots: avail.slots }); 
+        }
+      });
+
+      this.availabilityRepository.addAvailability(updatedAvailability, type)
         .then(() => {
-          if ([].length > 0) {
-            console.log('These availability slots were not added due to overlap:', []);
+          if (notAdded.length > 0) {
+            console.log('These availability slots were not added due to overlap:', notAdded);
           } else {
             console.log('Availability successfully added');
           }
         })
         .catch((error) => {
-          console.error('Error updating availability in Firebase:', error);
+          console.error('Error updating availability:', error);
         });
-    // this.availabilityRepository.getAvailability(type).then((existingAvailability: any[]) => {
-    //   let notAdded: any[] = [];
-    //   let updatedAvailability = [...existingAvailability];
-
-    //   // availabilities.forEach((avail) => {
-    //   //   const existingDay = updatedAvailability.find((day) => day.date === avail.date);
-
-    //   //   if (existingDay) {
-    //   //     const overlappingSlots = this.checkOverlappingSlots(existingDay.slots, avail.slots);
-    //   //     if (overlappingSlots.length === 0) {
-    //   //       existingDay.slots.push(...avail.slots);  // Add slots if no overlap
-    //   //     } else {
-    //   //       notAdded.push({ date: avail.date, slots: overlappingSlots });
-    //   //     }
-    //   //   } else {
-    //   //     updatedAvailability.push({ date: avail.date, slots: avail.slots }); // Add new day if not already present
-    //   //   }
-    //   // });
-
-    //   this.availabilityRepository.addAvailability(updatedAvailability, type)
-    //     .then(() => {
-    //       if (notAdded.length > 0) {
-    //         console.log('These availability slots were not added due to overlap:', notAdded);
-    //       } else {
-    //         console.log('Availability successfully added');
-    //       }
-    //     })
-    //     .catch((error) => {
-    //       console.error('Error updating availability in Firebase:', error);
-    //     });
-    // });
-  };
+    });
+  }
 
   private checkOverlappingSlots(existingSlots: any[], newSlots: any[]): any[] {
     const overlapping: any[] = [];

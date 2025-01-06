@@ -54,6 +54,12 @@ export class ScheduledVisitService {
     return this.visitRepository.getScheduledVisitById(visitId);
   }
 
+  async updateVisit(visit: ScheduledVisit): Promise<void> {
+    console.log(`.updateVisit - invoked, visit id=${visit.id}`);
+
+    this.visitRepository.updateVisit(visit);
+  }
+
   startListeningToScheduledVisits(): void {
     console.log(`.startListeningToScheduledVisits - invoked`);
 

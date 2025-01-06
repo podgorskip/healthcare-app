@@ -1,3 +1,4 @@
+import { Sex } from './../../../../model/enum/Sex';
 import { ScheduledVisit } from './../../../../model/ScheduledVisit';
 import { environment } from './../../../../../environments/environment';
 import { Injectable } from '@angular/core';
@@ -91,6 +92,39 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
     }
   }
 
+  async updateVisit(visit: ScheduledVisit): Promise<void> {
+    console.log(`.updateVisit - invoked for visit ID: ${visit.id}`);
+
+    try {
+      const visitRef = ref(this.db, `${this.dbPath}/${visit.id}`);
+      const snapshot = await get(visitRef);
+      
+      if (!snapshot.exists()) {
+        console.log(`Visit with ID ${visit.id} not found.`);
+        throw Error('Visit not found.');
+      }
+
+      const visitData: ScheduledVisit = {
+        ...snapshot.val(), 
+        cancelled: visit.cancelled,
+        details: visit.details,
+        price: visit.price,
+        type: visit.type,
+        firstName: visit.firstName,
+        lastName: visit.lastName,
+        username: visit.username,
+        sex: visit.sex,
+        age: visit.age,
+        date: visit.date.map((i) => ({ day: i.day.getTime(), hour: i.hour }))
+      };
+      
+      await set(visitRef, visitData);
+    } catch (error) {
+      console.error('Error: ', error);
+      throw error;
+    }
+  }
+
   async getScheduledVisitById(id: string): Promise<ScheduledVisit> {
     console.log(`.getScheduledVisitById - invoked for visit ID: ${id}`);
   
@@ -99,7 +133,6 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
       const snapshot = await get(visitRef);
       
       if (!snapshot.exists()) {
-        console.log(id)
         console.log(`Visit with ID ${id} not found.`);
         throw Error('Visit not found.');
       }
@@ -111,12 +144,18 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
         details: visitData.details,
         price: visitData.price,
         type: visitData.type,
+        firstName: visitData.firstName,
+        lastName: visitData.lastName,
+        username: visitData.username,
+        sex: visitData.Sex,
+        age: visitData.age,
         date: visitData.date
           ? visitData.date.map((i: any) => ({
               day: new Date(i.day), 
               hour: i.hour,
             }))
           : [],
+        cancelled: visitData.cancelled
       };
   
       return visit;

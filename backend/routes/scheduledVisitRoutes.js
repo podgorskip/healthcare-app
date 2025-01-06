@@ -7,5 +7,6 @@ router.post('/', scheduledVisitController.addScheduledVisit);
 router.get('/', scheduledVisitController.getAll);
 router.get('/:id', scheduledVisitController.getById);
 router.delete('/:id', scheduledVisitController.deleteScheduledVisit);
+router.put('/:id', scheduledVisitController.update);
 
 exports.router = router;

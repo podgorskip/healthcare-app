@@ -36,4 +36,22 @@ export class FirebaseAvailabilityRepository implements AvailabilityRepositoryInt
 
     return update(ref(this.db), updates);
   }
+
+  listenToAvailability(type: string, callback: (visits: SingleDayAvailability[]) => void): void {
+    console.log(`.listenToAvailability - invoked, type=${type}`);
+    
+    const fun = async () => {
+      try {
+        const dbRef = ref(this.db, `${this.dbPath}/${type}`);
+        const snapshot: DataSnapshot = await get(dbRef); 
+  
+        callback(snapshot.val() || []);
+      } catch (error) {
+        console.error('Error fetching cart updates:', error);
+        callback([]); 
+      }
+    };
+
+    fun();
+  }
 }

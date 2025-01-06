@@ -18,6 +18,7 @@ import { HttpClientModule } from '@angular/common/http';
 })
 export class PatientDashboardComponent implements OnInit {
   scheduledVisits: ScheduledVisit[] = [];
+  cancelledVisits: ScheduledVisit[] = [];
   user: User;
 
   constructor(
@@ -41,8 +42,10 @@ export class PatientDashboardComponent implements OnInit {
 
     this.userService.removeVisit(this.user.id, visit.id)
       .then(() => {
-        this.scheduledVisitService.removeVisit(visit.id);
-        console.log(`Successfully deleted visit`)
+        this.scheduledVisitService.removeVisit(visit.id)
+          .then(() => {
+            console.log(`Successfully deleted visit`)
+          })
       })
   }
 
@@ -50,8 +53,7 @@ export class PatientDashboardComponent implements OnInit {
     this.userService.scheduledVisits$.subscribe({
       next: async (ids) => {
         try {
-          console.log(ids);
-          this.scheduledVisits = await Promise.all(
+          await Promise.all(
             ids.map(async (id) => {
               let visit = await this.scheduledVisitService.getById(id);
               if (visit.date && Array.isArray(visit.date)) {
@@ -62,10 +64,18 @@ export class PatientDashboardComponent implements OnInit {
                   };
                 });
               }
-  
+
               return visit;  
             })
-          );
+          ).then((visits) => {
+            this.cancelledVisits = visits.filter(visit => 
+              visit.cancelled && new Date(visit.date[0].day).toISOString().split('T')[0] >= new Date().toISOString().split('T')[0]
+            );
+            
+            console.log('cancelled ', this.cancelledVisits)
+            this.scheduledVisits = visits.filter(visit => !visit.cancelled);
+          })
+          
         } catch (err) {
           console.log('Failed to fetch scheduled visits: ', err);
         }

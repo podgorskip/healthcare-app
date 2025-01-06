@@ -3,6 +3,7 @@
     overflow-x: auto;
     white-space: nowrap;
     margin: 1em;
+    position: relative;
 }
 
 .calendar-controls {
@@ -30,7 +31,7 @@ table {
     min-width: 100%;
 }
 
-thead th, tbody td {
+thead th, tbody .cell {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
@@ -54,7 +55,7 @@ tbody td:first-child {
     background-color: rgba(222, 46, 46, 0.617);
 }
 
-.presence {
+.presence, .presence-no-schedule {
     background-color: rgba(21, 156, 21, 0.738);
 }
 
@@ -70,40 +71,93 @@ tbody td:first-child {
 }
 
 .scheduled {
-    background-color: rgba(201, 201, 201, 0.738);
+    background-color: rgba(228, 228, 228, 0.738);
+}
 
+.scheduled:hover {
+    background-color: rgba(199, 199, 199, 0.738);
+    cursor: pointer;
+}
+
+.past-scheduled {
+    background-color: rgb(113, 113, 113);
+}
+
+.past-scheduled:hover {
+    cursor: pointer;
+    background-color: rgb(54, 54, 54);
+}
+
+.current-time-stripe {
+    position: absolute;
+    width: 2px !important;
+    height: 12.5%;
+    background-color: red;
+    z-index: 10;
+    pointer-events: none; 
+}
+
+.popup {
+    width: 100%;
+    top: 300px;
+    right: 0;
+    position: absolute;
+    background-color: rgba(73, 73, 73, 0.8);
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    width: 200px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    z-index: 100000; 
+    margin-left: auto;
+    margin-right: auto;
+}
+  
+.popup-content {
+    display: flex;
+    flex-direction: column;
+}
+  
+.popup p {
+    margin: 5px 0;
+}
+  
+.popup {
+    top: 10px; 
+    left: 10px; 
+    max-width: 250px;
 }
 
 @media(max-width: 1200px) {
-    thead th, tbody td {
+    thead th, tbody .cell {
         min-width: 90px;
         height: 50px;
     }
 }
 
 @media(max-width: 1000px) {
-    thead th, tbody td {
+    thead th, tbody .cell {
         min-width: 80px;
         height: 45px;
     }
 }
 
 @media(max-width: 800px) {
-    thead th, tbody td {
+    thead th, tbody .cell {
         min-width: 70px;
         height: 40px;
     }
 }
 
 @media(max-width: 600px) {
-    thead th, tbody td {
+    thead th, tbody .cell {
         min-width: 60px;
         height: 35px;
     }
 }
 
 @media(max-width: 400px) {
-    thead th, tbody td {
+    thead th, tbody .cell {
         min-width: 50px;
         height: 30px;
     }

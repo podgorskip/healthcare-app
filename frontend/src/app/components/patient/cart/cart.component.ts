@@ -63,6 +63,7 @@ export class CartComponent implements OnInit {
 
       this.scheduledVisitService.addVisit(visit)
         .then((visitId) => {
+          console.log('Added visit: ', visitId);
           this.userService.addScheduledVisit(this.user.id, visitId)
           .then((id) => {
             console.log('Successfully added visit, id=', id);

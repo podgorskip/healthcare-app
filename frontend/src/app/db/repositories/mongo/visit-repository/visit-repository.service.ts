@@ -43,7 +43,8 @@ export class MongoVisitRepository implements VisitRepositoryInterface {
 
   async removeScheduledVisit(id: string): Promise<void> {
     console.log(`.removeScheduledVisit - invoked, visit id=${id}`);
-    this.http.delete(`${this.apiUrl}/${id}`);
+    const response = await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`));
+    console.log('Server response: ', response);
   }
 
   async addScheduledVisit(visit: ScheduledVisit): Promise<string> {
@@ -64,6 +65,18 @@ export class MongoVisitRepository implements VisitRepositoryInterface {
     try {
       const response = await firstValueFrom(this.http.get<ScheduledVisit>(`${this.apiUrl}/${id}`));
       return response; 
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
+
+  async updateVisit(visit: ScheduledVisit): Promise<void> {
+    console.log(`.updateVisit - invoked, visit id=${visit.id}`);
+
+    try {
+      const response = await firstValueFrom(this.http.put(`${this.apiUrl}/${visit.id}`, visit));
+      console.log(response);
     } catch (error) {
       console.error('Error:', error);
       throw error;
