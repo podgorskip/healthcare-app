@@ -1,0 +1,12 @@
+.sessions {
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.sessions > div {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+}

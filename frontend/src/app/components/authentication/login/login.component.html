@@ -1,0 +1,24 @@
+<div class="login">
+    <h3>Log in</h3>
+    <form class="login-form">
+        <div>
+            <div class="icon">
+                <img src="assets/user.png">
+            </div>
+            <input type="text" name="username" required [(ngModel)]="authentication.username" #username="ngModel">
+            <div *ngIf="username.invalid && username.touched" class="error-message">
+                Username is required.
+            </div>
+        </div>
+        <div>
+            <div class="icon">
+                <img src="assets/padlock.png">
+            </div>
+            <input type="password" name="password" required [(ngModel)]="authentication.password" #password="ngModel">
+            <div *ngIf="password.invalid && password.touched" class="error-message">
+                Password is required.
+            </div>
+        </div>
+        <button (click)="submit()" [disabled]="username.invalid || password.invalid">Submit</button>
+    </form>
+</div>

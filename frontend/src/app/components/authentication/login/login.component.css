@@ -1,0 +1,45 @@
+.login {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-form img {
+    width: 20px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 3em auto 3em auto;
+}
+
+.login-form > div {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: center;
+}
+
+.error-message {
+    grid-column: 1 / -1;
+    justify-self: end;
+}
+
+.login-form input {
+    border-radius: 0px 5px 5px 0px;
+    width: 200px;
+}
+
+.login-form button {
+    margin-top: 3em;
+}
+
+.icon {
+    width: auto;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: black;
+    border-radius: 5px 0px 0px 5px
+}

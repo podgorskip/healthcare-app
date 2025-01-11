@@ -4,7 +4,7 @@ import { AvailabilityRepositoryInterface } from '../../../interfaces/Availabilit
 import { HttpClient } from '@angular/common/http';
 import { SingleDayAvailability } from '../../../../model/SingleDayAvailability';
 import { environment } from '../../../../../environments/environment';
-import { ScheduledVisit } from '../../../../model/ScheduledVisit';
+import { MongoAuthenticationService } from '../../../../authentication/mongo/MongoAuthenticationService';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +12,14 @@ import { ScheduledVisit } from '../../../../model/ScheduledVisit';
 export class MongoAvailabilityRepository implements AvailabilityRepositoryInterface {
   private apiUrl = `${environment.mongoConfig.baseUrl}/availability`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private auth: MongoAuthenticationService) { }
 
   async getAvailability(type: string): Promise<SingleDayAvailability[]> {
     console.log(`.getAvailability - invoked, type=${type}`);
 
     try {
-      const response = await firstValueFrom(this.http.get<any[]>(`${this.apiUrl}/${type}`));
+      const headers = this.auth.authHeaders();
+      const response = await firstValueFrom(this.http.get<any[]>(`${this.apiUrl}/${type}`, { headers }));
       const formattedData = response.flatMap(item => 
         item.availabilities.map((availability: SingleDayAvailability) => ({
             ...availability,
@@ -37,7 +38,8 @@ export class MongoAvailabilityRepository implements AvailabilityRepositoryInterf
     console.log(`.addAvailability - invoked, type=${type}`);
   
     try {
-      const response = await this.http.post(`${this.apiUrl}/${type}`, availabilities).toPromise();
+      const headers = this.auth.authHeaders();
+      const response = await this.http.post(`${this.apiUrl}/${type}`, availabilities, { headers }).toPromise();
       return response; 
     } catch (error) {
       console.error('Error:', error); 
@@ -50,7 +52,8 @@ export class MongoAvailabilityRepository implements AvailabilityRepositoryInterf
     
     const fun = async () => {
       try {
-        const response = await firstValueFrom(this.http.get<any[]>(`${this.apiUrl}/${type}`));        
+        const headers = this.auth.authHeaders();
+        const response = await firstValueFrom(this.http.get<any[]>(`${this.apiUrl}/${type}`, { headers }));        
         const formattedData = response.flatMap(item => 
           item.availabilities.map((availability: SingleDayAvailability) => ({
               ...availability,

@@ -20,11 +20,11 @@ export class UserService {
     return this.scheduledVisitSubject.asObservable();
   }
 
-  async addUser(user: User): Promise<void> {
+  async addUser(user: User): Promise<any> {
     console.log(`.addUser - invoked`);
 
     try {
-      await this.userRepository.addUser(user);  
+      return await this.userRepository.addUser(user);  
     } catch (error) {
       console.error('Error:', error);
     }

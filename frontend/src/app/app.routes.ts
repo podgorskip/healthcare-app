@@ -5,6 +5,8 @@ import { AvailabilityComponent } from './components/doctor/availability/availabi
 import { PatientDashboardComponent } from './components/patient/patient-dashboard/patient-dashboard.component';
 import { SchedulerComponent } from './components/patient/scheduler/scheduler.component';
 import { SettingsComponent } from './components/admin/settings/settings.component';
+import { RegistrationComponent } from './components/authentication/registration/registration.component';
+import { LoginComponent } from './components/authentication/login/login.component';
 
 export const routes: Routes = [
     { path: "calendar/:schedule", component: CalendarComponent },
@@ -13,5 +15,7 @@ export const routes: Routes = [
     { path: "patient-dashboard", component: PatientDashboardComponent },
     { path: "scheduler", component: SchedulerComponent },
     { path: "cart", component: CartComponent },
-    { path: "settings", component: SettingsComponent }
+    { path: "settings", component: SettingsComponent },
+    { path: "register", component: RegistrationComponent },
+    { path: "login", component: LoginComponent }
 ];

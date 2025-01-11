@@ -19,7 +19,8 @@ const Item = new mongoose.Schema({
     lastName: { type: String, required: true },
     username: { type: String, required: true },
     sex: { type: String, required: true },
-    age: { type: Number, required: true }
+    age: { type: Number, required: true },
+    cancelled: { type: Boolean, required: true }
 });
 
 module.exports = mongoose.model('Item', Item);

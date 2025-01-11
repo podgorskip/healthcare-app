@@ -3,10 +3,11 @@ import { ScheduledVisit } from '../../../model/ScheduledVisit';
 import { NgFor, NgIf } from '@angular/common';
 import { UserService } from '../../../services/user/user.service';
 import { ScheduledVisitService } from '../../../services/scheduled-visit/scheduled-visit.service';
-import { AuthenticationService } from '../../../services/authentication/authentication.service';
+import { AuthenticationService } from '../../../authentication/auth-service/authentication.service';
 import { User } from '../../../model/User';
 import { DateUtils } from '../../../utils/DateUtils';;
 import { HttpClientModule } from '@angular/common/http';
+import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
 
 @Component({
   selector: 'app-patient-dashboard',
@@ -19,15 +20,13 @@ import { HttpClientModule } from '@angular/common/http';
 export class PatientDashboardComponent implements OnInit {
   scheduledVisits: ScheduledVisit[] = [];
   cancelledVisits: ScheduledVisit[] = [];
-  user: User;
+  authenticatedUser!: User;
 
   constructor(
     private scheduledVisitService: ScheduledVisitService,
-    private authenticationService: AuthenticationService,
+    private userIdentityInfo: UserIdentityInfo,
     private userService: UserService
-  ) {
-    this.user = authenticationService.getAuthenticatedUser;
-  }
+  ) { }
 
   formatDates = (dates: { day: Date, hour: number }[]): string => {
     return DateUtils.formatSelectedDays(dates);
@@ -40,7 +39,7 @@ export class PatientDashboardComponent implements OnInit {
 
     if (!userChoice) return;
 
-    this.userService.removeVisit(this.user.id, visit.id)
+    this.userService.removeVisit(this.authenticatedUser.id, visit.id)
       .then(() => {
         this.scheduledVisitService.removeVisit(visit.id)
           .then(() => {
@@ -50,41 +49,49 @@ export class PatientDashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userService.scheduledVisits$.subscribe({
-      next: async (ids) => {
-        try {
-          await Promise.all(
-            ids.map(async (id) => {
-              let visit = await this.scheduledVisitService.getById(id);
-              if (visit.date && Array.isArray(visit.date)) {
-                visit.date = visit.date.map((dateItem) => {
-                  return {
-                    day: new Date(dateItem.day),  
-                    hour: dateItem.hour            
-                  };
-                });
-              }
+    this.userIdentityInfo.authenticatedUser$.subscribe({
+      next: (user) => {
+        if (user) {
+          this.authenticatedUser = user;
 
-              return visit;  
-            })
-          ).then((visits) => {
-            this.cancelledVisits = visits.filter(visit => 
-              visit.cancelled && new Date(visit.date[0].day).toISOString().split('T')[0] >= new Date().toISOString().split('T')[0]
-            );
-            
-            console.log('cancelled ', this.cancelledVisits)
-            this.scheduledVisits = visits.filter(visit => !visit.cancelled);
-          })
-          
-        } catch (err) {
-          console.log('Failed to fetch scheduled visits: ', err);
-        }
-      },
-      error: (err) => {
-        console.log('Error in scheduled visits subscription: ', err);
-      },
-    });
-  
-    this.userService.startListeningScheduledVisits(this.user.id);
-  }  
+          this.userService.scheduledVisits$.subscribe({
+            next: async (ids) => {
+              try {
+                await Promise.all(
+                  ids.map(async (id) => {
+                    let visit = await this.scheduledVisitService.getById(id);
+                    if (visit.date && Array.isArray(visit.date)) {
+                      visit.date = visit.date.map((dateItem) => {
+                        return {
+                          day: new Date(dateItem.day),  
+                          hour: dateItem.hour            
+                        };
+                      });
+                    }
+      
+                    return visit;  
+                  })
+                ).then((visits) => {
+                  this.cancelledVisits = visits.filter(visit => 
+                    visit.cancelled && new Date(visit.date[0].day).toISOString().split('T')[0] >= new Date().toISOString().split('T')[0]
+                  );
+                  
+                  console.log('cancelled ', this.cancelledVisits)
+                  this.scheduledVisits = visits.filter(visit => !visit.cancelled);
+                })
+                
+              } catch (err) {
+                console.log('Failed to fetch scheduled visits: ', err);
+              }
+            },
+            error: (err) => {
+              console.log('Error in scheduled visits subscription: ', err);
+            },
+          });
+        
+          this.userService.startListeningScheduledVisits(this.authenticatedUser.id);
+        }  
+      }
+    })
+  }
 }

@@ -19,15 +19,20 @@
 .const {
     display: flex;
     gap: 1em;
+    align-items: center;
 }
 
 p {
     color: white;
-    text-transform: uppercase;
+    text-transform: capitalize;
 }
 
 img {
     width: 25px;
+}
+
+.menu {
+    width: 22px;
 }
 
 .cart img {

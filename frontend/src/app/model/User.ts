@@ -1,12 +1,14 @@
+import { Role } from "./enum/Role";
 import { Sex } from "./enum/Sex";
-import { ScheduledVisit } from "./ScheduledVisit";
 
 export interface User {
     id: string;
+    role: Role;
     firstName: string;
     lastName: string;
     username: string;
     sex: Sex;
     age: number;
-    scheduledVisits: string[];
+    password?: String,
+    scheduledVisits?: string[];
 }

@@ -1,0 +1,61 @@
+<div class="registration">
+    <h3>Register</h3>
+    <form>
+        <div class="section" [ngStyle]="sectionStyle(true)">
+            <p [ngStyle]="sectionBorderStyle(true)">1</p>
+            <p>Overall information</p>
+        </div>
+        <div class="data">
+            <label for="first-name">First name</label>
+            <div>
+                <input type="text" name="first-name" id="first-name" [(ngModel)]="user.firstName" required #firstName="ngModel">
+                <div *ngIf="firstName.invalid && firstName.touched" class="error-message">
+                    First name is required.
+                </div>
+            </div>
+            <label for="last-name">Last name</label>
+            <div>
+                <input type="text" name="last-name" id="last-name" [(ngModel)]="user.lastName" required #lastName="ngModel">
+                <div *ngIf="lastName.invalid && lastName.touched" class="error-message">
+                    Last name is required.
+                </div>
+            </div>
+            <label for="username">Username</label>
+            <div>
+                <input type="text" name="username" id="username" [(ngModel)]="user.username" required #username="ngModel">
+                <div *ngIf="username.invalid && username.touched" class="error-message">
+                    Username is required.
+                </div>
+            </div>
+            <label for="password">Password</label>
+            <div>
+                <input type="password" name="password" id="password" [(ngModel)]="user.password" required #password="ngModel">
+                <div *ngIf="password.invalid && password.touched" class="error-message">
+                    Password is required.
+                </div>
+            </div>
+        </div>
+        <div class="section" [ngStyle]="sectionStyle(false)">
+            <p [ngStyle]="sectionBorderStyle(false)">2</p>
+            <p>Optional information</p>
+        </div>
+        <div class="data" *ngIf="overallFilled()">
+            <label for="age">Age</label>
+            <div>
+                <input type="number" min="1" id="age" name="age" [(ngModel)]="user.age" #age="ngModel">
+                <div *ngIf="age.invalid && age.touched" class="error-message">
+                    Age is required and must be a valid number.
+                </div>
+            </div>
+
+            <p>Sex</p>
+            <div class="radios">
+                <div *ngFor="let s of sex">
+                    <label for="{{s}}">{{s}}</label>
+                    <input type="radio" name="sex" id="{{s}}" value="{{s}}" [(ngModel)]="user.sex">
+                </div>
+            </div>
+            <button (click)="submit()">Submit</button>
+        </div>
+    </form>
+</div>

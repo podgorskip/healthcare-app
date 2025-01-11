@@ -1,29 +1,36 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-dark">
     <div class="container-fluid">
       <div class="const">
-        <a routerLink="patient-dashboard" class="nav-link">
-          <img src="assets/user.png" alt="User icon"/>
+        <a routerLink="patient-dashboard" class="nav-link" [style.display]="isAuthenticated() ? 'block' : 'none'">
+          <img src="assets/menu.png" alt="Menu icon" class="menu">
         </a>
-        <a routerLink="cart" class="nav-link cart">
+        <a routerLink="login" class="nav-link" [style.display]="isAuthenticated() ? 'none' : 'block'">
+          <img src="assets/user.png" alt="Sign in">
+        </a>        
+        <a routerLink="cart" class="nav-link cart" *ngIf="hasAccess(roles[3])">
           <p>{{cartItemsCount}}</p>
           <img src="assets/basket.png" alt="Cart icon">
         </a>
+        <p>{{authenticatedUser?.firstName}}</p>
       </div>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-          <a [routerLink]="['/calendar', 'false']" class="nav-link">
+          <a routerLink="register" class="nav-link">
+            <p>Register</p>
+          </a>
+          <a [routerLink]="['/calendar', 'false']" class="nav-link" *ngIf="hasAccess(roles[2])">
               <p>Calendar</p>
           </a>
-          <a routerLink="availability" class="nav-link">
+          <a routerLink="availability" class="nav-link" *ngIf="hasAccess(roles[2])">
               <p>Availability</p>
           </a>
-          <a routerLink="scheduler" class="nav-link">
+          <a routerLink="scheduler" class="nav-link" *ngIf="hasAccess(roles[3])">
               <p>Scheduler</p>
           </a>
-          <a routerLink="settings" class="nav-link">
+          <a routerLink="settings" class="nav-link" *ngIf="hasAccess(roles[1])">
             <p>Settings</p>
           </a>
         </div>

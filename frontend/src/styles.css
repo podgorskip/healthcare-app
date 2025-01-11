@@ -45,6 +45,10 @@ input:hover {
     cursor: pointer;
 }
 
+input:focus {
+    outline: none;
+}
+
 input {
     padding: 5px;
     border: 0.5px solid rgb(45, 45, 45);
@@ -55,4 +59,36 @@ input {
 
 p {
     margin-bottom: 0;
+}
+
+.error-message {
+    margin: 2px 0;
+    padding: 0;
+    font-size: 0.6em;
+    color: rgb(203, 50, 50);
+}
+
+.radios {
+    display: flex;
+    column-gap: 1.5em;
+    row-gap: 1em;
+    align-items: center;
+    justify-content: start;
+    flex-wrap: wrap;
+}
+
+.radios > div {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+.section p:first-child {
+    border: 1px solid black;
+    width: 2em;   
+    height: 2em;  
+    border-radius: 50%;
+    text-align: center;
+    line-height: 2em; 
+    box-shadow: 1px 1px 1px rgb(208, 208, 208);
 }

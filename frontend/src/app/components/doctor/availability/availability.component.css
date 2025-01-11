@@ -25,15 +25,6 @@
     gap: 1em;
 }
 
-.availability .section p:first-child {
-    border: 1px solid black;
-    width: 2em;   
-    height: 2em;  
-    border-radius: 50%;
-    text-align: center;
-    line-height: 2em; 
-}
-
 .availability .data {
     display: grid;
     width: 40%;

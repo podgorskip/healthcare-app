@@ -114,20 +114,22 @@ exports.deleteVisit = async (req, res) => {
 exports.createUser = async (req, res) => {
   console.log(`.createUser - invoked`);
 
-  const { firstName, lastName, username, sex, age } = req.body;
+  const { role, firstName, lastName, username, password, sex, age } = req.body;
+  const formatSex = sex.toUpperCase();
 
   try {
-    const newUser = new User({ firstName, lastName, username, sex, age });
+    const newUser = new User({ role, firstName, lastName, username, password, sex: formatSex, age });
     await newUser.save(); 
     res.status(201).json(newUser._id);
   } catch (err) {
+    console.log('Error: ', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
 exports.addToCart = async (req, res) => {
   const { id } = req.params; 
-  const { date, type, details, price, firstName, lastName, username, sex, age } = req.body;  
+  const { date, type, details, price, firstName, lastName, username, sex, age, cancelled } = req.body;  
 
   console.log(`.addToCart - invoked, user id=${id}`);
 
@@ -152,8 +154,11 @@ exports.addToCart = async (req, res) => {
       lastName: lastName,
       username: username,
       sex: sex,
-      age: age
+      age: age,
+      cancelled: cancelled
     });
+
+    console.log(newItem);
 
     const savedItem = await newItem.save(); 
     user.cart.push(savedItem._id);
@@ -232,7 +237,8 @@ exports.getUserCart = async (req, res) => {
         lastName: item.lastName,
         username: item.username,
         age: item.age,
-        sex: item.sex
+        sex: item.sex,
+        cancelled: item.cancelled
       };
     });
 

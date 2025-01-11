@@ -91,24 +91,11 @@
     max-width: 400px;
 }
 
-.radios {
+.section {
+    width: 200px;
+    min-height: 100px;
     display: flex;
-    column-gap: 1.5em;
-    row-gap: 1em;
-    align-items: center;
-    justify-content: start;
-    flex-wrap: wrap;
-}
-
-.radios > div {
-    display: flex;
-    gap: 0.5em;
-    align-items: center;
-}
-
-.error-message {
-    margin: 2px 0;
-    padding: 0;
-    font-size: 0.6em;
-    color: rgb(203, 50, 50);
+    justify-content: flex-start;
+    align-items: baseline;    
+    gap: 1em;
 }

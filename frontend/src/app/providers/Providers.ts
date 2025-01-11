@@ -1,3 +1,5 @@
+import { AuthenticationServiceFactory } from "../authentication/factory/AuthenticationServiceFactory";
+import { MongoAuthenticationService } from "../authentication/mongo/MongoAuthenticationService";
 import { AvailabilityRepositoryFactory } from "../db/factories/AvailabilityRepositoryFactory";
 import { UserRepositoryFactory } from "../db/factories/UserRepositoryFactory";
 import { VisitRepositoryFactory } from "../db/factories/VisitRepositoryFactory";
@@ -12,10 +14,12 @@ export const APP_PROVIDERS = [
     MongoVisitRepository,
     MongoUserRepository,
     MongoAvailabilityRepository,
+    MongoAuthenticationService,
     JsonVisitRepository,
     JsonUserRepository,
     JsonAvailabilityRepository,
     VisitRepositoryFactory,
     UserRepositoryFactory,
-    AvailabilityRepositoryFactory
+    AvailabilityRepositoryFactory,
+    AuthenticationServiceFactory
 ]

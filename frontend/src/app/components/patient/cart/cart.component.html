@@ -4,16 +4,16 @@
         <div *ngFor="let visit of cartVisits" class="item">
             <input type="checkbox" id={{visit.id}} (change)="addItem(visit.id)">
             <div>
-                <p>{{user.firstName}} {{user.lastName}}</p>
+                <p>{{authenticatedUser.firstName}} {{authenticatedUser.lastName}}</p>
                 <p>{{formatDates(visit.date)}}</p>
                 <p class="type">{{visit.type}}</p>
                 <p class="price">${{visit.date.length * 50}}</p>
             </div>
             <div>
                 <p class="detail">Sex</p>
-                <p>{{user.sex}}</p>
+                <p>{{authenticatedUser.sex}}</p>
                 <p class="detail">Age</p>
-                <p>{{user.age}}</p>
+                <p>{{authenticatedUser.age}}</p>
                 <p class="detail">Details</p>
                 <p>{{visit.details}}</p>
                 <img src="assets/trash.png" (click)="onRemoveFromCart(visit.id)">

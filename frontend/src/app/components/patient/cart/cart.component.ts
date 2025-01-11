@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CartService } from '../../../services/cart/cart.service';
-import { AuthenticationService } from '../../../services/authentication/authentication.service';
 import { ScheduledVisit } from '../../../model/ScheduledVisit';
 import { User } from '../../../model/User';
 import { NgFor, NgIf } from '@angular/common';
@@ -11,6 +10,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { MongoVisitRepository } from '../../../db/repositories/mongo/visit-repository/visit-repository.service';
 import { UserService } from '../../../services/user/user.service';
 import { MongoUserRepository } from '../../../db/repositories/mongo/user-repository/mongo-user-repository.service';
+import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
 
 @Component({
   selector: 'app-cart',
@@ -22,17 +22,17 @@ import { MongoUserRepository } from '../../../db/repositories/mongo/user-reposit
 })
 export class CartComponent implements OnInit {
   cartVisits: ScheduledVisit[] = [];
-  user: User;
+  authenticatedUser!: User;
   selectedVisits: ScheduledVisit[] = [];
 
   constructor(
       private cartService: CartService, 
-      private authenticationService: AuthenticationService,
+      private userIdentityInfo: UserIdentityInfo,
       private scheduledVisitService: ScheduledVisitService,
       private userService: UserService,
       private router: Router
   ) { 
-    this.user = this.authenticationService.getAuthenticatedUser;
+    
   }
 
   formatDates = (dates: { day: Date, hour: number }[]): string => {
@@ -58,13 +58,13 @@ export class CartComponent implements OnInit {
     this.selectedVisits.forEach(visit => {
       visit.price = visit.date.length * 50;
 
-      this.cartService.removeVisitFromCart(this.user.id, visit.id)
+      this.cartService.removeVisitFromCart(this.authenticatedUser.id, visit.id)
         .catch(err => console.log(err));
 
       this.scheduledVisitService.addVisit(visit)
         .then((visitId) => {
           console.log('Added visit: ', visitId);
-          this.userService.addScheduledVisit(this.user.id, visitId)
+          this.userService.addScheduledVisit(this.authenticatedUser.id, visitId)
           .then((id) => {
             console.log('Successfully added visit, id=', id);
             this.router.navigate(['/patient-dashboard']);
@@ -80,17 +80,25 @@ export class CartComponent implements OnInit {
 
     if (!userChoice) return;
     
-    this.cartService.removeVisitFromCart(this.user.id, id)
+    this.cartService.removeVisitFromCart(this.authenticatedUser.id, id)
       .then(() => console.log('Removed visit from cart, id=', id))
       .catch((err) => console.log(`Failed to remove visit of id: ${id}, `, err))
   };
 
   ngOnInit(): void {
-      this.cartService.cartVisits$.subscribe((visits) => {
-        this.cartVisits = visits;
-        console.log('vis, ', this.cartVisits)
-      });
+      this.userIdentityInfo.authenticatedUser$.subscribe({
+        next: (user) => {
+          if (user) {
+            this.authenticatedUser = user;
 
-      this.cartService.startListeningToCart(this.user.id);
+            this.cartService.cartVisits$.subscribe((visits) => {
+              this.cartVisits = visits;
+              console.log('vis, ', this.cartVisits)
+            });
+      
+            this.cartService.startListeningToCart(this.authenticatedUser.id);
+          }
+        }
+      })
   };
 }

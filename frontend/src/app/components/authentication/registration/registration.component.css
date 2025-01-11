@@ -1,0 +1,44 @@
+.registration {
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+}
+
+.registration form {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    column-gap: 3em;
+    row-gap: 2em;
+    align-items: start;
+    padding: 2em;
+    margin: 1em auto 3em auto;
+}
+
+.registration .section {
+    display: flex;
+}
+
+.registration .data {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 2em;
+    row-gap: 1em;
+    justify-content: space-between;
+}
+
+.radios {
+    padding: 0;
+    display: grid;
+    justify-content: start;
+    row-gap: 0.5em;
+}
+
+.section {
+    width: 200px;
+    min-height: 100px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;    
+    gap: 1em;
+}

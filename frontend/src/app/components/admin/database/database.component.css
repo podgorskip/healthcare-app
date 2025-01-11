@@ -1,0 +1,12 @@
+.databases {
+    margin-top: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.databases > div {
+    display: flex;
+    gap: 1em;
+    align-items: center;
+}

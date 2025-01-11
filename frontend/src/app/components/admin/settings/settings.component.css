@@ -1,16 +1,9 @@
 .container {
     padding: 1em;
+    display: grid;
+    grid-template-columns: auto auto;
 }
 
-.databases {
-    margin-top: 1em;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5em;
-}
-
-.databases > div {
-    display: flex;
-    gap: 1em;
-    align-items: center;
+.container h3 {
+    grid-column: 1 / -1;
 }

@@ -1,0 +1,16 @@
+<div class="db-selector">
+    <p>Select database</p>
+    <div class="databases">
+        <div *ngFor="let db of databases">
+            <input 
+              type="radio" 
+              name="db" 
+              [id]="db" 
+              [(ngModel)]="current" 
+              [value]="db" 
+              (change)="onDatabaseChange()" 
+            />
+            <label [for]="db">{{db}}</label>
+        </div>
+    </div>
+</div>
