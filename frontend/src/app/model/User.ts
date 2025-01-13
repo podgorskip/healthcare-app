@@ -7,7 +7,7 @@ export interface User {
     firstName: string;
     lastName: string;
     username: string;
-    sex: Sex;
-    age: number;
+    sex?: Sex;
+    age?: number;
     password?: String;
 }

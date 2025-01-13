@@ -22,8 +22,7 @@ export class MongoDoctorRepository implements DoctorRepositoryInterface {
   }
 
   getDoctors(): Observable<Doctor[]> {
-    const headers = this.auth.authHeaders();
-    return this.http.get<Doctor[]>(this.apiUrl, { headers });
+    return this.http.get<Doctor[]>(this.apiUrl);
   }
 
   getDoctorById(id: string): Observable<Doctor> {

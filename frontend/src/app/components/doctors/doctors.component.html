@@ -3,11 +3,11 @@
     <div>
         <div class="doctor-list">
             <div *ngFor="let doctor of doctors">
-                <p>{{doctor.firstName}} {{doctor.lastName}}</p>
+                <p>{{doctor.user.firstName}} {{doctor.user.lastName}}</p>
                 <p>{{doctor.phoneNo}}</p>
                 <button (click)="onDoctorDelete(doctor.id)">Delete</button>
             </div>
         </div>
-        <doctor-creator *ngIf="authenticatedUser?.role === 1"/>
+        <doctor-creator *ngIf="true"/>
     </div>
 </div>

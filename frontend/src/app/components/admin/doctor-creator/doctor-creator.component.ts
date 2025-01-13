@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { DoctorService } from '../../../services/doctor/doctor.service';
 import { FormsModule } from '@angular/forms';
 import { Doctor } from '../../../model/Doctor';
+import { Role } from '../../../model/enum/Role';
+import { Sex } from '../../../model/enum/Sex';
 
 @Component({
   selector: 'doctor-creator',
@@ -14,11 +16,15 @@ import { Doctor } from '../../../model/Doctor';
 export class DoctorCreatorComponent {
   doctor: Doctor = {
     id: '',
-    firstName: '',
-    lastName: '',
-    phoneNo: '',
-    username: '',
-    password: ''
+    user: {
+      id: '',
+      firstName: '',
+      lastName: '',
+      username: '',
+      password: '',
+      role: Role.DOCTOR
+    },
+    phoneNo: ''
   };
 
   constructor(private doctorService: DoctorService) { }
