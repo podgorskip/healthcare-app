@@ -1,0 +1,13 @@
+<div class="doctors">
+    <h3>Doctors</h3>
+    <div>
+        <div class="doctor-list">
+            <div *ngFor="let doctor of doctors">
+                <p>{{doctor.firstName}} {{doctor.lastName}}</p>
+                <p>{{doctor.phoneNo}}</p>
+                <button (click)="onDoctorDelete(doctor.id)">Delete</button>
+            </div>
+        </div>
+        <doctor-creator *ngIf="authenticatedUser?.role === 1"/>
+    </div>
+</div>

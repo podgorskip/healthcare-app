@@ -1,26 +1,18 @@
 const mongoose = require('mongoose');
-const { type } = require('os');
 
 const Item = new mongoose.Schema({
-    date: [{ day: {
-                type: Date,
-                required: true, 
-            },
-            hour: {
-                type: Number,
-                required: true, 
-            }
-        }
-    ],
-    type: { type: String, required: true },
-    details: { type: String, default: '' },
-    price: { type: Number, required: true, min: 0 },
+    id: { type: String, required: true },
+    date: [{ day: Date, hour: Number }],
+    type: { type: String },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     username: { type: String, required: true },
-    sex: { type: String, required: true },
+    sex: { type: String },
     age: { type: Number, required: true },
-    cancelled: { type: Boolean, required: true }
-});
-
+    details: { type: String },
+    price: { type: Number, required: true },
+    cancelled: { type: Boolean, default: false },
+  });
+  
 module.exports = mongoose.model('Item', Item);
+  

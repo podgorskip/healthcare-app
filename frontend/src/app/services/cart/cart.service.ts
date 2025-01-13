@@ -9,7 +9,7 @@ import { UserRepositoryInterface } from '../../db/interfaces/UserRepositoryInter
 })
 export class CartService {
   private userRepository: UserRepositoryInterface;
-  private cartSubject = new BehaviorSubject<ScheduledVisit[]>([]); // Holds cart data
+  private cartSubject = new BehaviorSubject<ScheduledVisit[]>([]); 
 
   constructor(userRepository: UserRepositoryFactory ) {
     this.userRepository = userRepository.getRepository();

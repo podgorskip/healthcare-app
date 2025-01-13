@@ -1,0 +1,51 @@
+<div>
+    <h6>Create doctor</h6>
+    <form #creator="ngForm" (ngSubmit)="onDoctorAdd(creator)">
+        <label for="firstName">First name</label>
+        <input
+          type="text"
+          id="firstName"
+          name="firstName"
+          [(ngModel)]="doctor.firstName"
+          required
+        />
+      
+        <label for="lastName">Last name</label>
+        <input
+          type="text"
+          id="lastName"
+          name="lastName"
+          [(ngModel)]="doctor.lastName"
+          required
+        />
+
+        <label for="phoneNo">Phone number</label>
+        <input
+          type="phone"
+          id="phoneNo"
+          name="phoneNo"
+          [(ngModel)]="doctor.phoneNo"
+          required
+        />
+      
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="doctor.username"
+          required
+        />
+      
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="doctor.password"
+          required
+        />
+      
+        <button type="submit">Submit</button>
+      </form>      
+</div>

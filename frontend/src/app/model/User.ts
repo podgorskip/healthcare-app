@@ -9,6 +9,5 @@ export interface User {
     username: string;
     sex: Sex;
     age: number;
-    password?: String,
-    scheduledVisits?: string[];
+    password?: String;
 }

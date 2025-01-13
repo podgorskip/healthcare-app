@@ -1,9 +1,9 @@
-
 const mongoose = require('mongoose');
-const Item = require('./Item');
+import { Item } from './Item';
 
 const Cart = new mongoose.Schema({
-    items: { type: [Item.schema], default: [] },
+  id: { type: String, required: true },
+  items: [{ type: Schema.Types.ObjectId, ref: 'Item' }],
 });
 
 module.exports = mongoose.model('Cart', Cart);

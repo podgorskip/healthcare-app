@@ -8,10 +8,8 @@ const User = new mongoose.Schema({
     lastName: { type: String, required: true },
     username: { type: String, required: true },
     password: { type: String, required: true},
-    sex: { type: String, enum: ['MALE', 'FEMALE'] },
-    age: { type: Number },
-    scheduledVisits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ScheduledVisit' }],
-    cart: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }] 
+    sex: { type: String },
+    age: { type: Number }
 });
 
 User.statics.findByUsername = function (username) {

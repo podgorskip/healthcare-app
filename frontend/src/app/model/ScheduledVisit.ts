@@ -1,5 +1,7 @@
+import { Doctor } from "./Doctor";
 import { Sex } from "./enum/Sex";
 import { VisitType } from "./enum/VisitType";
+import { Patient } from "./Patient";
 
 export interface ScheduledVisit {
     id: string;
@@ -13,4 +15,6 @@ export interface ScheduledVisit {
     details: string;
     price: number;
     cancelled: boolean;
+    doctor?: Doctor;
+    patient?: Patient;
 }

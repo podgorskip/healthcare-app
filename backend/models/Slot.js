@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 
-const Slot = new mongoose.Schema({
-    from: { type: String, required: true },
-    to: { type: String, required: true }
+const TimeSlot = new mongoose.Schema({
+  id: { type: Number, required: true },  
+  from: { type: String, required: true }, 
+  to: { type: String, required: true },   
 });
 
-module.exports = mongoose.model('Slot', Slot);
+module.exports = mongoose.model('TimeSlot', TimeSlot);

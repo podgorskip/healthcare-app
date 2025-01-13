@@ -7,6 +7,7 @@ import { SchedulerComponent } from './components/patient/scheduler/scheduler.com
 import { SettingsComponent } from './components/admin/settings/settings.component';
 import { RegistrationComponent } from './components/authentication/registration/registration.component';
 import { LoginComponent } from './components/authentication/login/login.component';
+import { DoctorsComponent } from './components/doctors/doctors.component';
 
 export const routes: Routes = [
     { path: "calendar/:schedule", component: CalendarComponent },
@@ -17,5 +18,6 @@ export const routes: Routes = [
     { path: "cart", component: CartComponent },
     { path: "settings", component: SettingsComponent },
     { path: "register", component: RegistrationComponent },
-    { path: "login", component: LoginComponent }
+    { path: "login", component: LoginComponent },
+    { path: "doctors", component: DoctorsComponent}
 ];
