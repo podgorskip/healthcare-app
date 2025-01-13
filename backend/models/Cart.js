@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
-import { Item } from './Item';
+const mongoose = require('mongoose'); 
+const { Schema } = mongoose; 
+const Item = require('./Item');
 
 const Cart = new mongoose.Schema({
   id: { type: String, required: true },

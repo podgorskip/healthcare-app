@@ -33,26 +33,6 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-exports.getUserScheduledVisits = async (req, res) => {  
-  const id = req.params.id;  
-
-  console.log(`.getUserScheduledVisits - invoked, user id=${id}`);
-
-  try {
-    const user = await User.findById(id).populate('scheduledVisits'); 
-    
-    if (!user) {
-      console.log(`User not found ${id}`);
-      return res.status(404).json({ message: 'User not found' });
-    }
-  
-    res.status(200).json(user.scheduledVisits.map(v => v._id));
-  } catch (err) {
-    console.error('Error: ', err);
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
-
 exports.addScheduledVisitForUser = async (req, res) => {
   const { id } = req.params;
   const visitId = req.body.visitId; 

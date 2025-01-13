@@ -1,4 +1,5 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); 
+const { Schema } = mongoose; 
 const TimeSlot = require('./Slot');  
 
 const SingleDay = new mongoose.Schema({

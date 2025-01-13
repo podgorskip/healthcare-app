@@ -1,5 +1,5 @@
-import mongoose, { Schema } from 'mongoose';
-import { Cart } from './Cart';
+const mongoose = require('mongoose');
+const Cart = require('./Cart');
 
 const Patient = new mongoose.Schema({
   id: { type: String, required: true },

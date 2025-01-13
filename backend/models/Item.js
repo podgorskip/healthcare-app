@@ -11,7 +11,6 @@ const Item = new mongoose.Schema({
     age: { type: Number, required: true },
     details: { type: String },
     price: { type: Number, required: true },
-    cancelled: { type: Boolean, default: false },
   });
   
 module.exports = mongoose.model('Item', Item);

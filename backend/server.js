@@ -16,13 +16,15 @@ mongoose.connect(process.env.MONGO_URI, {
     .catch(err => console.log('MongoDB connection error:', err));
 
 const authRoutes = require('./routes/authenticationRoutes');
-const userRoutes = require('./routes/userRoutes');
-const scheduledVisitRoutes = require('./routes/scheduledVisitRoutes');
-const availabilityRoutes = require('./routes/availabilityRoutes');
+const patientRoutes = require('./routes/patientRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const visitRoutes = require('./routes/visitRoutes');
 
-app.use('/api/users', userRoutes.router); 
-app.use('/api/scheduled', scheduledVisitRoutes.router); 
-app.use('/api/availability', availabilityRoutes.router);
+app.use('/api/doctors', doctorRoutes.router); 
+app.use('/api/patients', patientRoutes.router); 
+app.use('/api/cart', cartRoutes.router);
+app.use('/api/visits', visitRoutes.router);
 app.use('/api/auth', authRoutes.router);
 
 app.listen(PORT, () => {
