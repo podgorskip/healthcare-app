@@ -1,104 +1,123 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CartService } from '../../../services/cart/cart.service';
-import { ScheduledVisit } from '../../../model/ScheduledVisit';
-import { User } from '../../../model/User';
 import { NgFor, NgIf } from '@angular/common';
 import { DateUtils } from '../../../utils/DateUtils';
-import { ScheduledVisitService } from '../../../services/scheduled-visit/scheduled-visit.service';
 import { Router } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { MongoVisitRepository } from '../../../db/repositories/mongo/visit-repository/visit-repository.service';
-import { UserService } from '../../../services/user/user.service';
-import { MongoUserRepository } from '../../../db/repositories/mongo/user-repository/mongo-user-repository.service';
 import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
+import { VisitService } from '../../../services/visit/visit.service';
+import { PatientService } from '../../../services/patient/patient.service';
+import { Item } from '../../../model/Item';
+import { ScheduledVisit } from '../../../model/ScheduledVisit';
+import { Patient } from '../../../model/Patient';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
   imports: [NgFor, NgIf, HttpClientModule],
-  providers: [CartService, ScheduledVisitService, MongoVisitRepository, UserService, MongoUserRepository],
+  providers: [CartService, VisitService, PatientService],
   templateUrl: './cart.component.html',
-  styleUrl: './cart.component.css'
+  styleUrls: ['./cart.component.css']
 })
-export class CartComponent implements OnInit {
-  cartVisits: ScheduledVisit[] = [];
-  authenticatedUser!: User;
-  selectedVisits: ScheduledVisit[] = [];
+export class CartComponent implements OnInit, OnDestroy {
+  private unsubscribe$ = new Subject<void>();
+  
+  patient!: Patient;
+  selectedItems: Item[] = [];
 
   constructor(
-      private cartService: CartService, 
-      private userIdentityInfo: UserIdentityInfo,
-      private scheduledVisitService: ScheduledVisitService,
-      private userService: UserService,
-      private router: Router
-  ) { 
-    
-  }
+    private cartService: CartService, 
+    private userIdentityInfo: UserIdentityInfo,
+    private visitService: VisitService,
+    private patientService: PatientService,
+    private router: Router
+  ) { }
 
   formatDates = (dates: { day: Date, hour: number }[]): string => {
     return DateUtils.formatSelectedDays(dates);
   }
 
   addItem = (id: string) => {
-    if (this.selectedVisits.some(v => v.id === id)) {
-      this.selectedVisits = this.selectedVisits.filter(v => v.id !== id);
+    if (this.selectedItems.some(item => item.id === id)) {
+      this.selectedItems = this.selectedItems.filter(item => item.id !== id);
     } else {
-      let item = this.cartVisits.find(v => v.id === id);
-      item ?  this.selectedVisits.push(item) : null;
+      const item = this.patient.cart?.items?.find(v => v.id === id);
+      if (item) {
+        this.selectedItems.push(item);
+      } else {
+        console.warn(this.patient.cart ? `Item with id ${id} not found` : 'Cart is not initialized');
+      }
     }
-  }
+  };
 
   get totalPrice(): number {
-    return this.selectedVisits.reduce((total, visit) => total + 50 * visit.date.length, 0); 
+    return this.selectedItems.reduce((total, item) => total + (item.price * item.date.length), 0); 
   }
 
   onClickCard = (): void => {
     console.log('.onClickCard - invoked');
-  
-    this.selectedVisits.forEach(visit => {
-      visit.price = visit.date.length * 50;
+    this.selectedItems.forEach(item => {
+      item.price = item.date.length * 50;
+      this.cartService.removeItem(item.id).subscribe({
+        next: (response) => console.log(`Response: ${response}`),
+        error: (err) => console.error('Error removing item from cart:', err)
+      });
 
-      this.cartService.removeVisitFromCart(this.authenticatedUser.id, visit.id)
-        .catch(err => console.log(err));
+      if (this.patient) {
+        const visit: ScheduledVisit = {
+          id: '',
+          date: item.date,
+          firstName: item.firstName,
+          lastName: item.lastName,
+          username: item.username,
+          age: item.age,
+          sex: item.sex,
+          details: item.details,
+          price: item.price,
+          doctor: item.doctor,
+          type: item.type,
+          cancelled: false,
+          patient: this.patient
+        };
 
-      this.scheduledVisitService.addVisit(visit)
-        .then((visitId) => {
-          console.log('Added visit: ', visitId);
-          this.userService.addScheduledVisit(this.authenticatedUser.id, visitId)
-          .then((id) => {
-            console.log('Successfully added visit, id=', id);
+        this.visitService.addVisit(visit).subscribe({
+          next: (response) => {
+            console.log(`Response: ${response}`);
             this.router.navigate(['/patient-dashboard']);
-          })
-          .catch(err => console.log('Error: ', err));
-        })
-        .catch((err) => console.log('Error: ', err));
-    })
+          },
+          error: (err) => console.error('Error scheduling visit:', err)
+        });
+      }
+    });
   }
 
   onRemoveFromCart = (id: string): void => {
     const userChoice = confirm('Do you want to delete visit from cart?');
-
     if (!userChoice) return;
-    
-    this.cartService.removeVisitFromCart(this.authenticatedUser.id, id)
-      .then(() => console.log('Removed visit from cart, id=', id))
-      .catch((err) => console.log(`Failed to remove visit of id: ${id}, `, err))
+
+    this.cartService.removeItem(id).subscribe({
+      next: (response) => console.log(`Response: ${response}`),
+      error: (err) => console.error('Error removing item from cart:', err)
+    });
   };
 
   ngOnInit(): void {
-      this.userIdentityInfo.authenticatedUser$.subscribe({
-        next: (user) => {
-          if (user) {
-            this.authenticatedUser = user;
-
-            this.cartService.cartVisits$.subscribe((visits) => {
-              this.cartVisits = visits;
-              console.log('vis, ', this.cartVisits)
-            });
-      
-            this.cartService.startListeningToCart(this.authenticatedUser.id);
-          }
+    this.userIdentityInfo.authenticatedUser$.pipe(takeUntil(this.unsubscribe$)).subscribe({
+      next: (user) => {
+        if (user) {
+          this.patientService.getPatientById(user.id).subscribe({
+            next: (patient) => this.patient = patient
+          })
         }
-      })
-  };
+      },
+      error: (err) => console.error('Error with user info:', err)
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
+  }
 }

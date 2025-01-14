@@ -3,12 +3,14 @@ import { DoctorRepositoryInterface } from '../../db/interfaces/DoctorRepositoryI
 import { DoctorRepositoryFactory } from '../../db/factories/DoctorRepositoryFactory';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Doctor } from '../../model/Doctor';
+import { SingleDayAvailability } from '../../model/SingleDayAvailability';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DoctorService implements OnInit {
   private doctorRepository: DoctorRepositoryInterface;
+  
   private doctorsSubject = new BehaviorSubject<Doctor[]>([]);
   public doctors$ = this.doctorsSubject.asObservable();
 
@@ -25,7 +27,15 @@ export class DoctorService implements OnInit {
   }
 
   removeDoctor = (id: string): Observable<any> => {
-    return this,this.doctorRepository.removeDoctor(id);
+    return this.doctorRepository.removeDoctor(id);
+  }
+
+  addAvailability = (id: string, availabilities: SingleDayAvailability[], type: string): Observable<any> => {
+    return this.addAvailability(id, availabilities, type);
+  }
+
+  getAvailability = (id: string, type: string): Observable<SingleDayAvailability[]> => {
+    return this.getAvailability(id, type);
   }
 
   ngOnInit(): void {
@@ -34,5 +44,4 @@ export class DoctorService implements OnInit {
         error: (err) => console.log(`Failed to retrieve doctors, error: ${err}.`)
       })
   }
-
 }

@@ -1,34 +1,42 @@
 import { firstValueFrom } from 'rxjs';
 import { Component } from '@angular/core';
-import { UserService } from '../../../services/user/user.service';
 import { User } from '../../../model/User';
 import { Sex } from '../../../model/enum/Sex';
 import { FormsModule, NgModel } from '@angular/forms';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Role } from '../../../model/enum/Role';
+import { PatientService } from '../../../services/patient/patient.service';
+import { Patient } from '../../../model/Patient';
+import { response } from 'express';
 
 @Component({
   selector: 'app-registration',
   standalone: true,
   imports: [FormsModule, NgIf, NgFor, CommonModule],
-  providers: [UserService],
+  providers: [PatientService],
   templateUrl: './registration.component.html',
   styleUrl: './registration.component.css'
 })
 export class RegistrationComponent {
   sex: Sex[] = Object.values(Sex);
-  user: User = {
+  patient: Patient = {
     id: '',
-    role: Role.PATIENT,
-    firstName: '',
-    lastName: '',
-    username: '',
-    password: '',
-    age: 0,
-    sex: Sex.MALE,
+    user: {
+      id: '',
+      role: Role.PATIENT,
+      firstName: '',
+      lastName: '',
+      username: '',
+      password: '',
+      age: 0,
+      sex: Sex.MALE
+    },
+    cart: {
+      id: ''
+    }
   }
 
-  constructor(private userService: UserService) {}
+  constructor(private patientService: PatientService) {}
 
   sectionStyle = (flag: boolean): any => {
     const predicate: boolean = this.overallFilled();
@@ -47,17 +55,18 @@ export class RegistrationComponent {
 
   overallFilled = (): boolean => {
     return (
-      this.user.firstName !== '' &&
-      this.user.lastName !== '' &&
-      this.user.username !== '' &&
-      this.user.password !== ''
+      this.patient.user.firstName !== '' &&
+      this.patient.user.lastName !== '' &&
+      this.patient.user.username !== '' &&
+      this.patient.user.password !== ''
     );
   };
 
   submit = (): void => {
     if (this.overallFilled()) {
-      this.userService.addUser(this.user)
-        .then((data) => console.log(firstValueFrom(data)));
+      this.patientService.addPatient(this.patient).subscribe({
+        next: (response) => console.log(`Response: ${response}`)
+      })
     }
   }
 }

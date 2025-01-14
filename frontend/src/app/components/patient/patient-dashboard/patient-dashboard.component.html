@@ -23,10 +23,10 @@
             <img src="assets/alarm.png" alt="reminder">
             <p>Incoming visits</p>
         </div>
-        <p *ngIf="scheduledVisits.length == 0">
+        <p *ngIf="visits.length == 0">
             Nothing scheduled
         </p>
-        <div *ngFor="let visit of scheduledVisits" class="visit">
+        <div *ngFor="let visit of visits" class="visit">
             <div>
                 <p>{{authenticatedUser.firstName}} {{authenticatedUser.lastName}}</p>
                 <p>{{formatDates(visit.date)}}</p>

@@ -10,11 +10,11 @@ import { LoginComponent } from './components/authentication/login/login.componen
 import { DoctorsComponent } from './components/doctors/doctors.component';
 
 export const routes: Routes = [
-    { path: "calendar/:schedule", component: CalendarComponent },
+    { path: "calendar/:id/:schedule", component: CalendarComponent },
     { path: "home", component: CalendarComponent },
     { path: "availability", component: AvailabilityComponent },
     { path: "patient-dashboard", component: PatientDashboardComponent },
-    { path: "scheduler", component: SchedulerComponent },
+    { path: "schedule/:id", component: SchedulerComponent },
     { path: "cart", component: CartComponent },
     { path: "settings", component: SettingsComponent },
     { path: "register", component: RegistrationComponent },

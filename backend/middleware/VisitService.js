@@ -16,7 +16,7 @@ exports.getDoctorVisits = async (id) => {
   }
 }
 
-exports.addVisit = async (visitData, patientId, doctorId) => {
+exports.addVisit = async (visitData) => {
     try {
         const doctorExists = await mongoose.model('Doctor').exists({ _id: doctorId });
         if (!doctorExists) {
@@ -39,8 +39,8 @@ exports.addVisit = async (visitData, patientId, doctorId) => {
             details: visitData.details,
             price: visitData.price,
             cancelled: visitData.cancelled || false,
-            doctor: doctorId,
-            patient: patientId
+            doctor: visitData.doctor.id,
+            patient: visitData.patient.id
         });
 
         return await visit.save();

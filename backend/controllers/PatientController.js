@@ -16,22 +16,6 @@ exports.createPatientEndpoint = async (req, res) => {
   }
 };
 
-exports.createPatientEndpoint = async (req, res) => {
-  try {
-    const user = req.body;
-
-    if (!user) {
-      return res.status(400).json({ message: 'User is required' });
-    }
-
-    const patient = await createPatient(user);
-    res.status(201).json(patient);
-  } catch (error) {
-    console.error('Error creating patient:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
 exports.getPatientByUserIdEndpoint = async (req, res) => {
   try {
     const { userId } = req.params;

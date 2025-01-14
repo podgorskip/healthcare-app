@@ -1,167 +1,167 @@
-import { Sex } from './../../../../model/enum/Sex';
-import { ScheduledVisit } from './../../../../model/ScheduledVisit';
-import { environment } from './../../../../../environments/environment';
-import { Injectable } from '@angular/core';
-import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, DataSnapshot, push, onValue, get, remove } from 'firebase/database';
-import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
-import { User } from '../../../../model/User';
+// import { Sex } from './../../../../model/enum/Sex';
+// import { ScheduledVisit } from './../../../../model/ScheduledVisit';
+// import { environment } from './../../../../../environments/environment';
+// import { Injectable } from '@angular/core';
+// import { initializeApp } from 'firebase/app';
+// import { getDatabase, ref, set, DataSnapshot, push, onValue, get, remove } from 'firebase/database';
+// import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
+// import { User } from '../../../../model/User';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class FirebaseVisitRepository implements VisitRepositoryInterface {
-  private db: any;
-  private dbPath = '/scheduledVisits'; 
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class FirebaseVisitRepository implements VisitRepositoryInterface {
+//   private db: any;
+//   private dbPath = '/scheduledVisits'; 
 
-  constructor() { 
-    const firebaseApp = initializeApp(environment.firebaseConfig);
-    this.db = getDatabase(firebaseApp); 
-  }
+//   constructor() { 
+//     const firebaseApp = initializeApp(environment.firebaseConfig);
+//     this.db = getDatabase(firebaseApp); 
+//   }
 
-  listenToScheduledVisitUpdates(callback: (visits: ScheduledVisit[]) => void): void {
-    console.log('.listenToScheduledVisitUpdates - invoked');
+//   listenToScheduledVisitUpdates(callback: (visits: ScheduledVisit[]) => void): void {
+//     console.log('.listenToScheduledVisitUpdates - invoked');
     
-    const cartRef = ref(this.db, `${this.dbPath}`);
-    onValue(cartRef, (snapshot: DataSnapshot) => {
-      const cartData = snapshot.val();
+//     const cartRef = ref(this.db, `${this.dbPath}`);
+//     onValue(cartRef, (snapshot: DataSnapshot) => {
+//       const cartData = snapshot.val();
   
-      const cartArray = cartData
-        ? Object.keys(cartData).map((key) => {
-            const visit = cartData[key];
+//       const cartArray = cartData
+//         ? Object.keys(cartData).map((key) => {
+//             const visit = cartData[key];
   
-            const updatedVisit = {
-              id: key,
-              ...visit,
-              date: visit.date
-                ? visit.date.map((i: any) => ({
-                    day: new Date(i.day), 
-                    hour: i.hour,
-                  }))
-                : [],
-            };
+//             const updatedVisit = {
+//               id: key,
+//               ...visit,
+//               date: visit.date
+//                 ? visit.date.map((i: any) => ({
+//                     day: new Date(i.day), 
+//                     hour: i.hour,
+//                   }))
+//                 : [],
+//             };
   
-            return updatedVisit;
-          })
-        : [];
+//             return updatedVisit;
+//           })
+//         : [];
   
-      callback(cartArray);
-    });
-  }
+//       callback(cartArray);
+//     });
+//   }
 
-  async removeScheduledVisit(id: string): Promise<void> {
-    console.log(`.removeScheduledVisit - invoked, visit id=${id}`);
+//   async removeScheduledVisit(id: string): Promise<void> {
+//     console.log(`.removeScheduledVisit - invoked, visit id=${id}`);
     
-    const usersRef = ref(this.db, '/users');
-    const usersSnapshot = await get(usersRef);
-    const usersData = usersSnapshot.val();
+//     const usersRef = ref(this.db, '/users');
+//     const usersSnapshot = await get(usersRef);
+//     const usersData = usersSnapshot.val();
   
-    if (usersData) {
-      for (const [userId, user] of Object.entries(usersData)) {
-        const user = usersData[userId] as User;
-        if (user.scheduledVisits && user.scheduledVisits.includes(id)) {
-          const userRef = ref(this.db, `/users/${userId}/scheduledVisits`);
-          const updatedVisits = user.scheduledVisits.filter((visitId: string) => visitId !== id);
+//     if (usersData) {
+//       for (const [userId, user] of Object.entries(usersData)) {
+//         const user = usersData[userId] as User;
+//         if (user.scheduledVisits && user.scheduledVisits.includes(id)) {
+//           const userRef = ref(this.db, `/users/${userId}/scheduledVisits`);
+//           const updatedVisits = user.scheduledVisits.filter((visitId: string) => visitId !== id);
   
-          await set(userRef, updatedVisits);
-        }
-      }
-    }
+//           await set(userRef, updatedVisits);
+//         }
+//       }
+//     }
   
-    const visitRef = ref(this.db, `${this.dbPath}/${id}`);
-    await remove(visitRef);
-  }
+//     const visitRef = ref(this.db, `${this.dbPath}/${id}`);
+//     await remove(visitRef);
+//   }
 
-  async addScheduledVisit(visit: ScheduledVisit): Promise<string> {
-    console.log('.assignScheduledVisitToUser - invoked');
+//   async addScheduledVisit(visit: ScheduledVisit): Promise<string> {
+//     console.log('.assignScheduledVisitToUser - invoked');
 
-    try {
-      const visitRef = push(ref(this.db, '/scheduledVisits')); 
-      visit.id = visitRef.key as string;
+//     try {
+//       const visitRef = push(ref(this.db, '/scheduledVisits')); 
+//       visit.id = visitRef.key as string;
   
-      const visitWithTimestamp = {
-        ...visit,
-        date: visit.date.map((i) => ({ day: i.day.getTime(), hour: i.hour })), 
-      };
+//       const visitWithTimestamp = {
+//         ...visit,
+//         date: visit.date.map((i) => ({ day: i.day.getTime(), hour: i.hour })), 
+//       };
   
-      await set(visitRef, visitWithTimestamp);
-      return visit.id;
-    } catch (error) {
-      console.error('Error: ', error);
-      throw error;
-    }
-  }
+//       await set(visitRef, visitWithTimestamp);
+//       return visit.id;
+//     } catch (error) {
+//       console.error('Error: ', error);
+//       throw error;
+//     }
+//   }
 
-  async updateVisit(visit: ScheduledVisit): Promise<void> {
-    console.log(`.updateVisit - invoked for visit ID: ${visit.id}`);
+//   async updateVisit(visit: ScheduledVisit): Promise<void> {
+//     console.log(`.updateVisit - invoked for visit ID: ${visit.id}`);
 
-    try {
-      const visitRef = ref(this.db, `${this.dbPath}/${visit.id}`);
-      const snapshot = await get(visitRef);
+//     try {
+//       const visitRef = ref(this.db, `${this.dbPath}/${visit.id}`);
+//       const snapshot = await get(visitRef);
       
-      if (!snapshot.exists()) {
-        console.log(`Visit with ID ${visit.id} not found.`);
-        throw Error('Visit not found.');
-      }
+//       if (!snapshot.exists()) {
+//         console.log(`Visit with ID ${visit.id} not found.`);
+//         throw Error('Visit not found.');
+//       }
 
-      const visitData: ScheduledVisit = {
-        ...snapshot.val(), 
-        cancelled: visit.cancelled,
-        details: visit.details,
-        price: visit.price,
-        type: visit.type,
-        firstName: visit.firstName,
-        lastName: visit.lastName,
-        username: visit.username,
-        sex: visit.sex,
-        age: visit.age,
-        date: visit.date.map((i) => ({ day: i.day.getTime(), hour: i.hour }))
-      };
+//       const visitData: ScheduledVisit = {
+//         ...snapshot.val(), 
+//         cancelled: visit.cancelled,
+//         details: visit.details,
+//         price: visit.price,
+//         type: visit.type,
+//         firstName: visit.firstName,
+//         lastName: visit.lastName,
+//         username: visit.username,
+//         sex: visit.sex,
+//         age: visit.age,
+//         date: visit.date.map((i) => ({ day: i.day.getTime(), hour: i.hour }))
+//       };
       
-      await set(visitRef, visitData);
-    } catch (error) {
-      console.error('Error: ', error);
-      throw error;
-    }
-  }
+//       await set(visitRef, visitData);
+//     } catch (error) {
+//       console.error('Error: ', error);
+//       throw error;
+//     }
+//   }
 
-  async getScheduledVisitById(id: string): Promise<ScheduledVisit> {
-    console.log(`.getScheduledVisitById - invoked for visit ID: ${id}`);
+//   async getScheduledVisitById(id: string): Promise<ScheduledVisit> {
+//     console.log(`.getScheduledVisitById - invoked for visit ID: ${id}`);
   
-    try {
-      const visitRef = ref(this.db, `${this.dbPath}/${id}`);
-      const snapshot = await get(visitRef);
+//     try {
+//       const visitRef = ref(this.db, `${this.dbPath}/${id}`);
+//       const snapshot = await get(visitRef);
       
-      if (!snapshot.exists()) {
-        console.log(`Visit with ID ${id} not found.`);
-        throw Error('Visit not found.');
-      }
+//       if (!snapshot.exists()) {
+//         console.log(`Visit with ID ${id} not found.`);
+//         throw Error('Visit not found.');
+//       }
   
-      const visitData = snapshot.val();
+//       const visitData = snapshot.val();
       
-      const visit: ScheduledVisit = {
-        id: id,
-        details: visitData.details,
-        price: visitData.price,
-        type: visitData.type,
-        firstName: visitData.firstName,
-        lastName: visitData.lastName,
-        username: visitData.username,
-        sex: visitData.Sex,
-        age: visitData.age,
-        date: visitData.date
-          ? visitData.date.map((i: any) => ({
-              day: new Date(i.day), 
-              hour: i.hour,
-            }))
-          : [],
-        cancelled: visitData.cancelled
-      };
+//       const visit: ScheduledVisit = {
+//         id: id,
+//         details: visitData.details,
+//         price: visitData.price,
+//         type: visitData.type,
+//         firstName: visitData.firstName,
+//         lastName: visitData.lastName,
+//         username: visitData.username,
+//         sex: visitData.Sex,
+//         age: visitData.age,
+//         date: visitData.date
+//           ? visitData.date.map((i: any) => ({
+//               day: new Date(i.day), 
+//               hour: i.hour,
+//             }))
+//           : [],
+//         cancelled: visitData.cancelled
+//       };
   
-      return visit;
-    } catch (error) {
-      console.error('Error: ', error);
-      throw error;
-    }
-  }
-}
+//       return visit;
+//     } catch (error) {
+//       console.error('Error: ', error);
+//       throw error;
+//     }
+//   }
+// }

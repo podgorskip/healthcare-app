@@ -57,12 +57,13 @@ exports.deleteDoctorEndpoint = async (req, res) => {
 };
 
 exports.getAvailabilityEndpoint = async (req, res) => {
-    const { type, doctorId } = req.params; 
+    const { id } = req.params; 
+    const { type } = req.query;
 
-    console.log(`.getAvailability - invoked, doctorId=${doctorId}, type=${type}`);
+    console.log(`.getAvailability - invoked, doctorId=${id}, type=${type}`);
 
     try {
-        const availability = await getAvailabilityByDoctorId(doctorId, type);
+        const availability = await getAvailabilityByDoctorId(id, type);
 
         if (availability.length === 0) {
             return res.status(200).json([]);
@@ -76,17 +77,18 @@ exports.getAvailabilityEndpoint = async (req, res) => {
 };
 
 exports.addAvailabilityEndpoint = async (req, res) => {
-    const { type, doctorId } = req.params;  
+    const { id } = req.params;  
+    const { type } = req.query;
     const availabilities = req.body;       
 
     if (!availabilities || !Array.isArray(availabilities)) {
         return res.status(400).json({ message: 'Availability data is required and must be an array' });
     }
 
-    console.log(`.addAvailability - invoked, doctorId=${doctorId}, type=${type}`);
+    console.log(`.addAvailability - invoked, doctorId=${id}, type=${type}`);
 
     try {
-        const doctor = await addAvailabilityForDoctor(doctorId, type, availabilities);
+        const doctor = await addAvailabilityForDoctor(id, type, availabilities);
         res.status(201).json(doctor);
     } catch (err) {
         console.error('Error adding availability:', err);

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { CalendarComponent } from '../../calendar/calendar.component';
 import { NgFor, NgIf, NgStyle } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -6,28 +6,37 @@ import { Sex } from '../../../model/enum/Sex';
 import { VisitType } from '../../../model/enum/VisitType';
 import { DateUtils } from '../../../utils/DateUtils';
 import { AuthenticationService } from '../../../authentication/auth-service/authentication.service';
-import { ScheduledVisit } from '../../../model/ScheduledVisit';
-import { User } from '../../../model/User';
 import { CartService } from '../../../services/cart/cart.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
+import { Item } from '../../../model/Item';
+import { Doctor } from '../../../model/Doctor';
+import { Subject, takeUntil } from 'rxjs';
+import { Patient } from '../../../model/Patient';
+import { PatientService } from '../../../services/patient/patient.service';
+import { DoctorService } from '../../../services/doctor/doctor.service';
 
 @Component({
   selector: 'app-scheduler',
   standalone: true,
-  providers: [AuthenticationService, CartService],
+  providers: [AuthenticationService, CartService, PatientService],
   imports: [CalendarComponent, NgIf, NgStyle, FormsModule, NgFor],
   templateUrl: './scheduler.component.html',
   styleUrl: './scheduler.component.css'
 })
-export class SchedulerComponent implements OnInit {
+export class SchedulerComponent implements OnInit, OnDestroy {
+  private unsubscribe$ = new Subject<void>();
+  
   sex: Sex[] = Object.values(Sex);
   availableVisitTypes: VisitType[] = Object.values(VisitType);
 
   isPopupOpen = false; 
   
-  user!: User;
-  scheduledVisit: ScheduledVisit = {
+  @Input() id: string | null = null;
+  patient!: Patient;
+  doctor!: Doctor;
+
+  item: Item = {
     id: '',
     date: [],
     details: '',
@@ -38,28 +47,39 @@ export class SchedulerComponent implements OnInit {
     username: '',
     sex: Sex.MALE,
     age: 0,
-    cancelled: false
-  };
+    doctor: this.doctor
+  }
 
   constructor(
     private UserIdentityInfo: UserIdentityInfo, 
     private cartService: CartService,
-    private router: Router
+    private patientService: PatientService,
+    private doctorService: DoctorService,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
   
   ngOnInit(): void {
-      this.UserIdentityInfo.authenticatedUser$.subscribe({
-        next: (user) => {
-          if (user) {
-            this.user = user;
-            this.scheduledVisit.firstName = this.user.firstName;
-            this.scheduledVisit.lastName = this.user.lastName;
-            this.scheduledVisit.username = this.user.username;
-            this.scheduledVisit.sex = this.user.sex;
-            this.scheduledVisit.age = this.user.age;
-          }
+    this.UserIdentityInfo.authenticatedUser$.pipe(takeUntil(this.unsubscribe$)).subscribe({
+      next: (user) => {
+        if (user) {
+          this.patientService.getPatientById(user.id).subscribe({
+            next: (patient) => this.patient = patient
+          })
+        }
+      }
+    })
+
+    const id: string = this.route.snapshot.params['id'];
+
+    if (id) {
+      this.doctorService.getDoctor(id).subscribe({
+        next: (doctor) => {
+          console.log(`Successfully fetched doctor, id=${id}`)
+          this.doctor = doctor;
         }
       })
+    } 
   }
 
   openPopup() {
@@ -71,7 +91,7 @@ export class SchedulerComponent implements OnInit {
   }
 
   handleDateSelection(date: { day: Date, hour: number }[]) {
-    this.scheduledVisit.date = date;
+    this.item.date = date;
     this.closePopup(); 
   }
 
@@ -98,15 +118,23 @@ export class SchedulerComponent implements OnInit {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
-      this.cartService.addVisitToCart(this.user.id, this.scheduledVisit)
-        .then(() => this.router.navigate(['/cart']))
-        .catch(err => console.log(err));
+      this.cartService.addItem(this.patient.cart?.id, this.item).subscribe({
+        next: (response) => {
+          console.log(`Response: ${response}`);
+          this.router.navigate(['/cart']);
+        }
+      })
     } else {
       console.log('Form is invalid');
     }
   }
 
   formatSelectedDays = (): string => {
-    return DateUtils.formatSelectedDays(this.scheduledVisit.date);
+    return DateUtils.formatSelectedDays(this.item.date);
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

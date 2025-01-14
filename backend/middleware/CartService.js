@@ -2,19 +2,36 @@ const Cart = require('../models/Cart');
 const Item = require('../models/Item');
 const mongoose = require('mongoose');
 
-exports.addItemToCart = async (cartId, itemId) => {
+exports.addItemToCart = async (userId, itemData) => {
   try {
-    const cart = await Cart.findById(cartId);
+    const cart = await Cart.findOne({ userId });
     if (!cart) {
-      throw new Error('Cart not found');
+      throw new Error('Cart not found for the user');
     }
 
-    const itemExists = await Item.exists({ _id: itemId });
-    if (!itemExists) {
-      throw new Error('Item not found');
+    const { date, type, firstName, lastName, username, sex, age, details, price } = itemData;
+
+    if (!date || !Array.isArray(date)) {
+      throw new Error('Invalid date format');
     }
 
-    cart.items.push(itemId);
+    if (!firstName || !lastName || !username || !sex || !age || !details || !price) {
+      throw new Error('Incomplete item details');
+    }
+
+    const newItem = {
+      date,
+      type,
+      firstName,
+      lastName,
+      username,
+      sex,
+      age,
+      details,
+      price,
+    };
+
+    cart.items.push(newItem);
     await cart.save();
 
     return cart;
@@ -39,11 +56,11 @@ exports.removeItemFromCart = async (cartId, itemId) => {
   }
 };
 
-exports.getCartItems = async (id) => {
+exports.getCartItems = async (userId) => {
   try {
-    const cart = await Cart.findById(id).populate('items');
+    const cart = await Cart.findOne({ userId }).populate('items');
     if (!cart) {
-      throw new Error('Cart not found');
+      throw new Error('Cart not found for the user');
     }
 
     return cart.items;
@@ -51,3 +68,4 @@ exports.getCartItems = async (id) => {
     throw new Error('Error retrieving items from cart: ' + error.message);
   }
 };
+

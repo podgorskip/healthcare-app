@@ -6,6 +6,7 @@
                 <p>{{doctor.user.firstName}} {{doctor.user.lastName}}</p>
                 <p>{{doctor.phoneNo}}</p>
                 <button (click)="onDoctorDelete(doctor.id)">Delete</button>
+                <button (click)="onScheduleClick(doctor.id)">Schedule</button>
             </div>
         </div>
         <doctor-creator *ngIf="true"/>

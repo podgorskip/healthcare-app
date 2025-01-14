@@ -38,6 +38,22 @@ export class DateUtils {
         return `${intHour.toString().padStart(2, '0')}:${minutes}`; 
     };
 
+    static getFollowingDays = (date: Date): Date[] => {
+      const weekDates: Date[] = [];
+    
+      for (let i = 0; i < 7; i++) {
+          const weekDate = new Date(date); 
+          weekDate.setDate(date.getDate() + i);
+          weekDates.push(weekDate);
+      }
+    
+      return weekDates;
+    };
+
+    static getDayNames = (): string[] => {
+      return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    } 
+
     private static format = (date: Date): string => {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0'); 

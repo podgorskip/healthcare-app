@@ -23,7 +23,7 @@ exports.getDoctorVisitsEndpoint = async (req, res) => {
 }
 
 exports.addVisitEndpoint = async (req, res) => {
-    const { visitData, patientId, doctorId } = req.body;
+    const { visitData } = req.body;
 
     try {
         const visit = await addVisit(visitData, patientId, doctorId);

@@ -2,10 +2,11 @@ const express = require('express');
 const cartService = require('../middleware/CartService');
 
 exports.addItemToCartEndpoint = async (req, res) => {
-  const { cartId, itemId } = req.params;
+  const { cartId } = req.params;
+  const { itemData } = req.body;
 
   try {
-    const updatedCart = await cartService.addItemToCart(cartId, itemId);
+    const updatedCart = await cartService.addItemToCart(cartId, itemData);
     res.status(200).json(updatedCart);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,7 +14,7 @@ exports.addItemToCartEndpoint = async (req, res) => {
 }
 
 exports.removeItemFromCartEndpoint = async (req, res) => {
-  const { cartId, itemId } = req.params;
+  const { itemId } = req.params;
 
   try {
     const updatedCart = await cartService.removeItemFromCart(cartId, itemId);

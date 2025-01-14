@@ -1,31 +1,33 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ScheduledVisit } from '../../../model/ScheduledVisit';
 import { NgFor, NgIf } from '@angular/common';
-import { UserService } from '../../../services/user/user.service';
-import { ScheduledVisitService } from '../../../services/scheduled-visit/scheduled-visit.service';
-import { AuthenticationService } from '../../../authentication/auth-service/authentication.service';
 import { User } from '../../../model/User';
-import { DateUtils } from '../../../utils/DateUtils';;
+import { DateUtils } from '../../../utils/DateUtils';
 import { HttpClientModule } from '@angular/common/http';
 import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
+import { PatientService } from '../../../services/patient/patient.service';
+import { VisitService } from '../../../services/visit/visit.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-patient-dashboard',
   standalone: true,
   imports: [NgFor, NgIf, HttpClientModule],
-  providers: [UserService, ScheduledVisitService],
+  providers: [PatientService, VisitService],
   templateUrl: './patient-dashboard.component.html',
   styleUrls: ['./patient-dashboard.component.css']
 })
-export class PatientDashboardComponent implements OnInit {
-  scheduledVisits: ScheduledVisit[] = [];
+export class PatientDashboardComponent implements OnInit, OnDestroy {
+  private unsubscribe$ = new Subject<void>();
+  
+  visits: ScheduledVisit[] = [];
   cancelledVisits: ScheduledVisit[] = [];
   authenticatedUser!: User;
 
   constructor(
-    private scheduledVisitService: ScheduledVisitService,
-    private userIdentityInfo: UserIdentityInfo,
-    private userService: UserService
+    private patientService: PatientService,
+    private visitService: VisitService,
+    private userIdentityInfo: UserIdentityInfo
   ) { }
 
   formatDates = (dates: { day: Date, hour: number }[]): string => {
@@ -39,59 +41,52 @@ export class PatientDashboardComponent implements OnInit {
 
     if (!userChoice) return;
 
-    this.userService.removeVisit(this.authenticatedUser.id, visit.id)
-      .then(() => {
-        this.scheduledVisitService.removeVisit(visit.id)
-          .then(() => {
-            console.log(`Successfully deleted visit`)
-          })
-      })
+    this.visitService.removeVisit(visit.id).subscribe({
+      next: (response) => {
+        console.log(`Successfully cancelled visit`);
+        this.visits = this.visits.filter(v => v.id !== visit.id);
+      },
+      error: (err) => console.error("Error cancelling visit:", err),
+    });
   }
 
   ngOnInit(): void {
-    this.userIdentityInfo.authenticatedUser$.subscribe({
+    this.userIdentityInfo.authenticatedUser$.pipe(takeUntil(this.unsubscribe$)).subscribe({
       next: (user) => {
         if (user) {
           this.authenticatedUser = user;
-
-          this.userService.scheduledVisits$.subscribe({
-            next: async (ids) => {
-              try {
-                await Promise.all(
-                  ids.map(async (id) => {
-                    let visit = await this.scheduledVisitService.getById(id);
+          this.patientService.getPatientById(this.authenticatedUser.id).subscribe({
+            next: (patient) => {
+              this.visitService.getPatientVisits(patient.id).subscribe({
+                next: (visits) => {
+                  console.log('Scheduled visits:', visits);
+                  visits.forEach(visit => {
                     if (visit.date && Array.isArray(visit.date)) {
-                      visit.date = visit.date.map((dateItem) => {
-                        return {
-                          day: new Date(dateItem.day),  
-                          hour: dateItem.hour            
-                        };
-                      });
+                      visit.date = visit.date.map(dateItem => ({
+                        day: new Date(dateItem.day),
+                        hour: dateItem.hour,
+                      }));
                     }
-      
-                    return visit;  
-                  })
-                ).then((visits) => {
-                  this.cancelledVisits = visits.filter(visit => 
+                  });
+                  this.cancelledVisits = visits.filter(visit =>
                     visit.cancelled && new Date(visit.date[0].day).toISOString().split('T')[0] >= new Date().toISOString().split('T')[0]
                   );
-                  
-                  console.log('cancelled ', this.cancelledVisits)
-                  this.scheduledVisits = visits.filter(visit => !visit.cancelled);
-                })
-                
-              } catch (err) {
-                console.log('Failed to fetch scheduled visits: ', err);
-              }
-            },
-            error: (err) => {
-              console.log('Error in scheduled visits subscription: ', err);
-            },
-          });
-        
-          this.userService.startListeningScheduledVisits(this.authenticatedUser.id);
-        }  
-      }
-    })
+                  this.visits = visits.filter(visit => !visit.cancelled);
+                },
+                error: (err) => {
+                  console.log('Error retrieving patient visits:', err);
+                },
+              });
+            }
+          })
+        }
+      },
+      error: (err) => console.error('Error with user info:', err)
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

@@ -1,84 +1,63 @@
 import { Injectable } from '@angular/core';
-import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
 import { HttpClient } from '@angular/common/http';
 import { ScheduledVisit } from '../../../../model/ScheduledVisit';
 import { environment } from '../../../../../environments/environment';
-import { firstValueFrom } from 'rxjs';
+import { Observable } from 'rxjs';
 import { MongoAuthenticationService } from '../../../../authentication/mongo/MongoAuthenticationService';
+import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MongoVisitRepository implements VisitRepositoryInterface {
-  private apiUrl = `${environment.mongoConfig.baseUrl}/scheduled`;
+  private apiUrl = `${environment.mongoConfig.baseUrl}/visits`;
 
   constructor(private http: HttpClient, private auth: MongoAuthenticationService) {}
 
-  listenToScheduledVisitUpdates(callback: (visits: ScheduledVisit[]) => void): void {
-    console.log('.listenToScheduledVisitUpdates - invoked');
+  getPatientVisits(id: string): Observable<ScheduledVisit[]> {
+    console.log(`.getPatientVisits - invoked, visit id=${id}`);
 
-    const fetchScheduledVisits = async () => {
-      try {
-        const headers = this.auth.authHeaders();
-        const visits: ScheduledVisit[] = await firstValueFrom(this.http.get<ScheduledVisit[]>(`${this.apiUrl}`, { headers }));
-
-        visits.forEach(visit => {
-          if (visit.date && visit.date.length > 0) {
-            visit.date.forEach(dateObj => {
-              dateObj.day = new Date(dateObj.day);
-            });
-          }
-        });
-        callback(visits);
-      } catch (error) {
-        console.error('Error:', error);
-        callback([]); 
-      }
-    };
-
-    fetchScheduledVisits();
-  }
-
-  async removeScheduledVisit(id: string): Promise<void> {
-    console.log(`.removeScheduledVisit - invoked, visit id=${id}`);
     const headers = this.auth.authHeaders();
-    const response = await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`, { headers }));
-    console.log('Server response: ', response);
+    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/patients/${id}`, { headers });
   }
 
-  async addScheduledVisit(visit: ScheduledVisit): Promise<string> {
-    console.log('.addScheduledVisit - invoked');
+  getDoctorVisits(id: string): Observable<ScheduledVisit[]> {
+    console.log(`.getDoctorVisits - invoked, visit id=${id}`);
+
+    const headers = this.auth.authHeaders();
+    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/doctors/${id}`, { headers });
+  }
+
+  addVisit(visit: ScheduledVisit): Observable<ScheduledVisit> {
+    console.log('.addVisit - invoked');
 
     try {
       const headers = this.auth.authHeaders();
-      const response = await firstValueFrom(this.http.post<string>(`${this.apiUrl}`, visit, { headers }));
-      return response; 
+      return this.http.post<ScheduledVisit>(`${this.apiUrl}`, visit, { headers });
     } catch (error) {
       console.error('Error:', error);
       throw error;
     }
   }
 
-  async getScheduledVisitById(id: string): Promise<ScheduledVisit> {
-    console.log(`.getScheduledVisitById - invoked, visit id=${id}`);
+  cancelVisit(id: string): Observable<ScheduledVisit> {
+    console.log(`.cancelVisit - invoked, visit id=${id}`);
 
     try {
       const headers = this.auth.authHeaders();
-      const response = await firstValueFrom(this.http.get<ScheduledVisit>(`${this.apiUrl}/${id}`, { headers }));
-      return response; 
+      return this.http.put<ScheduledVisit>(`${this.apiUrl}/${id}/cancel`, { headers });
     } catch (error) {
       console.error('Error:', error);
       throw error;
     }
   }
 
-  async updateVisit(visit: ScheduledVisit): Promise<void> {
-    console.log(`.updateVisit - invoked, visit id=${visit.id}`);
+  deleteVisit(id: string): Observable<string> {
+    console.log(`.deleteVisit - invoked, visit id=${id}`);
 
     try {
       const headers = this.auth.authHeaders();
-      const response = await firstValueFrom(this.http.put(`${this.apiUrl}/${visit.id}`, visit, { headers }));
-      console.log(response);
+      return this.http.delete<string>(`${this.apiUrl}/${id}`, { headers });
     } catch (error) {
       console.error('Error:', error);
       throw error;

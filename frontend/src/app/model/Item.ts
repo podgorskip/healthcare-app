@@ -1,3 +1,4 @@
+import { Doctor } from "./Doctor";
 import { Sex } from "./enum/Sex";
 import { VisitType } from "./enum/VisitType";
 
@@ -12,5 +13,5 @@ export interface Item {
     age: number;
     details: string;
     price: number;
-    cancelled: boolean;
+    doctor: Doctor;
 }
