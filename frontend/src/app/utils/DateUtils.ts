@@ -17,9 +17,9 @@ export class DateUtils {
 
     static formatSelectedDays = (dates: { day: Date, hour: number }[]): string => {
         if (dates.length > 1) {
-          let startDay = dates[0].day;
+          let startDay = new Date(dates[0].day);
           let startHour = dates[0].hour;
-          let endDay = dates[dates.length - 1].day;
+          let endDay = new Date(dates[dates.length - 1].day);
           let endHour = dates[dates.length - 1].hour + 0.5;
     
           if (startDay.getDate() !== endDay.getDate()) {
@@ -28,7 +28,7 @@ export class DateUtils {
             return `${this.format(startDay)}, ${this.formatHour(startHour)} - ${this.formatHour(endHour)}`;
           }
         } else {
-          return `${this.format(dates[0].day)}, ${this.formatHour(dates[0].hour)} - ${this.formatHour(dates[0].hour + 0.5)}`;
+          return `${this.format(new Date(dates[0].day))}, ${this.formatHour(dates[0].hour)} - ${this.formatHour(dates[0].hour + 0.5)}`;
         }
       }
 

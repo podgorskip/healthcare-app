@@ -7,6 +7,7 @@ import { UserIdentityInfo } from '../../authentication/UserIdentityInfo';
 import { NgFor, NgIf } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
+import { Authorization } from '../../authentication/AuthorizationService';
 
 @Component({
   selector: 'app-doctors',
@@ -18,6 +19,7 @@ import { Router } from '@angular/router';
 })
 export class DoctorsComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject<void>();
+  Authorization = Authorization;
   authenticatedUser?: User;
   doctors: Doctor[] = [];
 
@@ -34,12 +36,16 @@ export class DoctorsComponent implements OnInit, OnDestroy {
   }
 
   onScheduleClick = (id: string): void => {
+    console.log('Schedule visit for: ', id)
     this.router.navigate(['/schedule', id])
   }
 
   ngOnInit(): void {
-    this.doctorService.doctors$.pipe(takeUntil(this.unsubscribe$)).subscribe({
-      next: (doctors) => this.doctors = doctors
+    this.doctorService.doctors$.subscribe({
+      next: (doctors) => {
+        console.log('Fetched doctors: ', doctors);
+        this.doctors = doctors;
+      }
     })
 
     this.userIdentityInfo.authenticatedUser$.pipe(takeUntil(this.unsubscribe$)).subscribe({

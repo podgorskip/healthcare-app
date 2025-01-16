@@ -2,13 +2,15 @@
     <h3>Doctors</h3>
     <div>
         <div class="doctor-list">
-            <div *ngFor="let doctor of doctors">
-                <p>{{doctor.user.firstName}} {{doctor.user.lastName}}</p>
-                <p>{{doctor.phoneNo}}</p>
-                <button (click)="onDoctorDelete(doctor.id)">Delete</button>
-                <button (click)="onScheduleClick(doctor.id)">Schedule</button>
+            <div *ngFor="let doctor of doctors" class="doctor">
+                <div>
+                    <p>{{doctor.user.firstName}} {{doctor.user.lastName}}</p>
+                    <p>{{doctor.phoneNo}}</p>
+                </div>
+                <img src="assets/schedule.png" (click)="onScheduleClick(doctor.user.id)" *ngIf="Authorization.isPatient(authenticatedUser?.role)">
+                <img src="assets/trash-1.png" (click)="onDoctorDelete(doctor.id)" *ngIf="Authorization.isAdmin(authenticatedUser?.role)">
             </div>
         </div>
-        <doctor-creator *ngIf="true"/>
+        <doctor-creator *ngIf="Authorization.isAdmin(authenticatedUser?.role)"/>
     </div>
 </div>

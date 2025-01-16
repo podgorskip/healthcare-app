@@ -36,6 +36,7 @@ export class CartComponent implements OnInit, OnDestroy {
   ) { }
 
   formatDates = (dates: { day: Date, hour: number }[]): string => {
+    console.log(dates)
     return DateUtils.formatSelectedDays(dates);
   }
 
@@ -53,7 +54,7 @@ export class CartComponent implements OnInit, OnDestroy {
   };
 
   get totalPrice(): number {
-    return this.selectedItems.reduce((total, item) => total + (item.price * item.date.length), 0); 
+    return this.selectedItems.reduce((total, item) => total + (50 * item.date.length), 0); 
   }
 
   onClickCard = (): void => {
@@ -64,6 +65,8 @@ export class CartComponent implements OnInit, OnDestroy {
         next: (response) => console.log(`Response: ${response}`),
         error: (err) => console.error('Error removing item from cart:', err)
       });
+
+      console.log('Item: ', item)
 
       if (this.patient) {
         const visit: ScheduledVisit = {
@@ -108,7 +111,10 @@ export class CartComponent implements OnInit, OnDestroy {
       next: (user) => {
         if (user) {
           this.patientService.getPatientById(user.id).subscribe({
-            next: (patient) => this.patient = patient
+            next: (patient) => {
+              console.log(patient)
+              this.patient = patient
+            }
           })
         }
       },

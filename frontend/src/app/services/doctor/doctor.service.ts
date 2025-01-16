@@ -8,7 +8,7 @@ import { SingleDayAvailability } from '../../model/SingleDayAvailability';
 @Injectable({
   providedIn: 'root'
 })
-export class DoctorService implements OnInit {
+export class DoctorService {
   private doctorRepository: DoctorRepositoryInterface;
   
   private doctorsSubject = new BehaviorSubject<Doctor[]>([]);
@@ -16,6 +16,7 @@ export class DoctorService implements OnInit {
 
   constructor(doctorRepository: DoctorRepositoryFactory) {
     this.doctorRepository = doctorRepository.getRepository();
+    this.initializeDoctors();
   }
 
   getDoctor = (id: string): Observable<Doctor> => {
@@ -31,17 +32,20 @@ export class DoctorService implements OnInit {
   }
 
   addAvailability = (id: string, availabilities: SingleDayAvailability[], type: string): Observable<any> => {
-    return this.addAvailability(id, availabilities, type);
+    return this.doctorRepository.addDoctorAvailability(id, availabilities, type);
   }
 
   getAvailability = (id: string, type: string): Observable<SingleDayAvailability[]> => {
-    return this.getAvailability(id, type);
+    return this.doctorRepository.getDoctorAvailability(id, type);
   }
 
-  ngOnInit(): void {
-      this.doctorRepository.getDoctors().subscribe({
-        next: (doctors) => this.doctorsSubject.next(doctors),
-        error: (err) => console.log(`Failed to retrieve doctors, error: ${err}.`)
-      })
+  private initializeDoctors(): void {
+    this.doctorRepository.getDoctors().subscribe({
+      next: (doctors) => {
+        console.log(doctors);
+        this.doctorsSubject.next(doctors);
+      },
+      error: (err) => console.log(`Failed to retrieve doctors, error: ${err}.`)
+    });
   }
 }

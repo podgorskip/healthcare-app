@@ -4,12 +4,12 @@ const SingleDay = require('../models/SingleDay');
 const TimeSlot = require('../models/Slot');
 const { createUser } = require('./UserService');
 
-exports.createDoctor = async (doctorData, phoneNo) => {
-    const user = await createUser(doctorData, 'DOCTOR');
+exports.createDoctor = async (doctorData) => {
+    const user = await createUser(doctorData.user, 'DOCTOR');
 
     const doctor = new Doctor({ 
         user: user._id, 
-        phoneNo: phoneNo,
+        phoneNo: doctorData.phoneNo,
         availability: {
             presence: [],
             absence: []
@@ -23,15 +23,15 @@ exports.getDoctors = async () => {
     return await Doctor.find().populate('user', 'firstName lastName username role');
 };
 
-exports.findDoctorById = async (doctorId) => {
+exports.findDoctorById = async (userId) => {
     try {
-        const doctor = await Doctor.findById(doctorId).populate('user', 'firstName lastName username role');
+        const doctor = await Doctor.findOne({ user: userId }).populate('user', 'firstName lastName username role');
         if (!doctor) {
             throw new Error('Doctor not found');
         }
         return doctor;
     } catch (error) {
-        console.error(`Error finding doctor by ID: ${error.message}`);
+        console.error(`Error finding doctor by user ID: ${error.message}`);
         throw error;
     }
 };

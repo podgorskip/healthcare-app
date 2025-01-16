@@ -1,0 +1,40 @@
+.doctors {
+    padding: 1em;
+}
+
+.doctors h3 {
+    margin-bottom: 1em;
+}
+
+.doctors > div {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    justify-content: space-between;
+}
+
+.doctor {
+    padding: 1em;
+    border: 1px solid rgb(193, 193, 193);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
+    margin-bottom: 2em;
+    justify-self: start;
+
+}
+
+.doctor div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin-right: 3em;
+}
+
+.doctor-list img {
+    width: 30px;
+}
+
+.doctor-list img:hover {
+    cursor: pointer;
+}

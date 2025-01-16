@@ -16,7 +16,7 @@ import { DoctorService } from '../../../services/doctor/doctor.service';
   selector: 'app-navbar',
   standalone: true,
   imports: [RouterLink, NgIf, CommonModule],
-  providers: [CartService, AuthenticationService],
+  providers: [CartService, AuthenticationService, PatientService, DoctorService],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -99,6 +99,6 @@ export class NavbarComponent implements OnInit {
   }
 
   hasAccess = (role: Role): boolean => {
-    return Number(this.authenticatedUser?.role) === role;
+    return this.authenticatedUser?.role === role;
   }
 }

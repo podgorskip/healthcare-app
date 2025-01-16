@@ -14,20 +14,11 @@ import { Sex } from '../../../model/enum/Sex';
   styleUrl: './doctor-creator.component.css'
 })
 export class DoctorCreatorComponent {
-  doctor: Doctor = {
-    id: '',
-    user: {
-      id: '',
-      firstName: '',
-      lastName: '',
-      username: '',
-      password: '',
-      role: Role.DOCTOR
-    },
-    phoneNo: ''
-  };
+  doctor!: Doctor
 
-  constructor(private doctorService: DoctorService) { }
+  constructor(private doctorService: DoctorService) {
+    this.doctor = this.clearForm();
+  }
 
   onDoctorAdd = (form: any): void => {
     if (!form.valid) {
@@ -36,8 +27,26 @@ export class DoctorCreatorComponent {
     }
 
     this.doctorService.addDoctor(this.doctor).subscribe({
-      next: (response) => console.log(`Response: ${response}`),
+      next: (response) =>{
+        console.log(`Response: ${response.ge}`)
+        this.doctor = this.clearForm();
+      },
       error: (err) => console.error(`Error: ${err}`)
     });
   };
+
+  clearForm = (): Doctor => {
+    return {
+      id: '',
+      user: {
+        id: '',
+        firstName: '',
+        lastName: '',
+        username: '',
+        password: '',
+        role: Role.DOCTOR
+      },
+      phoneNo: ''
+    };
+  }
 }

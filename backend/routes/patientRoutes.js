@@ -5,6 +5,6 @@ const patientController = require('../controllers/PatientController');
 const { verifyToken } = require('../middleware/AuthenticationService'); 
 
 router.post('/', patientController.createPatientEndpoint);
-router.get('/', verifyToken, patientController.getPatientByUserIdEndpoint);
+router.get('/:id', verifyToken, patientController.getPatientByUserIdEndpoint);
 
 exports.router = router;

@@ -1,6 +1,6 @@
 import { SingleDayAvailability } from './../../../model/SingleDayAvailability';
 import { CommonModule, NgIf } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { animate, style, transition, trigger } from '@angular/animations';
@@ -11,7 +11,8 @@ import { Router } from '@angular/router';
 import { DoctorService } from '../../../services/doctor/doctor.service';
 import { VisitService } from '../../../services/visit/visit.service';
 import { Doctor } from '../../../model/Doctor';
-import { response } from 'express';
+import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
+import { User } from '../../../model/User';
 
 @Component({
   selector: 'app-availability',
@@ -32,7 +33,7 @@ import { response } from 'express';
   templateUrl: './availability.component.html',
   styleUrl: './availability.component.css'
 })
-export class AvailabilityComponent {
+export class AvailabilityComponent implements OnInit {
   selectedType: 'presence' | 'absence' | '' = '';
   selectedDateRangeType: string = '';
   singleDayAvailability: SingleDayAvailability = {'date': '', 'slots': []};
@@ -43,11 +44,25 @@ export class AvailabilityComponent {
   }
   selectedDay: Date = new Date();
 
-  @Input() doctor!: Doctor;
+  private doctor!: Doctor;
+
+  ngOnInit(): void {
+    this.userIdentityInfo.authenticatedUser$.subscribe({
+      next: (user) => {
+        if (user) {
+          this.doctorService.getDoctor(user?.id).subscribe({
+            next: (doctor) => this.doctor = doctor
+          })
+        }
+      }
+    })
+  }
+     
 
   constructor(
     private visitService: VisitService,
     private doctorService: DoctorService,
+    private userIdentityInfo: UserIdentityInfo,
     private router: Router
   ) { }
 
@@ -78,9 +93,9 @@ export class AvailabilityComponent {
 
   submitSingleDayAvailability = (): void => {
     this.doctorService.addAvailability(this.doctor.id, [this.singleDayAvailability], this.selectedType).subscribe({
-      next: (reponse) => {
+      next: (response) => {
         console.log(`Response: ${response}`);
-        this.router.navigate(['/calendar/false']);
+        this.router.navigate([`/calendar/${this.doctor.user.id}/false`]);
       }
     })
   }
@@ -92,7 +107,7 @@ export class AvailabilityComponent {
   submitCircularAvailability = (): void => {
     let single: SingleDayAvailability[] = this.transformCircularAvailability(this.circularAvailability);
     this.doctorService.addAvailability(this.doctor.id, single, this.selectedType).subscribe({
-      next: (reponse) => {
+      next: (response) => {
         console.log(`Response: ${response}`);
         this.router.navigate(['/calendar/false']);
       }

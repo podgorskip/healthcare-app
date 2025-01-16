@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 const Item = require('./Item');
 
 const Cart = new mongoose.Schema({
-  id: { type: String, required: true },
+  id: { type: String },
   items: [{ type: Schema.Types.ObjectId, ref: 'Item' }],
 });
 

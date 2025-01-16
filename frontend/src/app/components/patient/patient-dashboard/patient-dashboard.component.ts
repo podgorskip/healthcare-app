@@ -57,6 +57,7 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
           this.authenticatedUser = user;
           this.patientService.getPatientById(this.authenticatedUser.id).subscribe({
             next: (patient) => {
+              console.log('Patient: ' , patient)
               this.visitService.getPatientVisits(patient.id).subscribe({
                 next: (visits) => {
                   console.log('Scheduled visits:', visits);

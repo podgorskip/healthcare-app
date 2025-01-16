@@ -10,13 +10,13 @@ const {
   
 exports.createDoctorEndpoint = async (req, res) => {
   try {
-    const { user, phoneNo } = req.body;
+    const doctorData = req.body;
 
-    if (!user || !phoneNo) {
+    if (!doctorData.user || !doctorData.phoneNo) {
       return res.status(400).json({ message: 'User is required' });
     }
 
-    const doctor = await createDoctor(user, phoneNo);
+    const doctor = await createDoctor(doctorData);
     res.status(201).json(doctor);
   } catch (error) {
     console.error('Error creating patient:', error);
@@ -27,18 +27,33 @@ exports.createDoctorEndpoint = async (req, res) => {
 exports.getDoctorsEndpoint = async (req, res) => {
     try {
         const doctors = await getDoctors();
-        res.status(200).json(doctors);
+        
+        const mapped = doctors.map(doctor => ({
+            ...doctor.toObject(), 
+            id: doctor._id,      
+            user: {
+                ...doctor.user.toObject(),
+                id: doctor.user._id
+            }
+        }));
+
+        res.status(200).json(mapped);
     } catch (error) {
         console.error('Error fetching doctors:', error);
         res.status(500).json({ message: 'Server error. Please try again later.' });
     }
 };
 
+
 exports.getDoctorByIdEndpoint = async (req, res) => {
     try {
         const { id } = req.params;
         const doctor = await findDoctorById(id);
-        res.status(200).json(doctor);
+        const mapped = {
+            ...doctor.toObject(),
+            id: doctor._id
+        }
+        res.status(200).json(mapped);
     } catch (error) {
         console.error('Error removing doctor:', error);
         res.status(500).json({ message: error.message });

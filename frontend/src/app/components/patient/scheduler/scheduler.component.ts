@@ -19,7 +19,7 @@ import { DoctorService } from '../../../services/doctor/doctor.service';
 @Component({
   selector: 'app-scheduler',
   standalone: true,
-  providers: [AuthenticationService, CartService, PatientService],
+  providers: [AuthenticationService, CartService, PatientService, DoctorService],
   imports: [CalendarComponent, NgIf, NgStyle, FormsModule, NgFor],
   templateUrl: './scheduler.component.html',
   styleUrl: './scheduler.component.css'
@@ -60,11 +60,16 @@ export class SchedulerComponent implements OnInit, OnDestroy {
   ) { }
   
   ngOnInit(): void {
-    this.UserIdentityInfo.authenticatedUser$.pipe(takeUntil(this.unsubscribe$)).subscribe({
+    this.UserIdentityInfo.authenticatedUser$.subscribe({
       next: (user) => {
         if (user) {
           this.patientService.getPatientById(user.id).subscribe({
-            next: (patient) => this.patient = patient
+            next: (patient) => {
+              this.patient = patient
+            }, 
+            error: (e) => {
+              console.log(e)
+            }
           })
         }
       }
@@ -72,11 +77,14 @@ export class SchedulerComponent implements OnInit, OnDestroy {
 
     const id: string = this.route.snapshot.params['id'];
 
+    console.log('Param id: ', id);
+
     if (id) {
       this.doctorService.getDoctor(id).subscribe({
         next: (doctor) => {
           console.log(`Successfully fetched doctor, id=${id}`)
           this.doctor = doctor;
+          this.id = id;
         }
       })
     } 
@@ -118,6 +126,8 @@ export class SchedulerComponent implements OnInit, OnDestroy {
 
   onSubmit(form: NgForm) {
     if (form.valid) {
+      this.item.doctor = this.doctor;
+      console.log(this.item)
       this.cartService.addItem(this.patient.cart?.id, this.item).subscribe({
         next: (response) => {
           console.log(`Response: ${response}`);

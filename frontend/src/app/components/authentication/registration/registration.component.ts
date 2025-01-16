@@ -7,7 +7,7 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Role } from '../../../model/enum/Role';
 import { PatientService } from '../../../services/patient/patient.service';
 import { Patient } from '../../../model/Patient';
-import { response } from 'express';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-registration',
@@ -36,7 +36,7 @@ export class RegistrationComponent {
     }
   }
 
-  constructor(private patientService: PatientService) {}
+  constructor(private patientService: PatientService, private router: Router) {}
 
   sectionStyle = (flag: boolean): any => {
     const predicate: boolean = this.overallFilled();
@@ -65,7 +65,10 @@ export class RegistrationComponent {
   submit = (): void => {
     if (this.overallFilled()) {
       this.patientService.addPatient(this.patient).subscribe({
-        next: (response) => console.log(`Response: ${response}`)
+        next: (response) => {
+          console.log(`Response: ${response}`);
+          this.router.navigate(['/login']);
+        }
       })
     }
   }

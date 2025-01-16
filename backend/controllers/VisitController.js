@@ -23,13 +23,16 @@ exports.getDoctorVisitsEndpoint = async (req, res) => {
 }
 
 exports.addVisitEndpoint = async (req, res) => {
-    const { visitData } = req.body;
+    const visitData = req.body;
+
+    console.log('Data: ', visitData)
 
     try {
-        const visit = await addVisit(visitData, patientId, doctorId);
-        res.status(201).json(visit);
+      const visit = await addVisit(visitData);
+      res.status(201).json(visit);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+      console.log('Failed to add visit, error: ', error);
+      res.status(500).json({ message: error.message });
     }
 }
 

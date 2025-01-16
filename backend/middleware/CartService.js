@@ -2,24 +2,25 @@ const Cart = require('../models/Cart');
 const Item = require('../models/Item');
 const mongoose = require('mongoose');
 
-exports.addItemToCart = async (userId, itemData) => {
+exports.addItemToCart = async (id, itemData) => {
   try {
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findById(id);
+
+    console.log(itemData)
+
+    new Error()
+
     if (!cart) {
       throw new Error('Cart not found for the user');
     }
 
-    const { date, type, firstName, lastName, username, sex, age, details, price } = itemData;
+    const { date, type, firstName, lastName, username, sex, age, details, price, doctor } = itemData;
 
     if (!date || !Array.isArray(date)) {
       throw new Error('Invalid date format');
     }
 
-    if (!firstName || !lastName || !username || !sex || !age || !details || !price) {
-      throw new Error('Incomplete item details');
-    }
-
-    const newItem = {
+    const item = new Item({
       date,
       type,
       firstName,
@@ -29,12 +30,14 @@ exports.addItemToCart = async (userId, itemData) => {
       age,
       details,
       price,
-    };
+      doctor
+    })
 
-    cart.items.push(newItem);
-    await cart.save();
+    return item.save().then((savedItem) => {
+      cart.items.push(savedItem._id);
+      return cart.save();
+    })
 
-    return cart;
   } catch (error) {
     throw new Error('Error adding item to cart: ' + error.message);
   }

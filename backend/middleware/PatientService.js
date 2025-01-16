@@ -1,25 +1,52 @@
+const Cart = require('../models/Cart');
 const Patient = require('../models/Patient'); 
 const { createUser } = require('./UserService');
 
 exports.createPatient = async (patientData) => {
-    const user = await createUser(patientData, 'PATIENT');
-    const patient = new Patient({ 
-        user: user._id, 
-        cart: []
+    const user = await createUser(patientData.user, 'PATIENT');
+
+    const cart = new Cart({
+      items: [] 
     });
 
-    return await patient.save();
+    return cart.save().then((savedCart) => {
+      const patient = new Patient({
+          user: user._id,
+          cart: savedCart._id
+      });
+      return patient.save();
+    }).catch((error) => {
+        console.error('Error saving cart or patient:', error);
+        throw new Error('Failed to create patient');
+    });
 };
 
 exports.getPatientByUserId = async (userId) => {
   try {
+    console.log('Retrieving patient: ', userId);
     const patient = await Patient.findOne({ user: userId })
-      .populate('user', 'id firstName lastName username role -password') 
-      .populate('cart');
+      .populate('user', 'firstName lastName username role')
+      .populate({
+        path: 'cart',
+        select: '_id items',
+        populate: {
+          path: 'items',
+          select: '_id date type firstName lastName username sex age details price doctor',
+          populate: {
+            path: 'doctor',
+            select: '_id'
+          }
+        }
+      });
 
+    console.log(patient)
+
+    if (!patient) {
+        throw new Error('Patient not found');
+    }
     return patient;
   } catch (error) {
-    console.error('Error fetching patient by user ID:', error);
-    throw error;
+      console.error(`Error finding patient by user ID: ${error.message}`);
+      throw error;
   }
 };

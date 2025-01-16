@@ -5,7 +5,7 @@ const ScheduledVisit = new mongoose.Schema({
   type: { type: String },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  username: { type: String, required: true },
+  username: { type: String },
   sex: { type: String },
   age: { type: Number, required: true },
   details: { type: String },

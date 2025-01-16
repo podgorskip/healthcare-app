@@ -3,7 +3,7 @@ const SingleDay = require('./SingleDay');
 const User= require('./User');  
 
 const Doctor = new mongoose.Schema({
-  id: { type: String, required: true },                     
+  id: { type: String },                     
   phoneNo: { type: String },                                
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
   availability: {

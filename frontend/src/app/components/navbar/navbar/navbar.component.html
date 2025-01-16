@@ -21,7 +21,7 @@
           <a routerLink="register" class="nav-link">
             <p>Register</p>
           </a>
-          <a [routerLink]="['/calendar', doctor?.id, 'false']" class="nav-link" *ngIf="hasAccess(roles[2])">
+          <a [routerLink]="['/calendar', doctor?.user?.id, 'false']" class="nav-link" *ngIf="hasAccess(roles[2])">
               <p>Calendar</p>
           </a>
           <a routerLink="availability" class="nav-link" *ngIf="hasAccess(roles[2])">

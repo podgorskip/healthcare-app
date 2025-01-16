@@ -1,4 +1,5 @@
 const ScheduledVisit = require('../models/ScheduledVisit');
+const mongoose = require('mongoose');
 
 exports.getPatientVisits = async (id) => {
   try {
@@ -18,12 +19,13 @@ exports.getDoctorVisits = async (id) => {
 
 exports.addVisit = async (visitData) => {
     try {
-        const doctorExists = await mongoose.model('Doctor').exists({ _id: doctorId });
+      console.log('Data doctor: ', visitData)
+        const doctorExists = await mongoose.model('Doctor').exists({ _id: visitData.doctor.id });
         if (!doctorExists) {
             throw new Error('Doctor with provided ID does not exist.');
         }
 
-        const patientExists = await mongoose.model('Patient').exists({ _id: patientId });
+        const patientExists = await mongoose.model('Patient').exists({ _id: visitData.patient.id });
         if (!patientExists) {
             throw new Error('Patient with provided ID does not exist.');
         }
@@ -75,6 +77,7 @@ exports.deleteVisit = async (id) => {
   
       return { message: 'Visit successfully deleted' };
     } catch (error) {
+      console.log('Failed to delete visit, error: ', error);
       throw new Error('Error deleting visit: ' + error.message);
     }
 };
