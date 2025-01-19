@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Authentication } from '../../model/Authentication';
 import { UserIdentityInfo } from '../UserIdentityInfo';
 import { environment } from '../../../environments/environment';
-import { switchMap, tap } from 'rxjs';
+import { catchError, Observable, switchMap, tap } from 'rxjs';
 import { AuthenticationServiceInterface } from '../interfaces/AuthenticationServiceInterface';
 import { Router } from '@angular/router';
 
@@ -30,9 +30,6 @@ export class MongoAuthenticationService implements AuthenticationServiceInterfac
       })
     ).subscribe({
       next: (user) => {
-        console.log('auth: ', user)
-        console.log('Authenticated and retrieved user: ', user);
-
         this.userIdentityInfo.setAuthenticatedUser(user);
         this.router.navigate(['/patient-dashboard']);
       },
@@ -56,5 +53,19 @@ export class MongoAuthenticationService implements AuthenticationServiceInterfac
     return new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('token')}`
       });
+  }
+
+  getAccessToken(): string {
+    return localStorage.getItem('accessToken')!;
+  }
+
+  refreshToken(): Observable<string> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    return this.http.post<string>(`${this.apiUrl}/refresh-token`, { refreshToken }).pipe(
+      catchError(error => {
+        console.error('Token refresh failed:', error);
+        throw error; 
+      })
+    );
   }
 }

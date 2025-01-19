@@ -31,6 +31,10 @@ img {
     width: 25px;
 }
 
+img:hover {
+    cursor: pointer;
+}
+
 .sign-out {
     width: 20px;
 }

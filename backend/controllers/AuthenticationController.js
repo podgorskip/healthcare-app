@@ -73,4 +73,30 @@ exports.accountDetails = async (req, res) => {
       console.error("Error retrieving user:", err);
       res.status(500).json({ message: 'Server error', error: err.message });
     }
+}
+
+exports.refreshToken = (req, res) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(403).json({ message: "No refresh token provided." });
   }
+
+  jwt.verify(refreshToken, REFRESH_SECRET_KEY, { algorithms: ["HS256"] }, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid or expired refresh token." });
+    }
+
+    const newAccessToken = jwt.sign(
+      { role: user.role },
+      SECRET_KEY,
+      {
+        algorithm: "HS256",
+        expiresIn: "2h",
+        subject: user._id.toString(),
+      }
+    );
+
+    res.json({ accessToken: newAccessToken });
+  });
+};
