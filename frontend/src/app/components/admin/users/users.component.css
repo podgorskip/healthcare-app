@@ -1,0 +1,33 @@
+.users {
+    padding: 1em;
+}
+
+.role {
+    text-transform: lowercase;
+    text-transform: capitalize;
+}
+
+img {
+    width: 30px;
+    height: 30px;
+}
+
+img:hover {
+    cursor: pointer;
+}
+
+.user-list {
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    gap: 1em;
+}
+
+.user {
+    width: 300px;
+    display: flex;
+    padding: 1em;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 5px;
+}

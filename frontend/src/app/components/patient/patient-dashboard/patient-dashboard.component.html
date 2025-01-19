@@ -7,14 +7,14 @@
         </div>
         <div *ngFor="let visit of cancelledVisits" class="visit">
             <div>
-                <p>{{authenticatedUser.firstName}} {{authenticatedUser.lastName}}</p>
+                <p>{{visit.firstName}} {{visit.lastName}}</p>
                 <p>{{formatDates(visit.date)}}</p>
             </div>
             <div>
                 <p>{{visit.type}}</p>
                 <p>{{visit.details}}</p>
             </div>
-            <img src="assets/close.png" alt="Remove" (click)="cancelVisit(visit)">
+            <img src="assets/close.png" alt="Remove" (click)="cancelVisit(visit.id)">
         </div>
     </div>
 
@@ -35,7 +35,7 @@
                 <p>{{visit.type}}</p>
                 <p>{{visit.details}}</p>
             </div>
-            <img src="assets/close.png" alt="Cancel" (click)="cancelVisit(visit)">
+            <img src="assets/close.png" alt="Cancel" (click)="cancelVisit(visit.id)">
         </div>
     </div>
 </div>

@@ -1,13 +1,13 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-dark">
     <div class="container-fluid">
-      <div class="const">
-        <a routerLink="patient-dashboard" class="nav-link" [style.display]="isAuthenticated() ? 'block' : 'none'">
+      <div class="const"> 
+        <a routerLink="patient-dashboard" class="nav-link" [style.display]="isAuthenticated() && Authorization.isPatient(authenticatedUser?.role) ? 'block' : 'none'">
           <img src="assets/menu.png" alt="Menu icon" class="menu">
         </a>
         <a routerLink="login" class="nav-link" [style.display]="isAuthenticated() ? 'none' : 'block'">
           <img src="assets/user.png" alt="Sign in">
         </a>        
-        <a routerLink="cart" class="nav-link cart" *ngIf="hasAccess(roles[3])">
+        <a routerLink="cart" class="nav-link cart" *ngIf="Authorization.isPatient(authenticatedUser?.role)">
           <p>{{cartItemsCount}}</p>
           <img src="assets/basket.png" alt="Cart icon">
         </a>
@@ -18,21 +18,30 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
         <div class="navbar-nav">
-          <a routerLink="register" class="nav-link">
-            <p>Register</p>
+          <a [routerLink]="['/calendar', doctor?.user?.id, 'false']" class="nav-link" *ngIf="Authorization.isDoctor(authenticatedUser?.role)">
+            <p>Calendar</p>
           </a>
-          <a [routerLink]="['/calendar', doctor?.user?.id, 'false']" class="nav-link" *ngIf="hasAccess(roles[2])">
-              <p>Calendar</p>
-          </a>
-          <a routerLink="availability" class="nav-link" *ngIf="hasAccess(roles[2])">
+          <a routerLink="availability" class="nav-link" *ngIf="Authorization.isDoctor(authenticatedUser?.role)">
               <p>Availability</p>
           </a>
           <a routerLink="doctors" class="nav-link">
             <p>Doctors</p>
           </a>
-          <a routerLink="settings" class="nav-link" *ngIf="hasAccess(roles[1])">
+          <a routerLink="visit-history" class="nav-link" *ngIf="Authorization.isPatient(authenticatedUser?.role)">
+            <p>History</p>
+          </a>
+          <a routerLink="users" class="nav-link" *ngIf="Authorization.isAdmin(authenticatedUser?.role)">
+            <p>Users</p>
+          </a>
+          <a routerLink="settings" class="nav-link" *ngIf="Authorization.isAdmin(authenticatedUser?.role)">
             <p>Settings</p>
           </a>
+          <a routerLink="register" class="nav-link">
+            <p>Register</p>
+          </a>
+          <a (click)="logout()" class="nav-link" [style.display]="isAuthenticated() ? 'block' : 'none'">
+            <img src="assets/logout.png" alt="Sign out" class="sign-out">
+          </a> 
         </div>
       </div>
     </div>

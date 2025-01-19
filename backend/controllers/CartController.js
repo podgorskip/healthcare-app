@@ -15,10 +15,10 @@ exports.addItemToCartEndpoint = async (req, res) => {
 }
 
 exports.removeItemFromCartEndpoint = async (req, res) => {
-  const { itemId } = req.params;
+  const { id } = req.params;
 
   try {
-    const updatedCart = await cartService.removeItemFromCart(cartId, itemId);
+    const updatedCart = await cartService.removeItemFromCart(id);
     res.status(200).json(updatedCart);
   } catch (error) {
     res.status(500).json({ message: error.message });

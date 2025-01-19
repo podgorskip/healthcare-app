@@ -8,6 +8,9 @@ import { SettingsComponent } from './components/admin/settings/settings.componen
 import { RegistrationComponent } from './components/authentication/registration/registration.component';
 import { LoginComponent } from './components/authentication/login/login.component';
 import { DoctorsComponent } from './components/doctors/doctors.component';
+import { VisitHistoryComponent } from './components/patient/visit-history/visit-history.component';
+import { UsersComponent } from './components/admin/users/users.component';
+import { DoctorCreatorComponent } from './components/admin/doctor-creator/doctor-creator.component';
 
 export const routes: Routes = [
     { path: "calendar/:id/:schedule", component: CalendarComponent },
@@ -19,5 +22,8 @@ export const routes: Routes = [
     { path: "settings", component: SettingsComponent },
     { path: "register", component: RegistrationComponent },
     { path: "login", component: LoginComponent },
-    { path: "doctors", component: DoctorsComponent}
+    { path: "doctors", component: DoctorsComponent },
+    { path: "visit-history", component: VisitHistoryComponent },
+    { path: "users", component: UsersComponent },
+    { path: "doctors/create", component: DoctorCreatorComponent }
 ];

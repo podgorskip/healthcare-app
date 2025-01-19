@@ -8,8 +8,6 @@
 
 .doctors > div {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    justify-content: space-between;
 }
 
 .doctor {
@@ -21,7 +19,25 @@
     gap: 1.5em;
     margin-bottom: 2em;
     justify-self: start;
+}
 
+.nav-link {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    margin-bottom: 1em;
+}
+
+.nav-link:hover {
+    cursor: pointer;
+}
+
+.nav-link img {
+    width: 30px;
+}
+
+.doctor:hover {
+    cursor: pointer;
 }
 
 .doctor div {
@@ -35,6 +51,17 @@
     width: 30px;
 }
 
+.doctor-list {
+    display: flex;
+    gap: 1em;
+    overflow-x: auto;
+}
+
 .doctor-list img:hover {
     cursor: pointer;
+}
+
+.selected-doctor {
+    transform: scale(1.0); 
+    border: 1px solid rgb(30, 30, 30);
 }

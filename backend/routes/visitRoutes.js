@@ -9,5 +9,6 @@ router.get('/doctors/:id', verifyToken, visitController.getDoctorVisitsEndpoint)
 router.post('/', verifyToken, visitController.addVisitEndpoint);
 router.put('/:id/cancel', verifyToken, visitController.cancelVisitEndpoint);
 router.delete('/:id', verifyToken, visitController.deleteVisitEndpoint);
+router.post('/:id/reviews', verifyToken, visitController.addReviewEndpoint);
 
 exports.router = router;

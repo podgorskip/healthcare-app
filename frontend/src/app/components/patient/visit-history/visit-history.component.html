@@ -1,0 +1,18 @@
+<div class="visit-history">
+    <h3>Visit history</h3>
+    <div class="visit-list">
+        <div class="visit" *ngFor="let visit of visits">
+            <div>
+                <p>{{visit.firstName}} {{visit.lastName}}</p>
+                <p>{{visit.doctor?.user?.firstName}}</p>
+                <p>{{DateUtils.formatSelectedDays(visit.date)}}</p>
+            </div>
+            <div>
+                <p>{{visit.type}}</p>
+                <p>{{visit.details}}</p>
+            </div>
+            <img src="assets/review.png" alt="Review" (click)="onReviewClick(visit.id)">
+        </div>
+    </div>
+    <app-review *ngIf="selectedVisit !== null" [id]="selectedVisit"/>
+</div>

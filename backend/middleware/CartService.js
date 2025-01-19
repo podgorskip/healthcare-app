@@ -39,23 +39,33 @@ exports.addItemToCart = async (id, itemData) => {
     })
 
   } catch (error) {
+    console.error('Error adding item:', error);
     throw new Error('Error adding item to cart: ' + error.message);
   }
 };
 
-exports.removeItemFromCart = async (cartId, itemId) => {
+exports.removeItemFromCart = async (id) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const cart = await Cart.findById(cartId);
-    if (!cart) {
-      throw new Error('Cart not found');
+    const deletedItem = await Item.findOneAndDelete({ _id: id }, { session });
+    if (!deletedItem) {
+      throw new Error('Item not found');
     }
 
-    cart.items = cart.items.filter((id) => id.toString() !== itemId);
-    await cart.save();
+    await Cart.updateMany(
+      { items: id },
+      { $pull: { items: id } },
+      { session }
+    );
 
-    return cart;
+    await session.commitTransaction();
   } catch (error) {
+    await session.abortTransaction();
+    console.error('Error removing item:', error);
     throw new Error('Error removing item from cart: ' + error.message);
+  } finally {
+    session.endSession();
   }
 };
 
@@ -68,6 +78,7 @@ exports.getCartItems = async (userId) => {
 
     return cart.items;
   } catch (error) {
+    console.error('Error retrieving items:', error);
     throw new Error('Error retrieving items from cart: ' + error.message);
   }
 };

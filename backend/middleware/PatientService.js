@@ -25,7 +25,7 @@ exports.getPatientByUserId = async (userId) => {
   try {
     console.log('Retrieving patient: ', userId);
     const patient = await Patient.findOne({ user: userId })
-      .populate('user', 'firstName lastName username role')
+      .populate('user', 'firstName lastName username role banned')
       .populate({
         path: 'cart',
         select: '_id items',

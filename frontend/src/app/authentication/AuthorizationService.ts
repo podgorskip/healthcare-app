@@ -11,7 +11,7 @@ export class Authorization {
         return role === Role.DOCTOR;
     }
 
-    static isPatient = (role: Role | undefined): boolean => {
+    static isPatient = (role: Role | undefined | null): boolean => {
         if (!role) return false;
         return role === Role.PATIENT;
     }

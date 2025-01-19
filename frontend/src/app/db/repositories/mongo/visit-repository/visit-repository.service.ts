@@ -5,6 +5,7 @@ import { environment } from '../../../../../environments/environment';
 import { Observable } from 'rxjs';
 import { MongoAuthenticationService } from '../../../../authentication/mongo/MongoAuthenticationService';
 import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
+import { Review } from '../../../../model/Review';
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +59,17 @@ export class MongoVisitRepository implements VisitRepositoryInterface {
     try {
       const headers = this.auth.authHeaders();
       return this.http.delete<string>(`${this.apiUrl}/${id}`, { headers });
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
+
+  addVisitReview(review: { score: number, comment: string}, id: string): Observable<any> {
+    console.log(`.addVisitReview - invoked`);
+    try {
+      const headers = this.auth.authHeaders();
+      return this.http.post<string>(`${this.apiUrl}/${id}/reviews`, review, { headers });
     } catch (error) {
       console.error('Error:', error);
       throw error;

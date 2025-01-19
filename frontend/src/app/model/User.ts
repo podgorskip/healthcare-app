@@ -10,4 +10,5 @@ export interface User {
     sex?: Sex;
     age?: number;
     password?: String;
+    banned?: boolean;
 }

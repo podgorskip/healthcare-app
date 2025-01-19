@@ -1,4 +1,5 @@
 const ScheduledVisit = require('../models/ScheduledVisit');
+const Review = require('../models/Review');
 const mongoose = require('mongoose');
 
 exports.getPatientVisits = async (id) => {
@@ -81,3 +82,26 @@ exports.deleteVisit = async (id) => {
       throw new Error('Error deleting visit: ' + error.message);
     }
 };
+
+exports.addReview = async (id, reviewData) => {
+  try {
+    const visit = await ScheduledVisit.findById(id);
+
+    console.log(visit)
+
+    if (!visit) {
+      throw Error('Visit not found.');
+    }
+
+    const review = new Review({
+      score: reviewData.score,
+      date: new Date(),
+      comment: reviewData.comment,
+      visit: visit._id
+    });
+
+    return await review.save();
+  } catch (error) {
+    throw new Error('Error adding review: ' + error.message);
+  }
+}

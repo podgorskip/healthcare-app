@@ -22,6 +22,7 @@ export class MongoCartRepository implements CartRepositoryInterface {
 
   removeItem(id: string): Observable<Cart> {
     const headers = this.auth.authHeaders();
+    console.log('ID to be removed: ', id)
     return this.http.delete<Cart>(`${this.apiUrl}/${id}`, { headers });
   }
 

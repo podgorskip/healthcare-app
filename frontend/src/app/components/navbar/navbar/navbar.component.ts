@@ -1,3 +1,4 @@
+import { Authorization } from './../../../authentication/AuthorizationService';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CartService } from '../../../services/cart/cart.service';
@@ -7,7 +8,7 @@ import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
 import { CommonModule, NgIf } from '@angular/common';
 import { Role } from '../../../model/enum/Role';
 import { PatientService } from '../../../services/patient/patient.service';
-import { catchError, Subject, switchMap, tap } from 'rxjs';
+import { catchError, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { Patient } from '../../../model/Patient';
 import { Doctor } from '../../../model/Doctor';
 import { DoctorService } from '../../../services/doctor/doctor.service';
@@ -22,30 +23,32 @@ import { DoctorService } from '../../../services/doctor/doctor.service';
 })
 export class NavbarComponent implements OnInit {
   private unsubscribe$ = new Subject<void>();
+  Authorization = Authorization;
   cartItemsCount: number = 0;
-  authenticatedUser?: User;
+  authenticatedUser: User | null = null;
   patient?: Patient;
   doctor?: Doctor;
-
-  roles: { [key: number]: Role } = {
-    1: Role.ADMIN,
-    2: Role.DOCTOR,
-    3: Role.PATIENT,
-  };
   
   constructor(
     private userIdentityInfo: UserIdentityInfo, 
     private cartService: CartService, 
     private patientService: PatientService,
-    private doctorService: DoctorService) { }
+    private doctorService: DoctorService,
+    private authenticationService: AuthenticationService) { }
 
   ngOnInit(): void {
     this.userIdentityInfo.authenticatedUser$
-      .pipe(
+      .pipe(takeUntil(this.unsubscribe$)).pipe(
         tap((user) => {
           if (user) {
             console.log('Authenticated user: ', user);
             this.authenticatedUser = user;
+          } else {
+            console.log('Unauthenticated.');
+            this.authenticatedUser = null;
+            this.patient = undefined;
+            this.doctor = undefined;
+            this.cartItemsCount = 0;
           }
         }),
         switchMap((user) => {
@@ -53,7 +56,7 @@ export class NavbarComponent implements OnInit {
             return []; 
           }
   
-          if (this.hasAccess(Role.PATIENT)) {
+          if (Authorization.isPatient(this.authenticatedUser?.role)) {
             return this.patientService.getPatientById(user.id).pipe(
               switchMap((patient) => {
                 return this.cartService.getCart(patient.id).pipe(
@@ -68,7 +71,7 @@ export class NavbarComponent implements OnInit {
             );
           }
   
-          if (this.hasAccess(Role.DOCTOR)) {
+          if (Authorization.isDoctor(this.authenticatedUser?.role)) {
             return this.doctorService.getDoctor(user.id).pipe(
               tap((doctor) => {
                 this.doctor = doctor;
@@ -88,6 +91,10 @@ export class NavbarComponent implements OnInit {
       .subscribe();
   }
   
+  logout = () => {
+    this.authenticationService.authenticationService.logout();
+    this.userIdentityInfo.setAuthenticatedUser(null);
+  }
 
   ngOnDestroy(): void {
     this.unsubscribe$.next();
@@ -95,10 +102,6 @@ export class NavbarComponent implements OnInit {
   }
 
   isAuthenticated = (): boolean => {
-    return this.authenticatedUser !== undefined;
-  }
-
-  hasAccess = (role: Role): boolean => {
-    return this.authenticatedUser?.role === role;
+    return this.authenticatedUser != null;
   }
 }

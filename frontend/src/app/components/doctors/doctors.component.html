@@ -1,8 +1,17 @@
 <div class="doctors">
     <h3>Doctors</h3>
     <div>
+        <a routerLink="create" class="nav-link" *ngIf="Authorization.isAdmin(authenticatedUser?.role)">
+            <img src="assets/add-user.png">
+            <p>Add doctor</p>
+        </a>
         <div class="doctor-list">
-            <div *ngFor="let doctor of doctors" class="doctor">
+            <div 
+                class="doctor" 
+                *ngFor="let doctor of doctors" 
+                [ngClass]="{'selected-doctor': doctor.id === selectedDoctor}"
+                (click)="selectedDoctor = doctor.id"
+            >
                 <div>
                     <p>{{doctor.user.firstName}} {{doctor.user.lastName}}</p>
                     <p>{{doctor.phoneNo}}</p>
@@ -11,6 +20,6 @@
                 <img src="assets/trash-1.png" (click)="onDoctorDelete(doctor.id)" *ngIf="Authorization.isAdmin(authenticatedUser?.role)">
             </div>
         </div>
-        <doctor-creator *ngIf="Authorization.isAdmin(authenticatedUser?.role)"/>
     </div>
+    <app-review *ngIf="selectedDoctor" [doctorId]="selectedDoctor"/>
 </div>

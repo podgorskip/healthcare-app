@@ -37,7 +37,7 @@
             </button>
         </div>
     </div>
-    <p *ngIf="!patient.cart.items">
+    <p *ngIf="!patient.cart.items?.length">
         Ups... there's nothing in the cart yet
     </p>
 </div>

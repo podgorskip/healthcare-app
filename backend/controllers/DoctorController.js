@@ -5,7 +5,7 @@ const {
     findDoctorById, 
     getAvailabilityByDoctorId, 
     addAvailabilityForDoctor, 
-    getDoctorByUserId 
+    getDoctorByUserId,
 } = require('../middleware/DoctorService');
   
 exports.createDoctorEndpoint = async (req, res) => {

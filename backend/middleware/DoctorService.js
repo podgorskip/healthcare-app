@@ -20,7 +20,7 @@ exports.createDoctor = async (doctorData) => {
 };
 
 exports.getDoctors = async () => {
-    return await Doctor.find().populate('user', 'firstName lastName username role');
+    return await Doctor.find().populate('user', 'firstName lastName username role banned');
 };
 
 exports.findDoctorById = async (userId) => {

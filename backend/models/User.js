@@ -9,7 +9,8 @@ const User = new mongoose.Schema({
     username: { type: String, required: true },
     password: { type: String, required: true},
     sex: { type: String },
-    age: { type: Number }
+    age: { type: Number },
+    banned: { type: Boolean, default: false }
 });
 
 User.statics.findByUsername = function (username) {

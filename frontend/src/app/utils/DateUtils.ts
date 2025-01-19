@@ -54,6 +54,16 @@ export class DateUtils {
       return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     } 
 
+    static formatDate = (date: Date): string => {
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+      };
+    
+      return new Intl.DateTimeFormat('en-US', options).format(new Date(date));
+    }
+
     private static format = (date: Date): string => {
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0'); 

@@ -30,3 +30,26 @@ exports.removeUser = async (userId) => {
         throw error;
     }
 };
+
+exports.getUsers = async () => {
+    try {
+        const users = await User.find({});
+        return users;
+    } catch (error) {
+        throw new Error(`Error fetching users: ${error.message}`);
+    }
+}
+
+exports.toggleUserBan = async (id) => {
+    try {
+        const user = await User.findOne({ _id: id });
+        if (!user) {
+            throw new Error('User not found');
+        }
+        user.banned = user.banned ? false : true;
+        await user.save();
+        return user;
+    } catch (error) {
+        throw new Error(`Error banning user: ${error.message}`);
+    }
+}

@@ -50,4 +50,9 @@ export class VisitService {
     console.log(`.cancelVisit - invoked, visit id=${id}`);
     return this.visitRepository.cancelVisit(id);
   }
+
+  addVisitReview(review: { score: number, comment: string }, id: string): Observable<any> {
+    console.log(`.addVisitReview - invoked, visit id=${id}`);
+    return this.visitRepository.addVisitReview(review, id);
+  }
 }

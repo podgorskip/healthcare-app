@@ -1,18 +1,18 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { DoctorService } from '../../services/doctor/doctor.service';
 import { Doctor } from '../../model/Doctor';
-import { DoctorCreatorComponent } from '../admin/doctor-creator/doctor-creator.component';
 import { User } from '../../model/User';
 import { UserIdentityInfo } from '../../authentication/UserIdentityInfo';
-import { NgFor, NgIf } from '@angular/common';
+import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Authorization } from '../../authentication/AuthorizationService';
+import { ReviewComponent } from '../review/review/review.component';
 
 @Component({
   selector: 'app-doctors',
   standalone: true,
-  imports: [DoctorCreatorComponent, NgIf, NgFor],
+  imports: [NgIf, NgFor, RouterLink, ReviewComponent, CommonModule],
   providers: [DoctorService],
   templateUrl: './doctors.component.html',
   styleUrl: './doctors.component.css'
@@ -20,7 +20,8 @@ import { Authorization } from '../../authentication/AuthorizationService';
 export class DoctorsComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject<void>();
   Authorization = Authorization;
-  authenticatedUser?: User;
+  authenticatedUser: User | null = null;
+  selectedDoctor: string = '';
   doctors: Doctor[] = [];
 
   constructor(
@@ -45,6 +46,9 @@ export class DoctorsComponent implements OnInit, OnDestroy {
       next: (doctors) => {
         console.log('Fetched doctors: ', doctors);
         this.doctors = doctors;
+        if (doctors.length) {
+          this.selectedDoctor = doctors[0].id;
+        }
       }
     })
 

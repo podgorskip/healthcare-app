@@ -34,17 +34,17 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
     return DateUtils.formatSelectedDays(dates);
   }
 
-  cancelVisit = (visit: ScheduledVisit): void => {
-    console.log(`.cancelVisit - invoked, visit id=${visit.id}`);
+  cancelVisit = (id: string): void => {
+    console.log(`.cancelVisit - invoked, visit id=${id}`);
 
     const userChoice = confirm("Are you sure you want to cancel the visit?");
 
     if (!userChoice) return;
 
-    this.visitService.removeVisit(visit.id).subscribe({
+    this.visitService.removeVisit(id).subscribe({
       next: (response) => {
         console.log(`Successfully cancelled visit`);
-        this.visits = this.visits.filter(v => v.id !== visit.id);
+        this.visits = this.visits.filter(v => v.id !== id);
       },
       error: (err) => console.error("Error cancelling visit:", err),
     });
@@ -72,7 +72,7 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
                   this.cancelledVisits = visits.filter(visit =>
                     visit.cancelled && new Date(visit.date[0].day).toISOString().split('T')[0] >= new Date().toISOString().split('T')[0]
                   );
-                  this.visits = visits.filter(visit => !visit.cancelled);
+                  this.visits = visits.filter(visit => !visit.cancelled && new Date(visit.date[0].day).getTime() > new Date().getTime());
                 },
                 error: (err) => {
                   console.log('Error retrieving patient visits:', err);

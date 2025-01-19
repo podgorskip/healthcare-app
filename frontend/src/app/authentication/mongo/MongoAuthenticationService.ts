@@ -42,6 +42,16 @@ export class MongoAuthenticationService implements AuthenticationServiceInterfac
     });
   }
 
+  logout(): void {
+    console.log('.logout - invoked');
+
+    localStorage.removeItem('token');
+    this.userIdentityInfo.setAuthenticatedUser(null);
+
+    this.router.navigate(['/login']);
+    console.log('User logged out successfully.');
+  }
+
   authHeaders(): HttpHeaders {
     return new HttpHeaders({
         Authorization: `Bearer ${localStorage.getItem('token')}`
