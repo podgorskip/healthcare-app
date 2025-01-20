@@ -23,8 +23,7 @@ export class CartService {
     return this.cartRepository.removeItem(id);
   }
 
-  getCart = (id: string): Observable<Cart> => {
+  getCart = (id: string): Observable<Item[]> => {
     return this.cartRepository.getCart(id);
-
   }
 }

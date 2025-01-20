@@ -26,8 +26,8 @@ export class MongoCartRepository implements CartRepositoryInterface {
     return this.http.delete<Cart>(`${this.apiUrl}/${id}`, { headers });
   }
 
-  getCart(id: string): Observable<Cart> {
+  getCart(id: string): Observable<Item[]> {
     const headers = this.auth.authHeaders();
-    return this.http.get<Cart>(`${this.apiUrl}/${id}`, { headers });
+    return this.http.get<Item[]>(`${this.apiUrl}/${id}`, { headers });
   }
 }

@@ -3,6 +3,7 @@ import { VisitRepositoryInterface } from '../../db/interfaces/VisitRepositoryInt
 import { MongoVisitRepository } from '../repositories/mongo/visit-repository/visit-repository.service';
 import { DatabaseConfigService } from '../DatabaseConfigService';
 import { DatabaseType } from '../DatabaseType';
+import { FirebaseVisitRepository } from '../repositories/firebase/visit-repository/visit-repository.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ import { DatabaseType } from '../DatabaseType';
 export class VisitRepositoryFactory {
   constructor(
     private mongoRepo: MongoVisitRepository,
+    private fireRepo: FirebaseVisitRepository,
     private databaseConfig: DatabaseConfigService
   ) {}
 
@@ -17,7 +19,8 @@ export class VisitRepositoryFactory {
     switch(this.databaseConfig.getDatabase()) {
       case DatabaseType.MONGODB:
         return this.mongoRepo;
-
+      case DatabaseType.FIREBASE:
+        return this.fireRepo;
       default:
         throw new Error(`Database type not found`);
     }

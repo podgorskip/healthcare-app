@@ -1,6 +1,6 @@
 <div class="cart">
     <h3>Cart</h3>
-    <div class="items" *ngIf="patient.cart.items?.length">
+    <div class="items" *ngIf="patient.cart.items">
         <div *ngFor="let item of patient.cart.items" class="item">
             <input type="checkbox" id={{item.id}} (change)="addItem(item.id)">
             <div>

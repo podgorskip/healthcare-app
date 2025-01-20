@@ -59,11 +59,10 @@ export class NavbarComponent implements OnInit {
           if (Authorization.isPatient(this.authenticatedUser?.role)) {
             return this.patientService.getPatientById(user.id).pipe(
               switchMap((patient) => {
-                return this.cartService.getCart(patient.id).pipe(
-                  tap((cart) => {
+                return this.cartService.getCart(user.id).pipe(
+                  tap((items) => {
                     this.patient = patient;
-                    this.cartItemsCount = cart.items ? cart.items.length : 0;
-                    this.patient.cart = cart;
+                    this.cartItemsCount = items ? items.length : 0;
                     this.patient.user = user;
                   })
                 );

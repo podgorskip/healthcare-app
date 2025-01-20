@@ -2,42 +2,57 @@ import { Injectable } from '@angular/core';
 import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
-import { Router } from '@angular/router';
-import { MongoAuthenticationService } from '../authentication/mongo/MongoAuthenticationService';
+import { AuthenticationServiceInterface } from '../authentication/interfaces/AuthenticationServiceInterface';
+import { AuthenticationServiceFactory } from '../authentication/factory/AuthenticationServiceFactory';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {
+  private authenticationService: AuthenticationServiceInterface;
 
-  constructor(private authService: MongoAuthenticationService, private router: Router) {}
+  constructor(private auth: AuthenticationServiceFactory) {
+    this.authenticationService = auth.getService();
+  }
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const accessToken = this.authService.getAccessToken(); 
-    console.log('Intercepting: ', accessToken);
-    const clonedRequest = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const accessToken = localStorage.getItem('token');
 
-    return next.handle(clonedRequest).pipe(
-      catchError((error: HttpErrorResponse) => {
-        if (error.status === 401 && error.error.message === 'Token expired') {
-          return this.authService.refreshToken().pipe(
-            switchMap((newToken: string) => {
-              const newRequest = req.clone({
-                setHeaders: {
-                  Authorization: `Bearer ${newToken}`
-                }
-              });
-              return next.handle(newRequest);
-            }),
-            catchError(() => {
-              this.authService.logout(); 
-              this.router.navigate(['/login']);
-              return throwError(error);
-            })
-          );
+    if (accessToken) {
+      request = this.addToken(request, accessToken);
+    }
+
+    return next.handle(request).pipe(
+      catchError((error) => {
+        if (error.status === 401 && accessToken) {
+          return this.handleTokenExpired(request, next);
         }
+
+        return throwError(error);
+      })
+    );
+  }
+
+  private addToken(request: HttpRequest<any>, token: string): HttpRequest<any> {
+    return request.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  }
+
+  private handleTokenExpired(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    console.log('Handling expired token.');
+    
+    return this.authenticationService.refreshAccessToken().pipe(
+      switchMap(() => {
+        const newAccessToken = localStorage.getItem('token');
+        if (newAccessToken) {
+          return next.handle(this.addToken(request, newAccessToken));
+        } else {
+          throw new Error('No access token found.');
+        }
+      }),
+      catchError((error) => {
+        console.error('Error handling expired access token:', error);
         return throwError(error);
       })
     );

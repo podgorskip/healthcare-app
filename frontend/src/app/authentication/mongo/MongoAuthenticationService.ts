@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Authentication } from '../../model/Authentication';
 import { UserIdentityInfo } from '../UserIdentityInfo';
 import { environment } from '../../../environments/environment';
-import { catchError, Observable, switchMap, tap } from 'rxjs';
+import { catchError, Observable, switchMap, tap, throwError } from 'rxjs';
 import { AuthenticationServiceInterface } from '../interfaces/AuthenticationServiceInterface';
 import { Router } from '@angular/router';
 
@@ -19,19 +19,18 @@ export class MongoAuthenticationService implements AuthenticationServiceInterfac
   authenticate(credentials: Authentication): void {
     console.log('.authenticate - invoked');
 
-    this.http.post<{ token: string; user: Partial<User> }>(`${this.apiUrl}/authenticate`, credentials).pipe(
+    this.http.post<{ accessToken: string; refreshToken: string }>(`${this.apiUrl}/authenticate`, credentials).pipe(
       tap((response) => {
-        localStorage.setItem('token', response.token);
-        console.log(response);
+        localStorage.setItem('token', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
       }),
       switchMap(() => {
-        const headers = this.authHeaders();
-        return this.http.get<User>(`${this.apiUrl}/account`, { headers }); 
+        return this.http.get<User>(`${this.apiUrl}/account`); 
       })
     ).subscribe({
       next: (user) => {
         this.userIdentityInfo.setAuthenticatedUser(user);
-        this.router.navigate(['/patient-dashboard']);
+        this.router.navigate(['/doctors']);
       },
       error: (error) => {
         console.error('Authentication or user retrieval failed:', error);
@@ -39,10 +38,26 @@ export class MongoAuthenticationService implements AuthenticationServiceInterfac
     });
   }
 
+  refreshAccessToken(): Observable<any> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    return this.http.post<{ accessToken: string }>(`${this.apiUrl}/refresh-token`, { refreshToken }).pipe(
+      tap((response) => {
+        localStorage.setItem('token', response.accessToken);
+      }),
+      catchError((error) => {
+        console.error('Error refreshing access token:', error);
+        return throwError(() => new Error(error)); 
+      })
+    );
+  }
+  
   logout(): void {
     console.log('.logout - invoked');
 
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+
     this.userIdentityInfo.setAuthenticatedUser(null);
 
     this.router.navigate(['/login']);

@@ -5,7 +5,7 @@ import { DatabaseType } from './DatabaseType';
   providedIn: 'root'
 })
 export class DatabaseConfigService {
-  private database: DatabaseType = DatabaseType.MONGODB;  
+  private database: DatabaseType = DatabaseType.FIREBASE;  
 
   constructor() {}
 

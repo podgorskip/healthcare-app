@@ -3,6 +3,7 @@ import { MongoCartRepository } from "../repositories/mongo/cart-repository/cart-
 import { DatabaseConfigService } from "../DatabaseConfigService";
 import { DatabaseType } from "../DatabaseType";
 import { CartRepositoryInterface } from "../interfaces/CartRepositoryInterface";
+import { FirebaseCartRepository } from "../repositories/firebase/cart-repository/cart-repository.service";
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ import { CartRepositoryInterface } from "../interfaces/CartRepositoryInterface";
 export class CartRepositoryFactory {
   constructor(
     private mongoRepo: MongoCartRepository,
+    private fireRepo: FirebaseCartRepository,
     private databaseConfig: DatabaseConfigService
   ) {}
 
@@ -17,7 +19,8 @@ export class CartRepositoryFactory {
     switch(this.databaseConfig.getDatabase()) {
       case DatabaseType.MONGODB:
         return this.mongoRepo;
-   
+      case DatabaseType.FIREBASE:
+        return this.fireRepo;
       default:
         throw new Error(`Database type not found`);
     }
