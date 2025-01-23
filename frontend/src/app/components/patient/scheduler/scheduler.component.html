@@ -10,19 +10,19 @@
                 <img src="assets/calendar.png" alt="Calendar icon">
                 <p>Open calendar</p>
             </button>
-            <div *ngIf="scheduledVisit.date.length">
+            <div *ngIf="item.date.length">
                 {{formatSelectedDays()}}
             </div>
         </div>
-        <div class="section" [ngStyle]="sectionStyle(scheduledVisit.date)">
-            <p [ngStyle]="sectionBorderStyle(scheduledVisit.date)">2</p>
+        <div class="section" [ngStyle]="sectionStyle(item.date)">
+            <p [ngStyle]="sectionBorderStyle(item.date)">2</p>
             <p>Fill in form</p>
         </div>
-        <div class="form-section" *ngIf="scheduledVisit.date.length">
+        <div class="form-section" *ngIf="item.date.length">
             <form #visitDetails="ngForm" (ngSubmit)="onSubmit(visitDetails)">
                 <label for="first-name">First name</label>
                 <div>
-                    <input type="text" id="first-name" name="first-name" [(ngModel)]="scheduledVisit.firstName" required #firstName="ngModel">
+                    <input type="text" id="first-name" name="first-name" [(ngModel)]="item.firstName" required #firstName="ngModel">
                     <div *ngIf="firstName.invalid && firstName.touched" class="error-message">
                         First name is required.
                     </div>
@@ -30,7 +30,7 @@
 
                 <label for="last-name">Last name</label>
                 <div>
-                    <input type="text" id="last-name" name="last-name" [(ngModel)]="scheduledVisit.lastName" required #lastName="ngModel">
+                    <input type="text" id="last-name" name="last-name" [(ngModel)]="item.lastName" required #lastName="ngModel">
                     <div *ngIf="lastName.invalid && lastName.touched" class="error-message">
                         Last name is required.
                     </div>
@@ -40,13 +40,13 @@
                 <div class="radios">
                     <div *ngFor="let type of availableVisitTypes">
                         <label for="{{type}}">{{type}}</label>
-                        <input type="radio" name="type" id="{{type}}" [value]="type" [(ngModel)]="scheduledVisit.type" required>
+                        <input type="radio" name="type" id="{{type}}" [value]="type" [(ngModel)]="item.type" required>
                     </div>
                 </div>
                 
                 <label for="age">Age</label>
                 <div>
-                    <input type="number" min="1" id="age" name="age" [(ngModel)]="scheduledVisit.age" required #age="ngModel">
+                    <input type="number" min="1" id="age" name="age" [(ngModel)]="item.age" required #age="ngModel">
                     <div *ngIf="age.invalid && age.touched" class="error-message">
                         Age is required and must be a valid number.
                     </div>
@@ -56,13 +56,13 @@
                 <div class="radios">
                     <div *ngFor="let s of sex">
                         <label for="{{s}}">{{s}}</label>
-                        <input type="radio" name="sex" id="{{s}}" value="{{s}}" [(ngModel)]="scheduledVisit.sex" required>
+                        <input type="radio" name="sex" id="{{s}}" value="{{s}}" [(ngModel)]="item.sex" required>
                     </div>
                 </div>
 
                 <label for="details">Details</label>
                 <div>
-                    <input type="text" id="details" name="details" [(ngModel)]="scheduledVisit.details" required #details="ngModel">
+                    <input type="text" id="details" name="details" [(ngModel)]="item.details" required #details="ngModel">
                     <div *ngIf="details.invalid && details.touched" class="error-message">
                         Details are required.
                     </div>
@@ -76,7 +76,7 @@
         <div class="popup-overlay" (click)="closePopup()"></div>
         <div class="popup-content">
             <div class="calendar-scale">
-                <app-calendar (dateSelected)="handleDateSelection($event)" [shouldSchedule]="'true'"></app-calendar>
+                <app-calendar (dateSelected)="handleDateSelection($event)" [id]="id" [shouldSchedule]="'true'"></app-calendar>
             </div>
         </div>
         </div>

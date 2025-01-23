@@ -13,14 +13,24 @@ import { DatabaseConfigService } from '../../../db/DatabaseConfigService';
 })
 export class DatabaseComponent {
   databases: DatabaseType[] = [];
-  current: DatabaseType;
+  current!: DatabaseType;
 
   constructor(private databaseConfig: DatabaseConfigService) {
     this.databases = Object.values(DatabaseType);
-    this.current = databaseConfig.getDatabase();
+    const persisted = localStorage.getItem('db-type');
+
+    if (persisted && Object.values(DatabaseType).includes(persisted as DatabaseType)) {
+      this.current = persisted as DatabaseType;
+    } else {
+      this.current = databaseConfig.getDatabase();
+    }
+
+    console.log('Current: ', this.current)
   }
 
   onDatabaseChange(): void {
+    localStorage.setItem('db-type', this.current);
     this.databaseConfig.setDatabase(this.current); 
+    console.log(this.current);
   }
 }

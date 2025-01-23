@@ -1,25 +1,28 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
-import { AvailabilityService } from '../../services/availability/availability.service';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { DateUtils } from '../../utils/DateUtils';
 import { SingleDayAvailability } from '../../model/SingleDayAvailability';
-import { ActivatedRoute } from '@angular/router';
-import { ScheduledVisitService } from '../../services/scheduled-visit/scheduled-visit.service';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ScheduledVisit } from '../../model/ScheduledVisit';
 import { HttpClientModule } from '@angular/common/http';
-import { combineLatest, interval } from 'rxjs';
+import { DoctorService } from '../../services/doctor/doctor.service';
+import { VisitService } from '../../services/visit/visit.service';
+import { Doctor } from '../../model/Doctor';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
   imports: [NgFor, NgClass, NgIf, HttpClientModule],
-  providers: [AvailabilityService, ScheduledVisitService],
+  providers: [DoctorService, VisitService],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css']
 })
 export class CalendarComponent implements OnInit, AfterViewInit {
   @ViewChild('scrollContainer') scrollContainer!: ElementRef;
+
   @Input() shouldSchedule: string = '';
+  doctor!: Doctor;
+
   @Output() dateSelected: EventEmitter<{day: Date, hour: number}[]> = new EventEmitter<{day: Date, hour: number}[]>();
 
   private currentWeek: Date[] = [];
@@ -35,8 +38,18 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private selectedSlots: { day: Date, hour: number }[] = []; 
 
   private refreshInterval: any;
+
+  private isDataLoaded = {
+    presence: false,
+    absence: false,
+    visits: false,
+  };
   
-  scheduledVisits: ScheduledVisit[] = [];
+  private allDataLoaded(): boolean {
+    return this.isDataLoaded.presence && this.isDataLoaded.absence && this.isDataLoaded.visits;
+  }
+  
+  visits: ScheduledVisit[] = [];
   slotInfoCache: Map<string, { className: string, canSchedule: boolean, visit?: ScheduledVisit }> = new Map();
   currentHoveredSlot: { day: Date, hour: number } | null = null;
   visitDetails?: ScheduledVisit;
@@ -56,12 +69,12 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   };
 
   constructor(
-    private availabilityService: AvailabilityService, 
+    private doctorService: DoctorService, 
     private route: ActivatedRoute,
-    private scheduledVisitService: ScheduledVisitService,
+    private visitService: VisitService,
     private cd: ChangeDetectorRef
   ) {
-    this.currentWeek = this.availabilityService.getFollowingDays(new Date());
+    this.currentWeek = DateUtils.getFollowingDays(new Date());
   }
 
   get getHours(): number[] {
@@ -73,54 +86,83 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   dayNames = (): string[] => {
-    return this.availabilityService.getDayNames();
+    return DateUtils.getDayNames();
   };
 
   ngOnInit(): void {
-    this.refreshInterval = setInterval(() => {
-      this.cd.detectChanges();
-    }, 5000);
+    if (this.shouldSchedule === '') {
+      this.shouldSchedule = this.route.snapshot.params['schedule'] || '';
+    }
   
-    combineLatest([
-      this.availabilityService.presence$,
-      this.availabilityService.absence$,
-      this.scheduledVisitService.scheduledVisits$
-    ]).subscribe({
-      next: ([presence, absence, scheduledVisits]) => {
-        console.log('Data streams:', { presence, absence, scheduledVisits });
+    const id = this.route.snapshot.params['id'];
+  
+    this.doctorService.getDoctor(id).subscribe({
+      next: (doctor) => {
+        this.doctor = doctor;
   
         const startOfWeek = new Date(this.currentWeek[0]);
         const endOfWeek = new Date(this.currentWeek[this.currentWeek.length - 1]);
+
+        this.doctorService.startListeningAvailabilityChange(this.doctor.id, 'presence').subscribe({
+          next: (updatedPresence) => {
+            console.log(updatedPresence)
+            this.presence = updatedPresence;
+            this.currentWeekPresence = this.filterByDateRange(updatedPresence, startOfWeek, endOfWeek);
+            console.log('Updated presence received:', updatedPresence);
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-        this.presence = presence || [];
-        this.currentWeekPresence = this.filterByDateRange(this.presence, startOfWeek, endOfWeek);
-        console.log('Filtered presence:', this.currentWeekPresence);
+        this.doctorService.startListeningAvailabilityChange(this.doctor.id, 'absence').subscribe({
+          next: (updatedAbsence) => {
+            this.absence = updatedAbsence;
+            this.currentWeekAbsence = this.filterByDateRange(updatedAbsence, startOfWeek, endOfWeek);
+            console.log('Updated absence received:', updatedAbsence);
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-        this.absence = absence || [];
-        this.currentWeekAbsence = this.filterByDateRange(this.absence, startOfWeek, endOfWeek);
-        console.log('Filtered absence:', this.currentWeekAbsence);
+        this.doctorService.startListeningVisitChange(this.doctor.id).subscribe({
+          next: (updatedVisits) => {
+            this.visits = updatedVisits;
+            console.log('Updated visits received:', updatedVisits);
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-        this.scheduledVisits = scheduledVisits || [];
-        console.log('Scheduled visits:', this.scheduledVisits);
+        this.doctorService.getAvailability(this.doctor.id, 'presence').subscribe({
+          next: (presence) => {
+            this.presence = presence || [];
+            this.currentWeekPresence = this.filterByDateRange(presence, startOfWeek, endOfWeek);
+            this.isDataLoaded.presence = true;
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-        this.cacheTooltips();
+        this.doctorService.getAvailability(this.doctor.id, 'absence').subscribe({
+          next: (absence) => {
+            this.absence = absence || [];
+            this.currentWeekAbsence = this.filterByDateRange(absence, startOfWeek, endOfWeek);
+            this.isDataLoaded.absence = true;
+            this.cacheTooltipsIfReady();
+          },
+        });
+  
+        this.visitService.getDoctorVisits(this.doctor.id).subscribe({
+          next: (visits) => {
+            this.visits = visits || [];
+            this.isDataLoaded.visits = true;
+            this.cacheTooltipsIfReady();
+          },
+        });
       },
-      error: (err) => {
-        console.error('Error combining streams:', err);
-      },
-      complete: () => {
-        console.log('Stream subscription complete.');
-      }
     });
-  
-    if (!this.shouldSchedule) {
-      this.route.paramMap.subscribe(params => {
-        this.shouldSchedule = params.get('month') || '';
-      });
+  }
+
+  private cacheTooltipsIfReady(): void {
+    if (this.allDataLoaded()) {
+      this.cacheTooltips();
     }
-  
-    this.availabilityService.startListeningToAvailability();
-    this.scheduledVisitService.startListeningToScheduledVisits();
   }
   
   private filterByDateRange(data: SingleDayAvailability[], startDate: Date, endDate: Date): SingleDayAvailability[] {
@@ -148,7 +190,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private updateWeek(delta: number): void {
     const newWeekStart = new Date(this.currentWeek[0]);
     newWeekStart.setDate(newWeekStart.getDate() + delta);
-    this.currentWeek = this.availabilityService.getFollowingDays(newWeekStart);
+    this.currentWeek = DateUtils.getFollowingDays(newWeekStart);
 
     console.log('Updated week: ', this.currentWeek);
   
@@ -257,7 +299,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
   getClasses(day: Date, hour: number): { [key: string]: boolean } {
     const slotInfo = this.getSlotInfo(day, hour); 
-  
+
     return {
       [slotInfo.className]: true, 
       'selected': slotInfo.canSchedule && this.isSelected(day, hour) 
@@ -326,6 +368,10 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   private retrieveSlotInfo(day: Date, hour: number): { className: string, canSchedule: boolean, visit?: ScheduledVisit } {
+    if (!this.allDataLoaded()) {
+      return { className: '', canSchedule: false };
+    }
+
     if (this.isAbsent(day, hour)) {
       return { className: 'absence', canSchedule: false };
     } 
@@ -381,9 +427,9 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   };
 
   private isScheduled = (day: Date, hour: number): { isVisit: boolean, visit?: ScheduledVisit } => {
-    for (const visit of this.scheduledVisits) {
+    for (const visit of this.visits) {
       for (const visitDate of visit.date) {
-        const isSameDate = visitDate.day.toISOString().split('T')[0] === day.toISOString().split('T')[0];
+        const isSameDate = new Date(visitDate.day).toISOString().split('T')[0] === day.toISOString().split('T')[0];
         const isSameHour = visitDate.hour === hour;
   
         if (isSameDate && isSameHour) {

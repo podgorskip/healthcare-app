@@ -1,0 +1,20 @@
+<div class="rating">
+    <h6>Let us know how your visit was! Providing feedback helps us improve our services.</h6>
+    <div class="stars">
+      <img *ngFor="let star of stars; let i = index"
+           [src]="star.src"
+           [alt]="'Star ' + i"
+           (click)="selectStar(i)"
+           class="star">
+    </div>
+    
+    <div class="comment-section">
+      <label for="comment">Your comment:</label>
+      <textarea id="comment" [(ngModel)]="comment" placeholder="Write your comment here..."></textarea>
+    </div>
+  
+    <div class="submit-button">
+      <button (click)="submitRating()">Submit rating</button>
+    </div>
+</div>
+  

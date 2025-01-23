@@ -1,0 +1,47 @@
+.stars {
+    display: flex;
+    gap: 0.1em;
+}
+  
+.stars img {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.review-list {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 2em;
+}
+
+.review {
+    padding: 1em;
+    border: 1px solid rgb(202, 202, 202);
+    display: grid;
+    width: auto;
+    gap: 0.5em;
+    border-radius: 5px;
+}
+
+.comment {
+    margin-top: 0.5em;
+    width: 30px;
+    justify-self: end;
+}
+
+.comment:hover {
+    cursor: pointer;
+}
+
+.date {
+    font-weight: 300;
+    color: gray;
+    font-size: 0.9em;
+}
+
+@media(min-width: 500px) {
+    .review-list {
+        grid-template-columns: repeat(4, auto);
+    }
+}

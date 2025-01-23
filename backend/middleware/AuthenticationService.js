@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const SECRET_KEY = process.env.SECRET_KEY;
+const REFRESH_SECRET_KEY = process.env.REFRESH_SECRET_KEY;
 
 exports.verifyToken = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
@@ -25,8 +26,32 @@ exports.generateToken = (user) => {
     SECRET_KEY,         
     {
       algorithm: "HS256", 
-      expiresIn: "2h",  
+      expiresIn: "1m",  
       subject: user._id.toString(), 
     }
   );
+};
+
+exports.generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { role: user.role },
+    SECRET_KEY,
+    {
+      algorithm: "HS256",
+      expiresIn: "1m",
+      subject: user._id.toString(),
+    }
+  );
+
+  const refreshToken = jwt.sign(
+    { role: user.role },
+    REFRESH_SECRET_KEY,
+    {
+      algorithm: "HS256",
+      expiresIn: "7d",
+      subject: user._id.toString(),
+    }
+  );
+
+  return { accessToken, refreshToken };
 };

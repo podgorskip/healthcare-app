@@ -1,0 +1,67 @@
+.doctors {
+    padding: 1em;
+}
+
+.doctors h3 {
+    margin-bottom: 1em;
+}
+
+.doctors > div {
+    display: grid;
+}
+
+.doctor {
+    padding: 1em;
+    border: 1px solid rgb(193, 193, 193);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 1.5em;
+    margin-bottom: 2em;
+    justify-self: start;
+}
+
+.nav-link {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    margin-bottom: 1em;
+}
+
+.nav-link:hover {
+    cursor: pointer;
+}
+
+.nav-link img {
+    width: 30px;
+}
+
+.doctor:hover {
+    cursor: pointer;
+}
+
+.doctor div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin-right: 3em;
+}
+
+.doctor-list img {
+    width: 30px;
+}
+
+.doctor-list {
+    display: flex;
+    gap: 1em;
+    overflow-x: auto;
+}
+
+.doctor-list img:hover {
+    cursor: pointer;
+}
+
+.selected-doctor {
+    transform: scale(1.0); 
+    border: 1px solid rgb(30, 30, 30);
+}

@@ -1,0 +1,12 @@
+<div class="users">
+    <h3>Users</h3>
+    <div class="user-list">
+        <div *ngFor="let user of users" class="user">
+            <div>
+                <p>{{user.firstName}} {{user.lastName}}</p>
+                <p class="role">{{user.role}}</p>
+            </div>
+            <img src={{banIcon(user.banned)}} (click)="toggleUserBan(user.id)">
+        </div>
+    </div>
+</div>

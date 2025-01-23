@@ -1,17 +1,17 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
-import { AvailabilityService } from '../../../services/availability/availability.service';
 import { DateRange } from '../../../model/DateRange';
 import { TimeSlot } from '../../../model/TimeSlot';
 import { FormsModule } from '@angular/forms';
 import { CircularAvailability } from '../../../model/CircularAvailability';
 import { DateUtils } from '../../../utils/DateUtils';
+import { DoctorService } from '../../../services/doctor/doctor.service';
 
 @Component({
   selector: 'app-circular-slots',
   standalone: true,
   imports: [NgFor, FormsModule, NgIf],
-  providers: [AvailabilityService],
+  providers: [DoctorService],
   templateUrl: './circular-slots.component.html',
   styleUrl: './circular-slots.component.css'
 })
@@ -29,7 +29,7 @@ export class CircularSlotsComponent {
 
   @Output() circularChange: EventEmitter<CircularAvailability> = new EventEmitter<CircularAvailability>();
 
-  constructor(private availabilityService: AvailabilityService) {
+  constructor(private doctorService: DoctorService) {
     this.weekdays = this.weekDays();
   }
 
@@ -123,7 +123,7 @@ export class CircularSlotsComponent {
   }
   
   weekDays = (): string[] => {
-    return this.availabilityService.getDayNames();
+    return DateUtils.getDayNames();
   }
 
   private checkDateRangesIntersection(newRange: { from: Date, to: Date }): boolean {

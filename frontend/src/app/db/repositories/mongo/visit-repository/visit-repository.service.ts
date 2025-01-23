@@ -1,87 +1,83 @@
 import { Injectable } from '@angular/core';
-import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
 import { HttpClient } from '@angular/common/http';
 import { ScheduledVisit } from '../../../../model/ScheduledVisit';
 import { environment } from '../../../../../environments/environment';
-import { firstValueFrom } from 'rxjs';
-import { MongoAuthenticationService } from '../../../../authentication/mongo/MongoAuthenticationService';
+import { Observable } from 'rxjs';
+import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
+import { WebSocketService } from '../../../../sockets/WebSocketService';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MongoVisitRepository implements VisitRepositoryInterface {
-  private apiUrl = `${environment.mongoConfig.baseUrl}/scheduled`;
+  private apiUrl = `${environment.mongoConfig.baseUrl}/visits`;
 
-  constructor(private http: HttpClient, private auth: MongoAuthenticationService) {}
+  constructor(private http: HttpClient, private webSocketService: WebSocketService) {}
 
-  listenToScheduledVisitUpdates(callback: (visits: ScheduledVisit[]) => void): void {
-    console.log('.listenToScheduledVisitUpdates - invoked');
-
-    const fetchScheduledVisits = async () => {
-      try {
-        const headers = this.auth.authHeaders();
-        const visits: ScheduledVisit[] = await firstValueFrom(this.http.get<ScheduledVisit[]>(`${this.apiUrl}`, { headers }));
-
-        visits.forEach(visit => {
-          if (visit.date && visit.date.length > 0) {
-            visit.date.forEach(dateObj => {
-              dateObj.day = new Date(dateObj.day);
-            });
-          }
-        });
-        callback(visits);
-      } catch (error) {
-        console.error('Error:', error);
-        callback([]); 
-      }
-    };
-
-    fetchScheduledVisits();
+  getPatientVisits(id: string): Observable<ScheduledVisit[]> {
+    console.log(`.getPatientVisits - invoked, visit id=${id}`);
+    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/patients/${id}`);
   }
 
-  async removeScheduledVisit(id: string): Promise<void> {
-    console.log(`.removeScheduledVisit - invoked, visit id=${id}`);
-    const headers = this.auth.authHeaders();
-    const response = await firstValueFrom(this.http.delete(`${this.apiUrl}/${id}`, { headers }));
-    console.log('Server response: ', response);
+  getDoctorVisits(id: string): Observable<ScheduledVisit[]> {
+    console.log(`.getDoctorVisits - invoked, visit id=${id}`);
+    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/doctors/${id}`);
   }
 
-  async addScheduledVisit(visit: ScheduledVisit): Promise<string> {
-    console.log('.addScheduledVisit - invoked');
+  addVisit(visit: ScheduledVisit): Observable<ScheduledVisit> {
+    console.log('.addVisit - invoked');
 
     try {
-      const headers = this.auth.authHeaders();
-      const response = await firstValueFrom(this.http.post<string>(`${this.apiUrl}`, visit, { headers }));
-      return response; 
+      return this.http.post<ScheduledVisit>(`${this.apiUrl}`, visit);
     } catch (error) {
       console.error('Error:', error);
       throw error;
     }
   }
 
-  async getScheduledVisitById(id: string): Promise<ScheduledVisit> {
-    console.log(`.getScheduledVisitById - invoked, visit id=${id}`);
+  cancelVisit(id: string): Observable<ScheduledVisit> {
+    console.log(`.cancelVisit - invoked, visit id=${id}`);
 
     try {
-      const headers = this.auth.authHeaders();
-      const response = await firstValueFrom(this.http.get<ScheduledVisit>(`${this.apiUrl}/${id}`, { headers }));
-      return response; 
+      return this.http.put<ScheduledVisit>(`${this.apiUrl}/${id}/cancel`, {});
     } catch (error) {
       console.error('Error:', error);
       throw error;
     }
   }
 
-  async updateVisit(visit: ScheduledVisit): Promise<void> {
-    console.log(`.updateVisit - invoked, visit id=${visit.id}`);
+  deleteVisit(id: string): Observable<string> {
+    console.log(`.deleteVisit - invoked, visit id=${id}`);
 
     try {
-      const headers = this.auth.authHeaders();
-      const response = await firstValueFrom(this.http.put(`${this.apiUrl}/${visit.id}`, visit, { headers }));
-      console.log(response);
+      return this.http.delete<string>(`${this.apiUrl}/${id}`);
     } catch (error) {
       console.error('Error:', error);
       throw error;
     }
+  }
+
+  addVisitReview(review: { score: number, comment: string}, id: string): Observable<any> {
+    console.log(`.addVisitReview - invoked`);
+    try {
+      return this.http.post<string>(`${this.apiUrl}/${id}/reviews`, review);
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
+    }
+  }
+
+  startListeningVisitCancellation(id: string): Observable<ScheduledVisit> {
+    console.log('.startListeningVisitCancellation - invoked');
+    return new Observable((observer) => {
+      this.webSocketService.listen(`visit-${id}-cancellation`).subscribe({
+        next: (response: { visit: ScheduledVisit }) => {
+          console.log('WebSocket visit cancelled: ', response.visit);
+          observer.next(response.visit);
+        },
+        error: (err) => console.error('WebSocket error:', err),
+        complete: () => console.log('WebSocket subscription completed'),
+      });      
+    });
   }
 }

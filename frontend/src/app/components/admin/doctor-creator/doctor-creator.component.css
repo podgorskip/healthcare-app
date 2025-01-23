@@ -1,0 +1,20 @@
+.doctor-creator {
+    padding: 1em;
+    display: grid;
+    gap: 3em;
+}
+
+.doctor-creator form {
+    margin-left: auto;
+    margin-right: auto;
+    display: grid;
+    grid-template-columns: auto auto;
+    row-gap: 1em;
+    column-gap: 3em;
+    justify-content: start;
+}
+
+.doctor-creator h6 {
+    grid-column: 1 / -1;
+    margin-bottom: 2em;
+}

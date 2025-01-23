@@ -1,21 +1,23 @@
-import { AvailabilityService } from './../../../services/availability/availability.service';
 import { SingleDayAvailability } from './../../../model/SingleDayAvailability';
-import { CommonModule, NgFor, NgIf } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { CommonModule, NgIf } from '@angular/common';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { animate, state, style, transition, trigger } from '@angular/animations';
+import { animate, style, transition, trigger } from '@angular/animations';
 import { SingleSlotComponent } from '../single-slot/single-slot.component';
 import { CircularSlotsComponent } from '../circular-slots/circular-slots.component';
 import { CircularAvailability } from '../../../model/CircularAvailability';
 import { Router } from '@angular/router';
-import { ScheduledVisitService } from '../../../services/scheduled-visit/scheduled-visit.service';
+import { DoctorService } from '../../../services/doctor/doctor.service';
+import { VisitService } from '../../../services/visit/visit.service';
+import { Doctor } from '../../../model/Doctor';
+import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
 
 @Component({
   selector: 'app-availability',
   standalone: true,
   imports: [CommonModule, NgIf, FormsModule, HttpClientModule, SingleSlotComponent, CircularSlotsComponent],
-  providers: [AvailabilityService, ScheduledVisitService],
+  providers: [DoctorService, VisitService],
   animations: [
     trigger('sectionAnimation', [
       transition(':enter', [
@@ -30,7 +32,7 @@ import { ScheduledVisitService } from '../../../services/scheduled-visit/schedul
   templateUrl: './availability.component.html',
   styleUrl: './availability.component.css'
 })
-export class AvailabilityComponent {
+export class AvailabilityComponent implements OnInit {
   selectedType: 'presence' | 'absence' | '' = '';
   selectedDateRangeType: string = '';
   singleDayAvailability: SingleDayAvailability = {'date': '', 'slots': []};
@@ -41,8 +43,25 @@ export class AvailabilityComponent {
   }
   selectedDay: Date = new Date();
 
+  private doctor!: Doctor;
+
+  ngOnInit(): void {
+    this.userIdentityInfo.authenticatedUser$.subscribe({
+      next: (user) => {
+        if (user) {
+          this.doctorService.getDoctor(user?.id).subscribe({
+            next: (doctor) => this.doctor = doctor
+          })
+        }
+      }
+    })
+  }
+     
+
   constructor(
-    private availabilityService: AvailabilityService,
+    private visitService: VisitService,
+    private doctorService: DoctorService,
+    private userIdentityInfo: UserIdentityInfo,
     private router: Router
   ) { }
 
@@ -72,8 +91,12 @@ export class AvailabilityComponent {
   }
 
   submitSingleDayAvailability = (): void => {
-    this.availabilityService.addAvailability([this.singleDayAvailability], this.selectedType);
-    this.router.navigate(['/calendar/false']);
+    this.doctorService.addAvailability(this.doctor.id, [this.singleDayAvailability], this.selectedType).subscribe({
+      next: (response) => {
+        console.log(`Response: ${response}`);
+        this.router.navigate([`/doctors`]);
+      }
+    })
   }
 
   handleCircularAvailabilityChange = (circular: CircularAvailability): void => {
@@ -82,8 +105,12 @@ export class AvailabilityComponent {
 
   submitCircularAvailability = (): void => {
     let single: SingleDayAvailability[] = this.transformCircularAvailability(this.circularAvailability);
-    this.availabilityService.addAvailability(single, this.selectedType);
-    this.router.navigate(['/calendar/false']);
+    this.doctorService.addAvailability(this.doctor.id, single, this.selectedType).subscribe({
+      next: (response) => {
+        console.log(`Response: ${response}`);
+        this.router.navigate(['/doctors']);
+      }
+    })
   }
 
   transformCircularAvailability(circularAvailability: CircularAvailability): SingleDayAvailability[] {
@@ -113,5 +140,4 @@ export class AvailabilityComponent {
 
     return singleDayAvailabilities;
   }
-
 }

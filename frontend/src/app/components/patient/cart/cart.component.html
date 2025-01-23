@@ -1,30 +1,33 @@
 <div class="cart">
     <h3>Cart</h3>
-    <div class="items" *ngIf="cartVisits.length">
-        <div *ngFor="let visit of cartVisits" class="item">
-            <input type="checkbox" id={{visit.id}} (change)="addItem(visit.id)">
+    <p *ngIf="!patient.cart.items?.length" class="cart-empty">
+        Ups... there's nothing in the cart yet
+    </p>
+    <div class="items" *ngIf="patient.cart.items">
+        <div *ngFor="let item of patient.cart.items" class="item">
+            <input type="checkbox" id={{item.id}} (change)="addItem(item.id)">
             <div>
-                <p>{{authenticatedUser.firstName}} {{authenticatedUser.lastName}}</p>
-                <p>{{formatDates(visit.date)}}</p>
-                <p class="type">{{visit.type}}</p>
-                <p class="price">${{visit.date.length * 50}}</p>
+                <p>{{item.firstName}} {{item.lastName}}</p>
+                <p>{{formatDates(item.date)}}</p>
+                <p class="type">{{item.type}}</p>
+                <p class="price">${{item.date.length * 50}}</p>
             </div>
             <div>
                 <p class="detail">Sex</p>
-                <p>{{authenticatedUser.sex}}</p>
+                <p>{{item.sex}}</p>
                 <p class="detail">Age</p>
-                <p>{{authenticatedUser.age}}</p>
+                <p>{{item.age}}</p>
                 <p class="detail">Details</p>
-                <p>{{visit.details}}</p>
-                <img src="assets/trash.png" (click)="onRemoveFromCart(visit.id)">
+                <p>{{item.details}}</p>
+                <img src="assets/trash.png" (click)="onRemoveFromCart(item.id)">
             </div>
         </div>
     </div>   
-    <div class="order-summary" *ngIf="selectedVisits.length && cartVisits.length">
+    <div class="order-summary" *ngIf="selectedItems.length">
         <h4>Order summary</h4>
         <div>
-            <p *ngIf="!selectedVisits.length">Nothing chosen</p>
-            <div *ngIf="selectedVisits.length" class="total">
+            <p *ngIf="!selectedItems.length">Nothing chosen</p>
+            <div *ngIf="selectedItems.length" class="total">
                 <p>Total</p>
                 <span>${{totalPrice}}</span>
             </div>
@@ -37,7 +40,21 @@
             </button>
         </div>
     </div>
-    <p *ngIf="!cartVisits.length">
-        Ups... there's nothing in the cart yet
-    </p>
+   
+    <div *ngIf="isConfirmingPayment" class="payment-modal">
+        <div class="modal-content">
+          <h3>Confirm your payment</h3>
+          <div class="selected-items">
+            <div *ngFor="let item of selectedItems" class="selected-item">
+              <p>{{ item.firstName }} {{ item.lastName }}</p>
+              <p>{{ formatDates(item.date) }}</p>
+              <p>Type: {{ item.type }}</p>
+              <p>Price: ${{ item.date.length * 50 }}</p>
+            </div>
+          </div>
+          <app-payment
+            (paymentComplete)="finalizePayment()"
+          ></app-payment>
+        </div>
+    </div>  
 </div>

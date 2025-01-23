@@ -27,5 +27,6 @@
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
     "strictTemplates": true
-  }
+  },
+  "exclude": ["node_modules/bonjour", "node_modules/cookie", "node_modules/cors", "node_modules/estree"]
 }

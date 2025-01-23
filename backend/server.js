@@ -1,4 +1,4 @@
-require('dotenv').config('./.env');
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -16,14 +16,20 @@ mongoose.connect(process.env.MONGO_URI, {
     .catch(err => console.log('MongoDB connection error:', err));
 
 const authRoutes = require('./routes/authenticationRoutes');
+const patientRoutes = require('./routes/patientRoutes');
+const doctorRoutes = require('./routes/doctorRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const visitRoutes = require('./routes/visitRoutes');
 const userRoutes = require('./routes/userRoutes');
-const scheduledVisitRoutes = require('./routes/scheduledVisitRoutes');
-const availabilityRoutes = require('./routes/availabilityRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 app.use('/api/users', userRoutes.router); 
-app.use('/api/scheduled', scheduledVisitRoutes.router); 
-app.use('/api/availability', availabilityRoutes.router);
+app.use('/api/doctors', doctorRoutes.router); 
+app.use('/api/patients', patientRoutes.router); 
+app.use('/api/cart', cartRoutes.router);
+app.use('/api/visits', visitRoutes.router);
 app.use('/api/auth', authRoutes.router);
+app.use('/api/reviews', reviewRoutes.router);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

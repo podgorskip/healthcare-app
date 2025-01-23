@@ -6,9 +6,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "start": "concurrently \"ng serve\" \"npm run json-server\"",
-    "json-server": "json-server --watch ./src/app/med-help.json --port 3001",
-    "node-server": "node ../backend/server.js"
+    "start": "ng serve"
   },
   "private": true,
   "dependencies": {
@@ -16,20 +14,13 @@
     "@angular/common": "^17.3.0",
     "@angular/compiler": "^17.3.0",
     "@angular/core": "^17.3.0",
-    "@angular/fire": "^18.0.1",
+    "@angular/fire": "^19.0.0",
     "@angular/forms": "^17.3.0",
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
     "bootstrap": "^5.3.3",
-    "concurrently": "^9.1.2",
-    "cors": "2.8.5",
-    "dotenv": "16.4.7",
-    "express": "4.21.2",
-    "firebase": "^11.1.0",
-    "json-server": "^1.0.0-beta.3",
-    "mongodb": "^6.12.0",
-    "mongoose": "8.9.3",
+    "firebase": "^11.2.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
@@ -38,13 +29,19 @@
     "@angular-devkit/build-angular": "^17.3.11",
     "@angular/cli": "^17.3.11",
     "@angular/compiler-cli": "^17.3.0",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@types/firebase": "^2.4.32",
     "@types/jasmine": "~5.1.0",
+    "buffer": "^6.0.3",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
-    "typescript": "~5.4.2"
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "typescript": "~5.4.2",
+    "vite-plugin-node-polyfills": "^0.22.0"
   }
 }

@@ -1,0 +1,22 @@
+<div class="reviews">
+    <h3>Reviews</h3>
+    <div class="review-list">
+        <div class="review" *ngFor="let review of reviews">
+            <p>{{review.visit.patient?.user?.firstName}}</p>
+            <div class="stars">
+                <div *ngFor="let star of getStars(review.score)">
+                    <img src="assets/star-full.png" class="star" alt="star">
+                </div>
+            </div>
+            <div>
+                <p>{{review.comment}}</p>
+                <p class="date">{{DateUtils.formatDate(review.date)}}</p>
+            </div>
+            <img src="assets/comment.png" (click)="openCommentPopup(review)" class="comment">
+        </div>
+    </div>
+    <app-comment *ngIf="selectedReview" 
+        [review]="selectedReview"
+        (closePopup)="closePopup()">
+    </app-comment>
+</div>

@@ -6,10 +6,15 @@ import { User } from '../model/User';
   providedIn: 'root'
 })
 export class UserIdentityInfo {
-    private _authenticatedUserSubject = new BehaviorSubject<User | undefined>(undefined);
-  public authenticatedUser$: Observable<User | undefined> = this._authenticatedUserSubject.asObservable();
+  private _authenticatedUserSubject = new BehaviorSubject<User | null>(null);
+  public authenticatedUser$: Observable<User | null> = this._authenticatedUserSubject.asObservable();
 
-  setAuthenticatedUser(user: User | undefined) {
-    this._authenticatedUserSubject.next(user);
+  setAuthenticatedUser(user: User | null) {
+    if (user) {
+      this._authenticatedUserSubject.next(user);
+    } else {
+      console.log('Logging out...');
+      this._authenticatedUserSubject.next(null);
+    }
   }
 }

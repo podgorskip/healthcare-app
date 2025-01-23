@@ -1,167 +1,202 @@
-import { Sex } from './../../../../model/enum/Sex';
-import { ScheduledVisit } from './../../../../model/ScheduledVisit';
-import { environment } from './../../../../../environments/environment';
 import { Injectable } from '@angular/core';
-import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set, DataSnapshot, push, onValue, get, remove } from 'firebase/database';
+import { getDatabase, ref, set, push, onValue, get, remove, update } from 'firebase/database';
 import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
-import { User } from '../../../../model/User';
+import { ScheduledVisit } from '../../../../model/ScheduledVisit';
+import { Observable, from, of } from 'rxjs';
+import { FirebaseInitializationService } from '../../../setup/FirebaseInitializationService';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FirebaseVisitRepository implements VisitRepositoryInterface {
   private db: any;
-  private dbPath = '/scheduledVisits'; 
+  private dbPath = '/visits';
 
-  constructor() { 
-    const firebaseApp = initializeApp(environment.firebaseConfig);
-    this.db = getDatabase(firebaseApp); 
+  constructor(firebaseInit: FirebaseInitializationService) {
+    this.db = getDatabase(firebaseInit.getFirebaseApp);
   }
 
-  listenToScheduledVisitUpdates(callback: (visits: ScheduledVisit[]) => void): void {
-    console.log('.listenToScheduledVisitUpdates - invoked');
-    
-    const cartRef = ref(this.db, `${this.dbPath}`);
-    onValue(cartRef, (snapshot: DataSnapshot) => {
-      const cartData = snapshot.val();
-  
-      const cartArray = cartData
-        ? Object.keys(cartData).map((key) => {
-            const visit = cartData[key];
-  
-            const updatedVisit = {
-              id: key,
-              ...visit,
-              date: visit.date
-                ? visit.date.map((i: any) => ({
-                    day: new Date(i.day), 
-                    hour: i.hour,
-                  }))
-                : [],
-            };
-  
-            return updatedVisit;
+  addVisit(visit: ScheduledVisit): Observable<ScheduledVisit> {
+    return new Observable((observer) => {
+      try {
+        const visitRef = push(ref(this.db, this.dbPath));
+        const visitId = visitRef.key;
+        if (!visitId) {
+          observer.error('Could not generate visit ID');
+          return;
+        }
+
+        set(visitRef, { ...visit, id: visitId })
+          .then(() => {
+            observer.next({ ...visit, id: visitId });
+            observer.complete();
           })
-        : [];
-  
-      callback(cartArray);
+          .catch((error) => {
+            observer.error(`Error adding visit: ${error}`);
+          });
+      } catch (error) {
+        observer.error(`Error adding visit: ${error}`);
+      }
     });
   }
 
-  async removeScheduledVisit(id: string): Promise<void> {
-    console.log(`.removeScheduledVisit - invoked, visit id=${id}`);
-    
-    const usersRef = ref(this.db, '/users');
-    const usersSnapshot = await get(usersRef);
-    const usersData = usersSnapshot.val();
-  
-    if (usersData) {
-      for (const [userId, user] of Object.entries(usersData)) {
-        const user = usersData[userId] as User;
-        if (user.scheduledVisits && user.scheduledVisits.includes(id)) {
-          const userRef = ref(this.db, `/users/${userId}/scheduledVisits`);
-          const updatedVisits = user.scheduledVisits.filter((visitId: string) => visitId !== id);
-  
-          await set(userRef, updatedVisits);
-        }
-      }
-    }
-  
-    const visitRef = ref(this.db, `${this.dbPath}/${id}`);
-    await remove(visitRef);
-  }
-
-  async addScheduledVisit(visit: ScheduledVisit): Promise<string> {
-    console.log('.assignScheduledVisitToUser - invoked');
-
+  async getAllVisits(): Promise<ScheduledVisit[]> {
     try {
-      const visitRef = push(ref(this.db, '/scheduledVisits')); 
-      visit.id = visitRef.key as string;
-  
-      const visitWithTimestamp = {
-        ...visit,
-        date: visit.date.map((i) => ({ day: i.day.getTime(), hour: i.hour })), 
-      };
-  
-      await set(visitRef, visitWithTimestamp);
-      return visit.id;
-    } catch (error) {
-      console.error('Error: ', error);
-      throw error;
-    }
-  }
-
-  async updateVisit(visit: ScheduledVisit): Promise<void> {
-    console.log(`.updateVisit - invoked for visit ID: ${visit.id}`);
-
-    try {
-      const visitRef = ref(this.db, `${this.dbPath}/${visit.id}`);
-      const snapshot = await get(visitRef);
-      
-      if (!snapshot.exists()) {
-        console.log(`Visit with ID ${visit.id} not found.`);
-        throw Error('Visit not found.');
+      const visitsSnapshot = await get(ref(this.db, this.dbPath));
+      if (visitsSnapshot.exists()) {
+        const visitsData = visitsSnapshot.val();
+        return Object.keys(visitsData).map((key) => ({
+          ...visitsData[key],
+          id: key,
+        }));
       }
-
-      const visitData: ScheduledVisit = {
-        ...snapshot.val(), 
-        cancelled: visit.cancelled,
-        details: visit.details,
-        price: visit.price,
-        type: visit.type,
-        firstName: visit.firstName,
-        lastName: visit.lastName,
-        username: visit.username,
-        sex: visit.sex,
-        age: visit.age,
-        date: visit.date.map((i) => ({ day: i.day.getTime(), hour: i.hour }))
-      };
-      
-      await set(visitRef, visitData);
+      return [];
     } catch (error) {
-      console.error('Error: ', error);
-      throw error;
+      console.error('Error retrieving visits:', error);
+      throw new Error('Could not fetch visits');
     }
   }
 
-  async getScheduledVisitById(id: string): Promise<ScheduledVisit> {
-    console.log(`.getScheduledVisitById - invoked for visit ID: ${id}`);
-  
+  async getVisitById(id: string): Promise<ScheduledVisit | null> {
+    try {
+      const visitSnapshot = await get(ref(this.db, `${this.dbPath}/${id}`));
+      if (visitSnapshot.exists()) {
+        return { ...visitSnapshot.val(), id };
+      }
+      return null;
+    } catch (error) {
+      console.error(`Error retrieving visit with ID ${id}:`, error);
+      throw new Error('Could not fetch visit');
+    }
+  }
+
+  async updateVisit(id: string, visit: Partial<ScheduledVisit>): Promise<void> {
     try {
       const visitRef = ref(this.db, `${this.dbPath}/${id}`);
-      const snapshot = await get(visitRef);
-      
-      if (!snapshot.exists()) {
-        console.log(`Visit with ID ${id} not found.`);
-        throw Error('Visit not found.');
-      }
-  
-      const visitData = snapshot.val();
-      
-      const visit: ScheduledVisit = {
-        id: id,
-        details: visitData.details,
-        price: visitData.price,
-        type: visitData.type,
-        firstName: visitData.firstName,
-        lastName: visitData.lastName,
-        username: visitData.username,
-        sex: visitData.Sex,
-        age: visitData.age,
-        date: visitData.date
-          ? visitData.date.map((i: any) => ({
-              day: new Date(i.day), 
-              hour: i.hour,
-            }))
-          : [],
-        cancelled: visitData.cancelled
-      };
-  
-      return visit;
+      await update(visitRef, visit);
     } catch (error) {
-      console.error('Error: ', error);
-      throw error;
+      console.error(`Error updating visit with ID ${id}:`, error);
+      throw new Error('Could not update visit');
     }
+  }
+
+  deleteVisit(id: string): Observable<string> {
+    return new Observable((observer) => {
+      try {
+        const visitRef = ref(this.db, `${this.dbPath}/${id}`);
+        remove(visitRef)
+          .then(() => {
+            observer.next(`Visit with ID ${id} deleted successfully.`);
+            observer.complete();
+          })
+          .catch((error) => {
+            observer.error(`Error deleting visit with ID ${id}: ${error}`);
+          });
+      } catch (error) {
+        observer.error(`Error deleting visit with ID ${id}: ${error}`);
+      }
+    });
+  }
+
+  getPatientVisits(patientId: string): Observable<ScheduledVisit[]> {
+    return new Observable((observer) => {
+      const visitsRef = ref(this.db, this.dbPath);
+      onValue(visitsRef, (snapshot) => {
+        const visitsData = snapshot.val();
+        const patientVisits = visitsData
+          ? Object.keys(visitsData)
+              .filter((key) => visitsData[key].patientId === patientId)
+              .map((key) => ({ ...visitsData[key], id: key }))
+          : [];
+        observer.next(patientVisits);
+        observer.complete();
+      });
+    });
+  }
+
+  getDoctorVisits(doctorId: string): Observable<ScheduledVisit[]> {
+    return new Observable((observer) => {
+      const visitsRef = ref(this.db, this.dbPath);
+      onValue(visitsRef, (snapshot) => {
+        const visitsData = snapshot.val();
+        const doctorVisits = visitsData
+          ? Object.keys(visitsData)
+              .filter((key) => visitsData[key].doctorId === doctorId)
+              .map((key) => ({ ...visitsData[key], id: key }))
+          : [];
+        observer.next(doctorVisits);
+        observer.complete();
+      });
+    });
+  }
+
+  cancelVisit(id: string): Observable<ScheduledVisit> {
+    return new Observable((observer) => {
+      const visitRef = ref(this.db, `${this.dbPath}/${id}`);
+      
+      update(visitRef, { status: 'canceled' })
+        .then(() => {
+          get(visitRef).then((snapshot) => {
+            if (snapshot.exists()) {
+              const updatedVisit = snapshot.val();
+              observer.next(updatedVisit); 
+              observer.complete();
+            } else {
+              observer.error('Visit not found');
+            }
+          });
+        })
+        .catch((error) => {
+          observer.error(`Error cancelling visit with ID ${id}: ${error}`);
+        });
+    });
+  }
+
+  addVisitReview(review: { score: number; comment: string }, id: string): Observable<any> {
+    return new Observable((observer) => {
+      const visitRef = ref(this.db, `${this.dbPath}/${id}`);
+      
+      update(visitRef, { review })
+        .then(() => {
+          observer.next({ message: `Review added to visit with ID ${id}.`, review });
+          observer.complete();
+        })
+        .catch((error) => {
+          observer.error(`Error adding review to visit with ID ${id}: ${error}`);
+        });
+    });
+  }
+
+  listenToVisits(callback: (visits: ScheduledVisit[]) => void): void {
+    const visitsRef = ref(this.db, this.dbPath);
+    onValue(visitsRef, (snapshot) => {
+      const visitsData = snapshot.val();
+      const visits = visitsData
+        ? Object.keys(visitsData).map((key) => ({ ...visitsData[key], id: key }))
+        : [];
+      callback(visits);
+    });
+  }
+
+  startListeningVisitCancellation(id: string): Observable<ScheduledVisit> {
+    console.log('.startListeningVisitCancellation - invoked');
+    
+    return new Observable<ScheduledVisit>((observer) => {
+      const visitRef = ref(this.db, `${this.dbPath}/${id}`);
+      
+      onValue(visitRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const visitData = snapshot.val() as ScheduledVisit;
+          console.log('Firebase visit cancellation update: ', visitData);
+          observer.next(visitData);
+        } else {
+          console.error('Visit not found');
+          observer.error('Visit not found');
+        }
+      }, (error) => {
+        console.error('Firebase error:', error);
+        observer.error(`Firebase error: ${error}`);
+      });
+    });
   }
 }

@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 const SingleDay = require('./SingleDay');  
 const User= require('./User');  
 
-const Doctor = new mongoose.Schem({
-  id: { type: String, required: true },                     
+const Doctor = new mongoose.Schema({
+  id: { type: String },                     
   phoneNo: { type: String },                                
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, 
   availability: {

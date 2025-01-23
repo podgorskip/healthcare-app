@@ -5,6 +5,6 @@ export interface Doctor {
     id: string;
     phoneNo?: string;
     user: User;
-    presence: SingleDayAvailability[];
-    absence: SingleDayAvailability[];
+    presence?: SingleDayAvailability[];
+    absence?: SingleDayAvailability[];
 }
