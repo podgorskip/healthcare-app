@@ -3,6 +3,8 @@ const User = require('../models/User');
 const SingleDay = require('../models/SingleDay');
 const TimeSlot = require('../models/Slot');
 const { createUser } = require('./UserService');
+const { notifyAvailabilityUpdate, notifyCancelVisit } = require('./NotificationService');
+const ScheduledVisit = require('../models/ScheduledVisit');
 
 exports.createDoctor = async (doctorData) => {
     const user = await createUser(doctorData.user, 'DOCTOR');
@@ -95,26 +97,75 @@ exports.addAvailabilityForDoctor = async (id, type, availabilities) => {
                     from: slot.from,
                     to: slot.to,
                 });
-                return await timeSlot.save(); 
+                return await timeSlot.save();
             }));
 
             const singleDay = new SingleDay({
                 date: day.date,
-                slots: timeSlotDocs.map(slot => slot._id), 
+                slots: timeSlotDocs.map(slot => slot._id),
             });
 
-            return await singleDay.save(); 
+            return await singleDay.save();
         }));
 
-        doctor.availability[type].push(...singleDayDocs);
-        await doctor.save();  
+        if (type === 'absence') {
+            for (const day of availabilities) {
+                const absenceDate = new Date(day.date); 
 
-        return doctor; 
+                const normalizedAbsenceDate = new Date(absenceDate);
+                normalizedAbsenceDate.setHours(0, 0, 0, 0);
+                
+                const scheduledVisits = await ScheduledVisit.find({
+                  doctor: id,
+                  'date.day': {
+                    $gte: normalizedAbsenceDate,
+                    $lt: new Date(normalizedAbsenceDate.getTime() + 24 * 60 * 60 * 1000) // next day
+                  },
+                  cancelled: false,
+                });
+                
+                console.log(scheduledVisits);
+                
+                console.log(scheduledVisits);
+
+                for (const visit of scheduledVisits) {
+                    const conflictingSlots = visit.date.filter((visitSlot) => {
+                        const visitHour = visitSlot.hour;
+
+                        return day.slots.some((absenceSlot) => {
+                            const absenceFrom = parseHour(absenceSlot.from);
+                            const absenceTo = parseHour(absenceSlot.to);
+
+                            return visitHour >= absenceFrom && visitHour < absenceTo;
+                        });
+                    });
+
+                    if (conflictingSlots.length > 0) {
+                        visit.cancelled = true;
+                        notifyCancelVisit(visit.id, visit);
+                        await visit.save();
+                    }
+                }
+            }
+        }
+
+        doctor.availability[type].push(...singleDayDocs);
+        await doctor.save();
+
+        const availability = await exports.getAvailabilityByDoctorId(id, type);
+        notifyAvailabilityUpdate(id, type, availability);
+
+        return doctor;
     } catch (err) {
         console.error('Error adding availability:', err);
         throw err;
     }
 };
+
+function parseHour(timeStr) {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    return hours + minutes / 60; 
+}
 
 exports.getDoctorByUserId = async (userId) => {
     try {

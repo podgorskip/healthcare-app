@@ -5,10 +5,7 @@ const Comment = require('../models/Comment');
 
 exports.addReview = async (reviewData) => {
   try {
-    const visitExists = await ScheduledVisit.exists({ _id: reviewData.visit });
-    if (!visitExists) {
-      throw new Error('Scheduled visit does not exist.');
-    }
+    await markVisitAsReviewed(reviewData.visit);
 
     const review = new Review({
       id: reviewData.id,
@@ -121,3 +118,22 @@ exports.getReviewsByDoctorId = async (doctorId) => {
       throw new Error('Unable to fetch reviews for the doctor.');
   }
 };
+
+async function markVisitAsReviewed(id) {
+  try {
+    const visit = await ScheduledVisit.findById(reviewData.visit);
+    if (!visit) {
+      throw new Error('Scheduled visit does not exist.');
+    }
+
+    visit.reviewed = true;
+
+    await visit.save();
+
+    console.log('Scheduled visit marked as reviewed.');
+    return visit; 
+  } catch (error) {
+    console.error('Error marking visit as reviewed:', error);
+    throw error;
+  }
+}

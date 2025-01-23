@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const { createWebSocketServer } = require('./middleware/WebSocket');
+
 
 const app = express();
 const PORT = 3000;
@@ -31,6 +33,8 @@ app.use('/api/visits', visitRoutes.router);
 app.use('/api/auth', authRoutes.router);
 app.use('/api/reviews', reviewRoutes.router);
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
+
+createWebSocketServer(server);

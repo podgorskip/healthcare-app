@@ -1,6 +1,7 @@
 const ScheduledVisit = require('../models/ScheduledVisit');
 const Review = require('../models/Review');
 const mongoose = require('mongoose');
+const { notifyVisitUpdate } = require('./NotificationService');
 
 exports.getPatientVisits = async (id) => {
   try {
@@ -46,7 +47,12 @@ exports.addVisit = async (visitData) => {
             patient: visitData.patient.id
         });
 
-        return await visit.save();
+        const result = await visit.save();
+        const visits = await exports.getDoctorVisits(visitData.doctor.id);
+
+        notifyVisitUpdate(visitData.doctor.id, visits);
+
+        return result;
     } catch (error) {
         throw new Error('Error creating visit: ' + error.message);
     }

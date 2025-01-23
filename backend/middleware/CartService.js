@@ -1,6 +1,8 @@
 const Cart = require('../models/Cart');
 const Item = require('../models/Item');
 const mongoose = require('mongoose');
+const User = require('../models/User');
+const Patient = require('../models/Patient');
 
 exports.addItemToCart = async (id, itemData) => {
   try {
@@ -71,15 +73,24 @@ exports.removeItemFromCart = async (id) => {
 
 exports.getCartItems = async (userId) => {
   try {
-    const cart = await Cart.findOne({ userId }).populate('items');
-    if (!cart) {
+
+    const patient = await Patient.findOne({ user: userId}).populate({
+      path: 'cart',
+      populate: {
+        path: 'items',
+        model: 'Item',
+      },
+    })
+
+    console.log(patient.cart.items)
+
+    if (!patient || !patient.cart) {
       throw new Error('Cart not found for the user');
     }
 
-    return cart.items;
+    return patient.cart.items; 
   } catch (error) {
     console.error('Error retrieving items:', error);
     throw new Error('Error retrieving items from cart: ' + error.message);
   }
 };
-
