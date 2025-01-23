@@ -1,5 +1,5 @@
-import { AuthenticationServiceFactory } from "../authentication/factory/AuthenticationServiceFactory";
-import { MongoAuthenticationService } from "../authentication/mongo/MongoAuthenticationService";
+import { AuthenticationServiceFactory } from "../authentication/auth-service/factory/AuthenticationServiceFactory";
+import { MongoAuthenticationService } from "../authentication/auth-service/implementation/mongo/MongoAuthenticationService";
 import { CartRepositoryFactory } from "../db/factories/CartRepositoryFactory";
 import { DoctorRepositoryFactory } from "../db/factories/DoctorRepositoryFactory";
 import { PatientRepositoryFactory } from "../db/factories/PatientRepositoryFactory";

@@ -1,7 +1,6 @@
 import { NgFor, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Review } from '../../../model/Review';
 import { VisitService } from '../../../services/visit/visit.service';
 
 @Component({

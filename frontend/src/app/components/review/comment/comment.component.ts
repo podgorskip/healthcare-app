@@ -28,7 +28,7 @@ export class CommentComponent implements OnInit {
   constructor(private reviewService: ReviewService, private userIdentityInfo: UserIdentityInfo) {}
 
   addComment(): void {
-    if (this.newComment.trim() && this.authenticatedUser && this.review?.id) {
+    if (this.newComment.trim() && this.authenticatedUser && !this.authenticatedUser.banned && this.review?.id) {
       this.reviewService.addReviewComment(this.review.id, {
         comment: this.newComment,
         user: this.authenticatedUser?.id,
@@ -84,5 +84,9 @@ export class CommentComponent implements OnInit {
 
   letters = (firstName: string, lastName: string): string => {
     return ((firstName.charAt(0) + lastName.charAt(0)) as string).toUpperCase();
+  }
+
+  isUserBanned = (): boolean => {
+    return this.authenticatedUser?.banned ? this.authenticatedUser.banned : false;
   }
 }

@@ -13,7 +13,7 @@
       </div>
       <p *ngIf="!review?.comments?.length">No comments yet.</p>
   
-      <div class="add-comment" *ngIf="Authorization.isDoctor(authenticatedUser?.role) || Authorization.isPatient(authenticatedUser?.role)">
+      <div class="add-comment" *ngIf="(Authorization.isDoctor(authenticatedUser?.role) || Authorization.isPatient(authenticatedUser?.role)) && !isUserBanned()">
         <textarea [(ngModel)]="newComment" placeholder="Add a comment..."></textarea>
         <button (click)="addComment()">Add comment</button>
       </div>

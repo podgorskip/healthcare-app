@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest, HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpEvent, HttpInterceptor, HttpHandler, HttpRequest } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
-import { AuthenticationServiceInterface } from '../authentication/interfaces/AuthenticationServiceInterface';
-import { AuthenticationServiceFactory } from '../authentication/factory/AuthenticationServiceFactory';
+import { AuthenticationServiceInterface } from '../authentication/auth-service/interfaces/AuthenticationServiceInterface';
+import { AuthenticationServiceFactory } from '../authentication/auth-service/factory/AuthenticationServiceFactory';
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {

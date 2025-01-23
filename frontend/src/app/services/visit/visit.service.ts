@@ -55,4 +55,9 @@ export class VisitService {
     console.log(`.addVisitReview - invoked, visit id=${id}`);
     return this.visitRepository.addVisitReview(review, id);
   }
+
+  startListeningVisitCancellation(id: string): Observable<ScheduledVisit> {
+    console.log(`.startListeningVisitCancellation - invoked, visit id=${id}`);
+    return this.visitRepository.startListeningVisitCancellation(id);
+  }
 }

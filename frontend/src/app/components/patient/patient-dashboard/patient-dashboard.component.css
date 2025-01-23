@@ -64,7 +64,7 @@
     cursor: pointer;
 }
 
-@media(min-width: 800px) {
+@media(min-width: 1000px) {
     .patient-dashboard {
         grid-template-columns: 1fr 1fr;
         justify-content: space-between;

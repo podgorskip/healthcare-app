@@ -17,4 +17,5 @@ export interface ScheduledVisit {
     cancelled: boolean;
     doctor?: Doctor;
     patient?: Patient;
+    reviewed: boolean;
 }

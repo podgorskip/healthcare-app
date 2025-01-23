@@ -10,13 +10,12 @@ import { FirebaseInitializationService } from '../../../setup/FirebaseInitializa
 })
 export class FirebaseReviewRepository implements ReviewRepositoryInterface {
   private db: any;
-  private dbPath = '/reviews';  // Assuming reviews are stored in this path in Firebase
+  private dbPath = '/reviews'; 
 
   constructor(firebaseInit: FirebaseInitializationService) {
     this.db = getDatabase(firebaseInit.getFirebaseApp);
   }
 
-  // Get reviews for a doctor
   getDoctorReviews(id: string): Observable<Review[]> {
     const reviewsRef = ref(this.db, `${this.dbPath}/doctors/${id}`);
     return new Observable((observer) => {
@@ -26,9 +25,9 @@ export class FirebaseReviewRepository implements ReviewRepositoryInterface {
             const reviews: Review[] = [];
             snapshot.forEach((childSnapshot) => {
               const review = childSnapshot.val();
-              reviews.push(review); // Collect all reviews
+              reviews.push(review); 
             });
-            observer.next(reviews); // Return the reviews array
+            observer.next(reviews); 
             observer.complete();
           } else {
             observer.error('No reviews found for this doctor');
@@ -40,12 +39,11 @@ export class FirebaseReviewRepository implements ReviewRepositoryInterface {
     });
   }
 
-  // Add a review comment to a specific review
   addReviewComment(id: string, comment: { comment: string, user: string }): Observable<any> {
     const commentRef = ref(this.db, `${this.dbPath}/comments/${id}`);
     return new Observable((observer) => {
-      const newCommentRef = push(commentRef); // Generate a unique ID for the comment
-      set(newCommentRef, comment)  // Save the comment under the review
+      const newCommentRef = push(commentRef); 
+      set(newCommentRef, comment)  
         .then(() => {
           observer.next({ message: 'Comment added successfully.' });
           observer.complete();
@@ -56,11 +54,10 @@ export class FirebaseReviewRepository implements ReviewRepositoryInterface {
     });
   }
 
-  // Remove a review comment
   removeReviewComment(id: string): Observable<any> {
     const commentRef = ref(this.db, `${this.dbPath}/comments/${id}`);
     return new Observable((observer) => {
-      remove(commentRef)  // Remove the comment from Firebase
+      remove(commentRef) 
         .then(() => {
           observer.next({ message: 'Comment removed successfully.' });
           observer.complete();

@@ -1,5 +1,8 @@
 <div class="cart">
     <h3>Cart</h3>
+    <p *ngIf="!patient.cart.items?.length" class="cart-empty">
+        Ups... there's nothing in the cart yet
+    </p>
     <div class="items" *ngIf="patient.cart.items">
         <div *ngFor="let item of patient.cart.items" class="item">
             <input type="checkbox" id={{item.id}} (change)="addItem(item.id)">
@@ -37,7 +40,21 @@
             </button>
         </div>
     </div>
-    <p *ngIf="!patient.cart.items?.length">
-        Ups... there's nothing in the cart yet
-    </p>
+   
+    <div *ngIf="isConfirmingPayment" class="payment-modal">
+        <div class="modal-content">
+          <h3>Confirm your payment</h3>
+          <div class="selected-items">
+            <div *ngFor="let item of selectedItems" class="selected-item">
+              <p>{{ item.firstName }} {{ item.lastName }}</p>
+              <p>{{ formatDates(item.date) }}</p>
+              <p>Type: {{ item.type }}</p>
+              <p>Price: ${{ item.date.length * 50 }}</p>
+            </div>
+          </div>
+          <app-payment
+            (paymentComplete)="finalizePayment()"
+          ></app-payment>
+        </div>
+    </div>  
 </div>

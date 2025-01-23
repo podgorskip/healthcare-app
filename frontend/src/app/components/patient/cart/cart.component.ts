@@ -12,11 +12,12 @@ import { ScheduledVisit } from '../../../model/ScheduledVisit';
 import { Patient } from '../../../model/Patient';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { PaymentComponent } from '../../payment/payment.component';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [NgFor, NgIf, HttpClientModule],
+  imports: [NgFor, NgIf, HttpClientModule, PaymentComponent],
   providers: [CartService, VisitService, PatientService],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css']
@@ -24,6 +25,7 @@ import { takeUntil } from 'rxjs/operators';
 export class CartComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject<void>();
   
+  isConfirmingPayment: boolean = false;
   patient!: Patient;
   selectedItems: Item[] = [];
 
@@ -58,43 +60,45 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   onClickCard = (): void => {
-    console.log('.onClickCard - invoked');
-    this.selectedItems.forEach(item => {
-      item.price = item.date.length * 50;
-      this.cartService.removeItem(item.id).subscribe({
-        next: (response) => console.log(`Response: ${response}`),
-        error: (err) => console.error('Error removing item from cart:', err)
-      });
-
-      console.log('Item: ', item)
-
-      if (this.patient) {
-        const visit: ScheduledVisit = {
-          id: '',
-          date: item.date,
-          firstName: item.firstName,
-          lastName: item.lastName,
-          username: item.username,
-          age: item.age,
-          sex: item.sex,
-          details: item.details,
-          price: item.price,
-          doctor: item.doctor,
-          type: item.type,
-          cancelled: false,
-          patient: this.patient
-        };
-
-        this.visitService.addVisit(visit).subscribe({
-          next: (response) => {
-            console.log(`Response: ${response}`);
-            this.router.navigate(['/patient-dashboard']);
-          },
-          error: (err) => console.error('Error scheduling visit:', err)
-        });
-      }
-    });
+    this.isConfirmingPayment = true;
   }
+
+  finalizePayment() {
+    console.log('Finalizing payment...');
+    this.selectedItems.forEach((item) => {
+      this.cartService.removeItem(item.id).subscribe({
+        next: (response) => console.log(`Item removed: ${response}`),
+        error: (err) => console.error('Error:', err),
+      });
+  
+      const visit: ScheduledVisit = {
+        id: '',
+        date: item.date,
+        firstName: item.firstName,
+        lastName: item.lastName,
+        username: item.username,
+        age: item.age,
+        sex: item.sex,
+        details: item.details,
+        price: item.price,
+        doctor: item.doctor,
+        type: item.type,
+        cancelled: false,
+        patient: this.patient,
+        reviewed: false,
+      };
+  
+      this.visitService.addVisit(visit).subscribe({
+        next: (response) => {
+          console.log(`Visit scheduled: ${response}`);
+          this.router.navigate(['/patient-dashboard']);
+        },
+        error: (err) => console.error('Error scheduling visit:', err),
+      });
+    });
+  
+    this.isConfirmingPayment = false;
+  }  
 
   onRemoveFromCart = (id: string): void => {
     const userChoice = confirm('Do you want to delete visit from cart?');

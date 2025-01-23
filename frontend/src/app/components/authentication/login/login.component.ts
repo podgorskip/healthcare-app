@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { AuthenticationService } from '../../../authentication/auth-service/authentication.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Authentication } from '../../../model/Authentication';
 import { NgIf } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -18,9 +19,23 @@ export class LoginComponent {
     password: ''
   }
 
-  constructor(private auth: AuthenticationService) { }
+  constructor(private auth: AuthenticationService, private router: Router) { }
 
-  submit = (): void => {
-    this.auth.authenticationService.authenticate(this.authentication);
+  submit = (form: NgForm): void => {
+    this.auth.authenticate(this.authentication).subscribe({
+      next: (user) => {
+        if (user) {
+          this.router.navigate(['/doctors']);
+        } else {
+          this.resetForm(form);
+          alert('Authentication failed. Please, try again.');
+        }
+      }
+    })
+  }
+
+  private resetForm(form: NgForm): void {
+    form.resetForm(); 
+    this.authentication = { username: '', password: '' }; 
   }
 }

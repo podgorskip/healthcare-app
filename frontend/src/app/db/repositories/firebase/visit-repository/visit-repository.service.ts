@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { getDatabase, ref, set, push, onValue, get, remove, update } from 'firebase/database';
 import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
 import { ScheduledVisit } from '../../../../model/ScheduledVisit';
-import { Observable, from } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
 import { FirebaseInitializationService } from '../../../setup/FirebaseInitializationService';
 
 @Injectable({
@@ -98,7 +98,6 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
     });
   }
 
-  // Fetch visits for a specific patient
   getPatientVisits(patientId: string): Observable<ScheduledVisit[]> {
     return new Observable((observer) => {
       const visitsRef = ref(this.db, this.dbPath);
@@ -115,7 +114,6 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
     });
   }
 
-  // Fetch visits for a specific doctor
   getDoctorVisits(doctorId: string): Observable<ScheduledVisit[]> {
     return new Observable((observer) => {
       const visitsRef = ref(this.db, this.dbPath);
@@ -132,19 +130,16 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
     });
   }
 
-  // Cancel a visit (mark as canceled)
   cancelVisit(id: string): Observable<ScheduledVisit> {
     return new Observable((observer) => {
       const visitRef = ref(this.db, `${this.dbPath}/${id}`);
       
-      // Assuming that you are changing some status in the ScheduledVisit to mark it as canceled
-      update(visitRef, { status: 'canceled' }) // assuming status is a property of ScheduledVisit
+      update(visitRef, { status: 'canceled' })
         .then(() => {
-          // Fetch the updated visit from Firebase (this is optional, depending on your logic)
           get(visitRef).then((snapshot) => {
             if (snapshot.exists()) {
               const updatedVisit = snapshot.val();
-              observer.next(updatedVisit);  // Return the updated ScheduledVisit
+              observer.next(updatedVisit); 
               observer.complete();
             } else {
               observer.error('Visit not found');
@@ -157,7 +152,6 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
     });
   }
 
-  // Add a review for a visit
   addVisitReview(review: { score: number; comment: string }, id: string): Observable<any> {
     return new Observable((observer) => {
       const visitRef = ref(this.db, `${this.dbPath}/${id}`);
@@ -181,6 +175,28 @@ export class FirebaseVisitRepository implements VisitRepositoryInterface {
         ? Object.keys(visitsData).map((key) => ({ ...visitsData[key], id: key }))
         : [];
       callback(visits);
+    });
+  }
+
+  startListeningVisitCancellation(id: string): Observable<ScheduledVisit> {
+    console.log('.startListeningVisitCancellation - invoked');
+    
+    return new Observable<ScheduledVisit>((observer) => {
+      const visitRef = ref(this.db, `${this.dbPath}/${id}`);
+      
+      onValue(visitRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const visitData = snapshot.val() as ScheduledVisit;
+          console.log('Firebase visit cancellation update: ', visitData);
+          observer.next(visitData);
+        } else {
+          console.error('Visit not found');
+          observer.error('Visit not found');
+        }
+      }, (error) => {
+        console.error('Firebase error:', error);
+        observer.error(`Firebase error: ${error}`);
+      });
     });
   }
 }

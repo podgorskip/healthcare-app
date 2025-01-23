@@ -1,13 +1,14 @@
+import { UserIdentityInfo } from './../../../UserIdentityInfo';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, from, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
-import { UserIdentityInfo } from '../UserIdentityInfo';
-import { Authentication } from '../../model/Authentication';
+import { Observable, from, of, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { signInWithEmailAndPassword, User as FirebaseUser } from 'firebase/auth';
-import { User } from '../../model/User';
-import { Role } from '../../model/enum/Role';
-import { FirebaseInitializationService } from '../../db/setup/FirebaseInitializationService';
+import { FirebaseInitializationService } from '../../../../db/setup/FirebaseInitializationService';
+import { Authentication } from '../../../../model/Authentication';
+import { Role } from '../../../../model/enum/Role';
+import { User } from '../../../../model/User';
+
 
 @Injectable({
   providedIn: 'root',
@@ -19,22 +20,32 @@ export class FirebaseAuthenticationService {
     private firebaseInit: FirebaseInitializationService
   ) {}
 
-  authenticate(credentials: Authentication): void {
-    const auth = this.firebaseInit.getAuth(); 
-    signInWithEmailAndPassword(auth, credentials.username, credentials.password)
-      .then((userCredential) => {
+  authenticate(credentials: Authentication): Observable<User | null> {
+    const auth = this.firebaseInit.getAuth();
+  
+    return from(signInWithEmailAndPassword(auth, credentials.username, credentials.password)).pipe(
+      map((userCredential) => {
         const user = userCredential.user;
+  
         if (user) {
           localStorage.setItem('token', user.refreshToken);
+  
           const customUser = this.mapFirebaseUserToCustomUser(user);
+  
           this.userIdentityInfo.setAuthenticatedUser(customUser);
-          this.router.navigate(['/doctors']);
+  
+          console.log('Authenticated user:', customUser);
+          return customUser; 
         }
-      })
-      .catch((error) => {
+        return null; 
+      }),
+      catchError((error) => {
         console.error('Authentication failed:', error);
-      });
+        return of(null); 
+      })
+    );
   }
+  
 
   refreshAccessToken(): Observable<any> {
     const auth = this.firebaseInit.getAuth(); 

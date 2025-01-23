@@ -17,4 +17,8 @@ export interface DoctorRepositoryInterface {
     getDoctorAvailability(id: string, type: string): Observable<SingleDayAvailability[]>;
 
     addDoctorAvailability(id: string, availabilities: SingleDayAvailability[], type: string): Observable<any>;
+
+    startListeningAvailabilityChange(id: string, type: string): Observable<SingleDayAvailability[]>;
+
+    startListeningVisitChange(id: string): Observable<ScheduledVisit[]>;
 }

@@ -14,4 +14,6 @@ export interface VisitRepositoryInterface {
   deleteVisit(id: string): Observable<string>;
 
   addVisitReview(review: { score: number, comment: string}, id: string): Observable<any>;
+
+  startListeningVisitCancellation(id: string): Observable<ScheduledVisit>;
 }

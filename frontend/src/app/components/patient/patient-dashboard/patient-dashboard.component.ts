@@ -42,7 +42,7 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
     if (!userChoice) return;
 
     this.visitService.removeVisit(id).subscribe({
-      next: (response) => {
+      next: () => {
         console.log(`Successfully cancelled visit`);
         this.visits = this.visits.filter(v => v.id !== id);
       },
@@ -62,6 +62,14 @@ export class PatientDashboardComponent implements OnInit, OnDestroy {
                 next: (visits) => {
                   console.log('Scheduled visits:', visits);
                   visits.forEach(visit => {
+                    this.visitService.startListeningVisitCancellation(visit.id).subscribe({
+                      next: (cancelledVisit) => {
+                        if (cancelledVisit && cancelledVisit.cancelled) {
+                          this.visits = this.visits.filter(v => v.id !== visit.id);
+                          this.cancelledVisits.push(visit);                  
+                        }
+                      }
+                    })
                     if (visit.date && Array.isArray(visit.date)) {
                       visit.date = visit.date.map(dateItem => ({
                         day: new Date(dateItem.day),

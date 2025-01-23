@@ -1,9 +1,9 @@
-import { FirebaseAuthenticationService } from './../firebase/FirebaseAuthenticationService';
 import { Injectable } from "@angular/core";
+import { MongoAuthenticationService } from "../implementation/mongo/MongoAuthenticationService";
+import { FirebaseAuthenticationService } from "../implementation/firebase/FirebaseAuthenticationService";
+import { DatabaseConfigService } from "../../../db/DatabaseConfigService";
 import { AuthenticationServiceInterface } from "../interfaces/AuthenticationServiceInterface";
-import { MongoAuthenticationService } from "../mongo/MongoAuthenticationService";
-import { DatabaseConfigService } from "../../db/DatabaseConfigService";
-import { DatabaseType } from "../../db/DatabaseType";
+import { DatabaseType } from "../../../db/DatabaseType";
 
 @Injectable({
     providedIn: 'root'

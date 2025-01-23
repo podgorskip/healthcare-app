@@ -9,6 +9,6 @@ export interface User {
     username: string;
     sex?: Sex;
     age?: number;
-    password?: String;
+    password?: string;
     banned?: boolean;
 }

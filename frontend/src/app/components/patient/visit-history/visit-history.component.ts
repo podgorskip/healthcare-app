@@ -7,6 +7,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { ScheduledVisit } from '../../../model/ScheduledVisit';
 import { NgFor, NgIf } from '@angular/common';
 import { ReviewComponent } from '../review/review.component';
+import { User } from '../../../model/User';
 
 @Component({
   selector: 'app-visit-history',
@@ -21,6 +22,7 @@ export class VisitHistoryComponent implements OnInit {
   DateUtils = DateUtils;
   visits: ScheduledVisit[] = [];
   selectedVisit: string | null = null;
+  user?: User;
 
   constructor(
     private patientService: PatientService,
@@ -32,6 +34,7 @@ export class VisitHistoryComponent implements OnInit {
     this.userIdentityInfo.authenticatedUser$.pipe(takeUntil(this.unsubscribe$)).subscribe({
       next: (user) => {
         if (user) {
+          this.user = user;
           this.patientService.getPatientById(user.id).subscribe({
             next: (patient) => {
               this.visitService.getPatientVisits(patient.id).subscribe({
@@ -60,5 +63,14 @@ export class VisitHistoryComponent implements OnInit {
 
   onReviewClick = (id: string): void => {
     this.selectedVisit = id;
+  }
+
+  isAlreadyReviewed = (visit: ScheduledVisit): boolean => {
+    console.log(visit)
+    return visit.reviewed;
+  }
+
+  isUserBanned = (): boolean => {
+    return this.user?.banned ? this.user.banned : false;
   }
 }

@@ -1,8 +1,6 @@
-import { firstValueFrom } from 'rxjs';
 import { Component } from '@angular/core';
-import { User } from '../../../model/User';
 import { Sex } from '../../../model/enum/Sex';
-import { FormsModule, NgModel } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { Role } from '../../../model/enum/Role';
 import { PatientService } from '../../../services/patient/patient.service';

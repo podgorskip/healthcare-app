@@ -11,7 +11,7 @@
                 <p>{{visit.type}}</p>
                 <p>{{visit.details}}</p>
             </div>
-            <img src="assets/review.png" alt="Review" (click)="onReviewClick(visit.id)">
+            <img src="assets/review.png" alt="Review" (click)="onReviewClick(visit.id)" *ngIf="!isAlreadyReviewed(visit) && !isUserBanned()">
         </div>
     </div>
     <app-review *ngIf="selectedVisit !== null" [id]="selectedVisit"/>

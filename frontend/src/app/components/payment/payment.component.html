@@ -1,0 +1,31 @@
+<div>
+    <div *ngIf="isProcessingPayment" class="loader">
+        <p>Processing payment, please wait...</p>
+      </div>
+      <div *ngIf="!isProcessingPayment" class="payment-form">
+        <h3>Payment Details</h3>
+        <form (ngSubmit)="submitPayment()">
+          <div class="form-group">
+            <label for="cardNumber">Card number</label>
+            <input
+              id="cardNumber"
+              type="text"
+              [(ngModel)]="cardNumber"
+              name="cardNumber"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="salt">Pin</label>
+            <input
+              id="salt"
+              type="text"
+              [(ngModel)]="salt"
+              name="salt"
+              required
+            />
+          </div>
+          <button type="submit">Submit payment</button>
+        </form>
+      </div>
+</div>

@@ -90,52 +90,73 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   };
 
   ngOnInit(): void {
-    this.refreshInterval = setInterval(() => {
-      this.cd.detectChanges();
-    }, 5000);
-  
     if (this.shouldSchedule === '') {
       this.shouldSchedule = this.route.snapshot.params['schedule'] || '';
     }
-      const id = this.route.snapshot.params['id'];
+  
+    const id = this.route.snapshot.params['id'];
+  
+    this.doctorService.getDoctor(id).subscribe({
+      next: (doctor) => {
+        this.doctor = doctor;
+  
+        const startOfWeek = new Date(this.currentWeek[0]);
+        const endOfWeek = new Date(this.currentWeek[this.currentWeek.length - 1]);
 
-      console.log('Doctor id: ', id)
-      this.doctorService.getDoctor(id).subscribe({
-        next: (doctor) => {
-          this.doctor = doctor;
+        this.doctorService.startListeningAvailabilityChange(this.doctor.id, 'presence').subscribe({
+          next: (updatedPresence) => {
+            console.log(updatedPresence)
+            this.presence = updatedPresence;
+            this.currentWeekPresence = this.filterByDateRange(updatedPresence, startOfWeek, endOfWeek);
+            console.log('Updated presence received:', updatedPresence);
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-          const startOfWeek = new Date(this.currentWeek[0]);
-          const endOfWeek = new Date(this.currentWeek[this.currentWeek.length - 1]);
+        this.doctorService.startListeningAvailabilityChange(this.doctor.id, 'absence').subscribe({
+          next: (updatedAbsence) => {
+            this.absence = updatedAbsence;
+            this.currentWeekAbsence = this.filterByDateRange(updatedAbsence, startOfWeek, endOfWeek);
+            console.log('Updated absence received:', updatedAbsence);
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-          this.doctorService.getAvailability(this.doctor.id, 'presence').subscribe({
-            next: (presence) => {
-              this.presence = presence || [];
-              this.currentWeekPresence = this.filterByDateRange(presence, startOfWeek, endOfWeek);
-              this.isDataLoaded.presence = true; 
-              this.cacheTooltipsIfReady(); 
-            }
-          });
+        this.doctorService.startListeningVisitChange(this.doctor.id).subscribe({
+          next: (updatedVisits) => {
+            this.visits = updatedVisits;
+            console.log('Updated visits received:', updatedVisits);
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-          // Load absence
-          this.doctorService.getAvailability(this.doctor.id, 'absence').subscribe({
-            next: (absence) => {
-              this.absence = absence || [];
-              this.currentWeekAbsence = this.filterByDateRange(absence, startOfWeek, endOfWeek);
-              this.isDataLoaded.absence = true; // Mark as loaded
-              this.cacheTooltipsIfReady(); // Re-cache if all data is ready
-            }
-          });
+        this.doctorService.getAvailability(this.doctor.id, 'presence').subscribe({
+          next: (presence) => {
+            this.presence = presence || [];
+            this.currentWeekPresence = this.filterByDateRange(presence, startOfWeek, endOfWeek);
+            this.isDataLoaded.presence = true;
+            this.cacheTooltipsIfReady();
+          },
+        });
   
-          // Load scheduled visits
-          this.visitService.getDoctorVisits(this.doctor.id).subscribe({
-            next: (visits) => {
-              this.visits = visits || [];
-              this.isDataLoaded.visits = true; // Mark as loaded
-              this.cacheTooltipsIfReady(); // Re-cache if all data is ready
-            }
-          });
-        }
-      });
+        this.doctorService.getAvailability(this.doctor.id, 'absence').subscribe({
+          next: (absence) => {
+            this.absence = absence || [];
+            this.currentWeekAbsence = this.filterByDateRange(absence, startOfWeek, endOfWeek);
+            this.isDataLoaded.absence = true;
+            this.cacheTooltipsIfReady();
+          },
+        });
+  
+        this.visitService.getDoctorVisits(this.doctor.id).subscribe({
+          next: (visits) => {
+            this.visits = visits || [];
+            this.isDataLoaded.visits = true;
+            this.cacheTooltipsIfReady();
+          },
+        });
+      },
+    });
   }
 
   private cacheTooltipsIfReady(): void {

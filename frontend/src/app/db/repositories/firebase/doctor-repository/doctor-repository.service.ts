@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getDatabase, ref, set, get, remove, update, child } from 'firebase/database';
+import { getDatabase, ref, set, get, remove, onValue } from 'firebase/database';
 import { Observable, from } from 'rxjs';
 import { DoctorRepositoryInterface } from '../../../interfaces/DoctorRepositoryInterface';
 import { Doctor } from '../../../../model/Doctor';
@@ -18,7 +18,6 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
     this.db = getDatabase(firebaseInit.getFirebaseApp);
   }
 
-  // Add a new doctor
   addDoctor(doctor: Doctor): Observable<any> {
     const doctorRef = ref(this.db, `${this.dbPath}/${doctor.id}`);
     return new Observable((observer) => {
@@ -33,7 +32,6 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
     });
   }
 
-  // Get all doctors
   getDoctors(): Observable<Doctor[]> {
     const doctorsRef = ref(this.db, this.dbPath);
     return new Observable((observer) => {
@@ -43,7 +41,7 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
           snapshot.forEach((childSnapshot) => {
             doctors.push(childSnapshot.val());
           });
-          observer.next(doctors); // Return all doctor data
+          observer.next(doctors); 
           observer.complete();
         })
         .catch((error) => {
@@ -52,7 +50,6 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
     });
   }
 
-  // Get a doctor by ID
   getDoctorById(id: string): Observable<Doctor> {
     const doctorRef = ref(this.db, `${this.dbPath}/${id}`);
     return new Observable((observer) => {
@@ -60,7 +57,7 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
         .then((snapshot) => {
           if (snapshot.exists()) {
             const doctor = snapshot.val();
-            observer.next(doctor);  // Return the doctor data
+            observer.next(doctor); 
             observer.complete();
           } else {
             observer.error('Doctor not found');
@@ -72,7 +69,6 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
     });
   }
 
-  // Remove a doctor
   removeDoctor(id: string): Observable<any> {
     const doctorRef = ref(this.db, `${this.dbPath}/${id}`);
     return new Observable((observer) => {
@@ -87,7 +83,6 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
     });
   }
 
-  // Get all visits for a specific doctor
   getDoctorVisits(id: string): Observable<ScheduledVisit[]> {
     const visitsRef = ref(this.db, `${this.dbPath}/${id}/visits`);
     return new Observable((observer) => {
@@ -97,7 +92,7 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
           snapshot.forEach((childSnapshot) => {
             visits.push(childSnapshot.val());
           });
-          observer.next(visits); // Return visits data
+          observer.next(visits); 
           observer.complete();
         })
         .catch((error) => {
@@ -106,7 +101,6 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
     });
   }
 
-  // Get doctor availability
   getDoctorAvailability(id: string, type: string): Observable<SingleDayAvailability[]> {
     const availabilityRef = ref(this.db, `${this.dbPath}/${id}/availability/${type}`);
     return new Observable((observer) => {
@@ -116,7 +110,7 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
           snapshot.forEach((childSnapshot) => {
             availability.push(childSnapshot.val());
           });
-          observer.next(availability);  // Return availability data
+          observer.next(availability); 
           observer.complete();
         })
         .catch((error) => {
@@ -125,7 +119,6 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
     });
   }
 
-  // Add doctor availability
   addDoctorAvailability(id: string, availabilities: SingleDayAvailability[], type: string): Observable<any> {
     const availabilityRef = ref(this.db, `${this.dbPath}/${id}/availability/${type}`);
     return new Observable((observer) => {
@@ -137,6 +130,46 @@ export class FirebaseDoctorRepository implements DoctorRepositoryInterface {
         .catch((error) => {
           observer.error(`Error adding availability: ${error}`);
         });
+    });
+  }
+
+  startListeningAvailabilityChange(id: string, type: string): Observable<SingleDayAvailability[]> {
+    const availabilityRef = ref(this.db, `${this.dbPath}/${id}/availability/${type}`);
+    
+    return new Observable((observer) => {
+      onValue(availabilityRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const availability: SingleDayAvailability[] = [];
+          snapshot.forEach((childSnapshot) => {
+            availability.push(childSnapshot.val());
+          });
+          observer.next(availability);
+        } else {
+          observer.next([]); 
+        }
+      }, (error) => {
+        observer.error(`Error listening for availability changes: ${error}`);
+      });
+    });
+  }
+
+  startListeningVisitChange(id: string): Observable<ScheduledVisit[]> {
+    const visitsRef = ref(this.db, `${this.dbPath}/${id}/visits`);
+    
+    return new Observable((observer) => {
+      onValue(visitsRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const visits: ScheduledVisit[] = [];
+          snapshot.forEach((childSnapshot) => {
+            visits.push(childSnapshot.val());
+          });
+          observer.next(visits);
+        } else {
+          observer.next([]); 
+        }
+      }, (error) => {
+        observer.error(`Error listening for visit changes: ${error}`);
+      });
     });
   }
 }

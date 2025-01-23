@@ -12,7 +12,6 @@ import { DoctorService } from '../../../services/doctor/doctor.service';
 import { VisitService } from '../../../services/visit/visit.service';
 import { Doctor } from '../../../model/Doctor';
 import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
-import { User } from '../../../model/User';
 
 @Component({
   selector: 'app-availability',
@@ -95,7 +94,7 @@ export class AvailabilityComponent implements OnInit {
     this.doctorService.addAvailability(this.doctor.id, [this.singleDayAvailability], this.selectedType).subscribe({
       next: (response) => {
         console.log(`Response: ${response}`);
-        this.router.navigate([`/calendar/${this.doctor.user.id}/false`]);
+        this.router.navigate([`/doctors`]);
       }
     })
   }
@@ -109,7 +108,7 @@ export class AvailabilityComponent implements OnInit {
     this.doctorService.addAvailability(this.doctor.id, single, this.selectedType).subscribe({
       next: (response) => {
         console.log(`Response: ${response}`);
-        this.router.navigate(['/calendar/false']);
+        this.router.navigate(['/doctors']);
       }
     })
   }

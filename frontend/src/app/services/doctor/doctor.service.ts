@@ -4,6 +4,7 @@ import { DoctorRepositoryFactory } from '../../db/factories/DoctorRepositoryFact
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Doctor } from '../../model/Doctor';
 import { SingleDayAvailability } from '../../model/SingleDayAvailability';
+import { ScheduledVisit } from '../../model/ScheduledVisit';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,15 @@ export class DoctorService {
 
   getAvailability = (id: string, type: string): Observable<SingleDayAvailability[]> => {
     return this.doctorRepository.getDoctorAvailability(id, type);
+  }
+
+  startListeningAvailabilityChange = (id: string, type: string): Observable<SingleDayAvailability[]> => {
+    console.log('.startListeningAvailabilityChange - invoked')
+    return this.doctorRepository.startListeningAvailabilityChange(id, type);
+  }
+
+  startListeningVisitChange = (id: string): Observable<ScheduledVisit[]> => {
+    return this.doctorRepository.startListeningVisitChange(id);
   }
 
   private initializeDoctors(): void {

@@ -3,9 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { ScheduledVisit } from '../../../../model/ScheduledVisit';
 import { environment } from '../../../../../environments/environment';
 import { Observable } from 'rxjs';
-import { MongoAuthenticationService } from '../../../../authentication/mongo/MongoAuthenticationService';
 import { VisitRepositoryInterface } from '../../../interfaces/VisitRepositoryInterface';
-import { Review } from '../../../../model/Review';
+import { WebSocketService } from '../../../../sockets/WebSocketService';
 
 @Injectable({
   providedIn: 'root'
@@ -13,28 +12,23 @@ import { Review } from '../../../../model/Review';
 export class MongoVisitRepository implements VisitRepositoryInterface {
   private apiUrl = `${environment.mongoConfig.baseUrl}/visits`;
 
-  constructor(private http: HttpClient, private auth: MongoAuthenticationService) {}
+  constructor(private http: HttpClient, private webSocketService: WebSocketService) {}
 
   getPatientVisits(id: string): Observable<ScheduledVisit[]> {
     console.log(`.getPatientVisits - invoked, visit id=${id}`);
-
-    const headers = this.auth.authHeaders();
-    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/patients/${id}`, { headers });
+    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/patients/${id}`);
   }
 
   getDoctorVisits(id: string): Observable<ScheduledVisit[]> {
     console.log(`.getDoctorVisits - invoked, visit id=${id}`);
-
-    const headers = this.auth.authHeaders();
-    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/doctors/${id}`, { headers });
+    return this.http.get<ScheduledVisit[]>(`${this.apiUrl}/doctors/${id}`);
   }
 
   addVisit(visit: ScheduledVisit): Observable<ScheduledVisit> {
     console.log('.addVisit - invoked');
 
     try {
-      const headers = this.auth.authHeaders();
-      return this.http.post<ScheduledVisit>(`${this.apiUrl}`, visit, { headers });
+      return this.http.post<ScheduledVisit>(`${this.apiUrl}`, visit);
     } catch (error) {
       console.error('Error:', error);
       throw error;
@@ -45,8 +39,7 @@ export class MongoVisitRepository implements VisitRepositoryInterface {
     console.log(`.cancelVisit - invoked, visit id=${id}`);
 
     try {
-      const headers = this.auth.authHeaders();
-      return this.http.put<ScheduledVisit>(`${this.apiUrl}/${id}/cancel`, { headers });
+      return this.http.put<ScheduledVisit>(`${this.apiUrl}/${id}/cancel`, {});
     } catch (error) {
       console.error('Error:', error);
       throw error;
@@ -57,8 +50,7 @@ export class MongoVisitRepository implements VisitRepositoryInterface {
     console.log(`.deleteVisit - invoked, visit id=${id}`);
 
     try {
-      const headers = this.auth.authHeaders();
-      return this.http.delete<string>(`${this.apiUrl}/${id}`, { headers });
+      return this.http.delete<string>(`${this.apiUrl}/${id}`);
     } catch (error) {
       console.error('Error:', error);
       throw error;
@@ -68,11 +60,24 @@ export class MongoVisitRepository implements VisitRepositoryInterface {
   addVisitReview(review: { score: number, comment: string}, id: string): Observable<any> {
     console.log(`.addVisitReview - invoked`);
     try {
-      const headers = this.auth.authHeaders();
-      return this.http.post<string>(`${this.apiUrl}/${id}/reviews`, review, { headers });
+      return this.http.post<string>(`${this.apiUrl}/${id}/reviews`, review);
     } catch (error) {
       console.error('Error:', error);
       throw error;
     }
+  }
+
+  startListeningVisitCancellation(id: string): Observable<ScheduledVisit> {
+    console.log('.startListeningVisitCancellation - invoked');
+    return new Observable((observer) => {
+      this.webSocketService.listen(`visit-${id}-cancellation`).subscribe({
+        next: (response: { visit: ScheduledVisit }) => {
+          console.log('WebSocket visit cancelled: ', response.visit);
+          observer.next(response.visit);
+        },
+        error: (err) => console.error('WebSocket error:', err),
+        complete: () => console.log('WebSocket subscription completed'),
+      });      
+    });
   }
 }

@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { User } from '../../model/User';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Authentication } from '../../model/Authentication';
-import { UserIdentityInfo } from '../UserIdentityInfo';
-import { environment } from '../../../environments/environment';
-import { catchError, Observable, switchMap, tap, throwError } from 'rxjs';
-import { AuthenticationServiceInterface } from '../interfaces/AuthenticationServiceInterface';
+import { catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
+import { Authentication } from '../../../../model/Authentication';
+import { environment } from '../../../../../environments/environment';
+import { AuthenticationServiceInterface } from '../../interfaces/AuthenticationServiceInterface';
+import { UserIdentityInfo } from '../../../UserIdentityInfo';
+import { User } from '../../../../model/User';
 
 @Injectable({
   providedIn: 'root'
@@ -16,27 +16,27 @@ export class MongoAuthenticationService implements AuthenticationServiceInterfac
 
   constructor(private http: HttpClient, private userIdentityInfo: UserIdentityInfo, private router: Router) { }
 
-  authenticate(credentials: Authentication): void {
+  authenticate(credentials: Authentication): Observable<User | null> {
     console.log('.authenticate - invoked');
-
-    this.http.post<{ accessToken: string; refreshToken: string }>(`${this.apiUrl}/authenticate`, credentials).pipe(
+  
+    return this.http.post<{ accessToken: string; refreshToken: string }>(`${this.apiUrl}/authenticate`, credentials).pipe(
       tap((response) => {
         localStorage.setItem('token', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
       }),
       switchMap(() => {
-        return this.http.get<User>(`${this.apiUrl}/account`); 
-      })
-    ).subscribe({
-      next: (user) => {
+        return this.http.get<User>(`${this.apiUrl}/account`);
+      }),
+      tap((user) => {
         this.userIdentityInfo.setAuthenticatedUser(user);
-        this.router.navigate(['/doctors']);
-      },
-      error: (error) => {
+      }),
+      catchError((error) => {
         console.error('Authentication or user retrieval failed:', error);
-      }
-    });
+        return of(null);
+      })
+    );
   }
+  
 
   refreshAccessToken(): Observable<any> {
     const refreshToken = localStorage.getItem('refreshToken');

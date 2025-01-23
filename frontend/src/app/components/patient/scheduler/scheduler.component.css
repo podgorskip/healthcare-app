@@ -88,7 +88,7 @@
     column-gap: 1.5em;
     row-gap: 2em;
     align-items: center;
-    max-width: 400px;
+    min-width: 300px;
 }
 
 .section {

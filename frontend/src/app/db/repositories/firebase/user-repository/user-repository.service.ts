@@ -4,6 +4,8 @@ import { UserRepositoryInterface } from '../../../interfaces/UserRepositoryInter
 import { User } from '../../../../model/User';
 import { Observable } from 'rxjs';
 import { FirebaseInitializationService } from '../../../setup/FirebaseInitializationService';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { Role } from '../../../../model/enum/Role';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +14,9 @@ export class FirebaseUserRepository implements UserRepositoryInterface {
   private db: any;
   private dbPath = '/users';  
 
-  constructor(firebaseInit: FirebaseInitializationService) {
+  constructor(private firebaseInit: FirebaseInitializationService) {
     this.db = getDatabase(firebaseInit.getFirebaseApp);
+    this.init();
   }
 
   getUsers(): Observable<User[]> {
@@ -30,7 +33,7 @@ export class FirebaseUserRepository implements UserRepositoryInterface {
                 role: userData.role,
                 firstName: userData.firstName,
                 lastName: userData.lastName,
-                username: userData.username,
+                username: userData.email,
                 sex: userData.sex || undefined,
                 age: userData.age || undefined,
                 password: userData.password || undefined,
@@ -50,18 +53,15 @@ export class FirebaseUserRepository implements UserRepositoryInterface {
     });
   }
 
-  // Toggle user ban status (store just the reference)
   toggleUserBan(id: string): Observable<any> {
     const userRef = ref(this.db, `${this.dbPath}/${id}`);
     return new Observable((observer) => {
-      // Fetch the current user data using the ID
       get(userRef)
         .then((snapshot) => {
           if (snapshot.exists()) {
             const userData = snapshot.val();
-            const updatedUser = { ...userData, banned: !userData.banned };  // Toggle the banned status
+            const updatedUser = { ...userData, banned: !userData.banned };  
 
-            // Update only the necessary fields (just update the 'banned' status)
             update(userRef, updatedUser)
               .then(() => {
                 observer.next({ message: `User ${id} ban status toggled successfully.` });
@@ -87,7 +87,7 @@ export class FirebaseUserRepository implements UserRepositoryInterface {
         .then((snapshot) => {
           if (snapshot.exists()) {
             const user = snapshot.val();
-            observer.next(user);  // Return the full user data
+            observer.next(user); 
             observer.complete();
           } else {
             observer.error('User not found');
@@ -102,19 +102,82 @@ export class FirebaseUserRepository implements UserRepositoryInterface {
     addUser(user: User): Promise<any> {
         const userRef = ref(this.db, this.dbPath);
         const userData = {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          username: user.username,
-          role: user.role,
-          sex: user.sex,
-          age: user.age,
+            id: user.id,
+            firstName: user.firstName || '',  
+            lastName: user.lastName || '',    
+            email: user.username,
+            role: user.role,
+            sex: user.sex || '',            
+            age: user.age || null,          
         };
-    
+
         return new Promise((resolve, reject) => {
           push(userRef, userData)
             .then((ref) => resolve(ref))
             .catch((error) => reject(error));
         });
+    }
+
+    registerUser(email: string, password: string, user: User): Promise<any> {
+        const auth = this.firebaseInit.getAuth();
+    
+        return new Promise((resolve, reject) => {
+          createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+              const firebaseUser = userCredential.user;
+    
+              this.addUser({
+                ...user,
+                id: firebaseUser.uid,
+                username: email,
+              })
+                .then((ref) => resolve(ref))
+                .catch((error) => reject(error));
+            })
+            .catch((error) => reject(error));
+        });
+    }
+
+    private async init(): Promise<void> {
+        const adminEmail = 'admin@gmail.com';
+        const adminPassword = 'password';
+        const adminRef = ref(this.db, this.dbPath);
+    
+        try {
+          const snapshot = await get(adminRef);
+          let adminExists = false;
+    
+          if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+              const userData = childSnapshot.val();
+              if (userData.role === 'admin' && userData.email === adminEmail) {
+                adminExists = true;
+              }
+            });
+          }
+    
+          if (!adminExists) {
+            const auth = this.firebaseInit.getAuth();
+            const userCredential = await createUserWithEmailAndPassword(auth, adminEmail, adminPassword);
+            const firebaseUser = userCredential.user;
+    
+            const newAdmin: User = {
+              id: firebaseUser.uid,
+              role: Role.ADMIN,
+              firstName: 'Admin',
+              lastName: 'Admin',
+              username: adminEmail,
+              password: adminPassword, 
+              banned: false
+            };
+    
+            await this.addUser(newAdmin);
+            console.log('Admin user added to the database.');
+          } else {
+            console.log('Admin user already exists.');
+          }
+        } catch (error) {
+          console.error('Error during initialization:', error);
+        }
     }
 }
