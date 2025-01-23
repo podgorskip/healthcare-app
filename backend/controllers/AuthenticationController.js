@@ -1,6 +1,10 @@
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
 const authService = require("../middleware/AuthenticationService.js")
-const RSA_PRIVATE_KEY = process.env.RSA_PRIVATE_KEY; 
+require('dotenv').config();
+
+const SECRET_KEY = process.env.SECRET_KEY;
+const REFRESH_SECRET_KEY = process.env.REFRESH_SECRET_KEY;
 
 exports.authenticate = async (req, res) => {
   const { username, password } = req.body;
@@ -17,19 +21,13 @@ exports.authenticate = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const token = authService.generateToken(user);
+    const tokens = authService.generateTokens(user);
 
-    console.log(token)
+    console.log(tokens)
 
     res.status(200).json({
-      message: "Login successful",
-      token: token,
-      user: {
-        id: user._id,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
     });
   } catch (err) {
     console.error("Error during login:", err);
@@ -66,7 +64,8 @@ exports.accountDetails = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         sex: user.sex,
-        age: user.age
+        age: user.age,
+        banned: user.banned
       });
   
     } catch (err) {
@@ -78,25 +77,40 @@ exports.accountDetails = async (req, res) => {
 exports.refreshToken = (req, res) => {
   const { refreshToken } = req.body;
 
+  console.log('Refreshing token: ', refreshToken);
+
   if (!refreshToken) {
     return res.status(403).json({ message: "No refresh token provided." });
   }
 
-  jwt.verify(refreshToken, REFRESH_SECRET_KEY, { algorithms: ["HS256"] }, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid or expired refresh token." });
+  try {
+    // Verify the refresh token
+    const user = jwt.verify(refreshToken, REFRESH_SECRET_KEY, { algorithms: ["HS256"] });
+
+    console.log(user)
+
+    const { sub, role } = user;
+
+    if (!sub) {
+      return res.status(403).json({ message: "Invalid token payload." });
     }
 
+    // Generate a new access token
     const newAccessToken = jwt.sign(
-      { role: user.role },
+      { role },
       SECRET_KEY,
       {
         algorithm: "HS256",
         expiresIn: "2h",
-        subject: user._id.toString(),
+        subject: sub
       }
     );
 
-    res.json({ accessToken: newAccessToken });
-  });
+    console.log('New access token generated: ', newAccessToken);
+
+    return res.status(200).json({ accessToken: newAccessToken });
+  } catch (err) {
+    console.error("Error verifying refresh token:", err);
+    return res.status(403).json({ message: "Invalid or expired refresh token." });
+  }
 };
