@@ -39,8 +39,6 @@ exports.getPatientByUserId = async (userId) => {
         }
       });
 
-    console.log(patient)
-
     if (!patient) {
         throw new Error('Patient not found');
     }
