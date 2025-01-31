@@ -325,7 +325,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     const currentMinutes = now.getMinutes();
     const currentTimeInHours = currentHours + currentMinutes / 60;
 
-    const percentage = (currentTimeInHours / 24) * 100 + 0.3;
+    const percentage = (currentTimeInHours / 24) * 100 + 1;
     return percentage;
   }
 
@@ -450,7 +450,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private isTimeInSlotAbsent = (hour: number, slot: { from: string; to: string }): boolean => {
     const slotStart = parseInt(slot.from.split(':')[0], 10);
     const slotEnd = parseInt(slot.to.split(':')[0], 10);
-    return hour >= slotStart && hour < slotEnd; 
+    return hour > slotStart && hour <= slotEnd; 
   };
 
   private getCurrentHour(): number {

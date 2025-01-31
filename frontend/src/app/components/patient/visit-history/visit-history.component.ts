@@ -8,11 +8,12 @@ import { ScheduledVisit } from '../../../model/ScheduledVisit';
 import { NgFor, NgIf } from '@angular/common';
 import { ReviewComponent } from '../review/review.component';
 import { User } from '../../../model/User';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-visit-history',
   standalone: true,
-  imports: [NgFor, ReviewComponent, NgIf],
+  imports: [NgFor, ReviewComponent, NgIf, RouterLink],
   providers: [PatientService, VisitService],
   templateUrl: './visit-history.component.html',
   styleUrl: './visit-history.component.css'

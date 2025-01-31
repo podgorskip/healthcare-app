@@ -1,13 +1,17 @@
-<div class="visit-history">
+<div *ngIf="!visits.length" class="history-empty">
+    <h5>No historical visits yet, book <a [routerLink]="['/doctors']">now</a></h5>
+    <img src="assets/folder.png"/>
+</div>
+<div class="visit-history" *ngIf="visits.length">
     <h3>Visit history</h3>
     <div class="visit-list">
         <div class="visit" *ngFor="let visit of visits">
-            <div>
+            <h6>Dr. {{visit.doctor?.user?.firstName}} {{visit.doctor?.user?.lastName}}</h6>
+            <div class="details">
                 <p>{{visit.firstName}} {{visit.lastName}}</p>
-                <p>{{visit.doctor?.user?.firstName}}</p>
                 <p>{{DateUtils.formatSelectedDays(visit.date)}}</p>
             </div>
-            <div>
+            <div class="type"> 
                 <p>{{visit.type}}</p>
                 <p>{{visit.details}}</p>
             </div>
