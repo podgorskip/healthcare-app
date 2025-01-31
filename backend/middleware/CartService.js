@@ -8,8 +8,6 @@ exports.addItemToCart = async (id, itemData) => {
   try {
     const cart = await Cart.findById(id);
 
-    console.log(itemData)
-
     new Error()
 
     if (!cart) {
@@ -81,8 +79,6 @@ exports.getCartItems = async (userId) => {
         model: 'Item',
       },
     })
-
-    console.log(patient.cart.items)
 
     if (!patient || !patient.cart) {
       throw new Error('Cart not found for the user');

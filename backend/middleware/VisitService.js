@@ -27,7 +27,6 @@ exports.getDoctorVisits = async (id) => {
 
 exports.addVisit = async (visitData) => {
     try {
-      console.log('Data doctor: ', visitData)
         const doctorExists = await mongoose.model('Doctor').exists({ _id: visitData.doctor.id });
         if (!doctorExists) {
             throw new Error('Doctor with provided ID does not exist.');
@@ -98,8 +97,6 @@ exports.deleteVisit = async (id) => {
 exports.addReview = async (id, reviewData) => {
   try {
     const visit = await ScheduledVisit.findById(id);
-
-    console.log(visit)
 
     if (!visit) {
       throw Error('Visit not found.');
