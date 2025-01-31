@@ -175,7 +175,7 @@
 
 .cart-empty img {
     width: 200px; 
-    opacity: 0.8;
+    opacity: 0.1;
 }
 
 @keyframes fadeIn {

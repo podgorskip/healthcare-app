@@ -325,7 +325,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     const currentMinutes = now.getMinutes();
     const currentTimeInHours = currentHours + currentMinutes / 60;
 
-    const percentage = (currentTimeInHours / 24) * 100 + 1;
+    const percentage = (currentTimeInHours / 24) * 100 + 0.8;
     return percentage;
   }
 
