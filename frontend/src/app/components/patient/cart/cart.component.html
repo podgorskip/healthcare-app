@@ -1,8 +1,9 @@
-<div class="cart">
+<div *ngIf="!patient.cart.items?.length" class="cart-empty">
+    <h5>Nothing in the cart yet, book <a [routerLink]="['/doctors']">now</a></h5>
+    <img src="assets/empty-cart.png"/>
+</div>
+<div class="cart" *ngIf="patient.cart.items?.length">
     <h3>Cart</h3>
-    <p *ngIf="!patient.cart.items?.length" class="cart-empty">
-        Ups... there's nothing in the cart yet
-    </p>
     <div class="items" *ngIf="patient.cart.items">
         <div *ngFor="let item of patient.cart.items" class="item">
             <input type="checkbox" id={{item.id}} (change)="addItem(item.id)">

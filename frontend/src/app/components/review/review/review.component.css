@@ -10,8 +10,8 @@
 }
 
 .review-list {
-    display: grid;
-    grid-template-columns: repeat(2, auto);
+    display: flex;
+    overflow-x: auto;    
     gap: 2em;
 }
 
@@ -22,6 +22,7 @@
     width: auto;
     gap: 0.5em;
     border-radius: 5px;
+    min-width: 400px;
 }
 
 .comment {

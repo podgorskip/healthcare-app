@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CartService } from '../../../services/cart/cart.service';
 import { NgFor, NgIf } from '@angular/common';
 import { DateUtils } from '../../../utils/DateUtils';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { UserIdentityInfo } from '../../../authentication/UserIdentityInfo';
 import { VisitService } from '../../../services/visit/visit.service';
@@ -17,7 +17,7 @@ import { PaymentComponent } from '../../payment/payment.component';
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [NgFor, NgIf, HttpClientModule, PaymentComponent],
+  imports: [NgFor, NgIf, HttpClientModule, PaymentComponent, RouterLink],
   providers: [CartService, VisitService, PatientService],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css']
@@ -104,6 +104,7 @@ export class CartComponent implements OnInit, OnDestroy {
     const userChoice = confirm('Do you want to delete visit from cart?');
     if (!userChoice) return;
 
+    this.patient.cart.items = this.patient.cart.items?.filter(item => item.id !== id);
     this.cartService.removeItem(id).subscribe({
       next: (response) => console.log(`Response: ${response}`),
       error: (err) => console.error('Error removing item from cart:', err)

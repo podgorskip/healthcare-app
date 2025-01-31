@@ -28,6 +28,10 @@
     width: 20px;
 }
 
+.description {
+    font-size: 0.8em;
+}
+
 .visit {
     display: grid;
     grid-template-columns: auto auto 1fr;
@@ -38,6 +42,18 @@
     justify-content: start;
 }
 
+.visit.cancelled {
+    border: 1px solid rgb(27, 27, 27);
+}
+
+.visit h6 {
+    grid-column: 1 / -1;
+    font-size: 1.1em;
+    font-weight: 550;
+    color: rgb(76, 76, 76);
+    margin-bottom: 1em;
+}
+
 .visit div {
     display: flex;
     flex-direction: column;
@@ -45,12 +61,12 @@
     align-items: start;
 }
 
-.visit div:first-child {
+.visit .details {
     padding-right: 1.5em;
     border-right: 1px solid rgb(216, 216, 216);
 }
 
-.visit div:nth-child(2) {
+.visit .type {
     padding: 0 1.5em;
 }
 

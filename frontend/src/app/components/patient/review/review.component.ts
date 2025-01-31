@@ -2,6 +2,7 @@ import { NgFor, NgIf } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { VisitService } from '../../../services/visit/visit.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-review',
@@ -19,7 +20,7 @@ export class ReviewComponent {
 
   @Input() id: string | null = null;
 
-  constructor (private visitService: VisitService) { 
+  constructor (private visitService: VisitService, private router: Router) { 
     this.stars = this.defaultStarsState;
   }
 
@@ -38,6 +39,7 @@ export class ReviewComponent {
         next: (response) => {
           console.log(`Response: ${response}`);
           this.clear();
+          this.router.navigate(['/doctors']);
         }
       })
     } else {
