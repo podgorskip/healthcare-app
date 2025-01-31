@@ -104,7 +104,7 @@ export class CartComponent implements OnInit, OnDestroy {
     const userChoice = confirm('Do you want to delete visit from cart?');
     if (!userChoice) return;
 
-    this.patient.cart.items = this.patient.cart.items?.filter(item => item.id !== id);
+    this.patient.cart.items = this.patient.cart.items?.filter(item => item.id !== id)
     this.cartService.removeItem(id).subscribe({
       next: (response) => console.log(`Response: ${response}`),
       error: (err) => console.error('Error removing item from cart:', err)

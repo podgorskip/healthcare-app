@@ -5,8 +5,14 @@ const { notifyVisitUpdate } = require('./NotificationService');
 
 exports.getPatientVisits = async (id) => {
   try {
-    return await ScheduledVisit.find({ patient: id }).populate('doctor');
-  } catch (error) {
+    return await ScheduledVisit.find({ patient: id })
+      .populate({
+        path: 'doctor',
+        populate: {
+          path: 'user'
+        }
+      });
+    } catch (error) {
     throw new Error('Error fetching visits for patient: ' + error.message);
   }
 }
