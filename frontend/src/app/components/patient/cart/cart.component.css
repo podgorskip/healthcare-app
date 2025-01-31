@@ -188,5 +188,29 @@
 }
 
 .cart-empty a {
-    color: rgb(216, 15, 15);
+    color: rgb(207, 18, 18);
+}
+
+.selected-items {
+    margin-bottom: 2em;
+}
+
+.selected-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.selected-item p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.selected-item p:last-child {
+    font-weight: bold;
+    color: #2a2a2a;
+}
+
+.selected-items .price {
+    font-size: 1.8em;
+    text-align: right;
 }

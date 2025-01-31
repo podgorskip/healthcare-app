@@ -1,31 +1,33 @@
-<div>
-    <div *ngIf="isProcessingPayment" class="loader">
-        <p>Processing payment, please wait...</p>
-      </div>
-      <div *ngIf="!isProcessingPayment" class="payment-form">
-        <h3>Payment Details</h3>
-        <form (ngSubmit)="submitPayment()">
+<div class="payment-container">
+  <div *ngIf="isProcessingPayment" class="loader">
+      <p>Processing payment, please wait...</p>
+  </div>
+  <div *ngIf="!isProcessingPayment" class="payment-form">
+      <h3>Payment details</h3>
+      <form (ngSubmit)="submitPayment()">
           <div class="form-group">
-            <label for="cardNumber">Card number</label>
-            <input
-              id="cardNumber"
-              type="text"
-              [(ngModel)]="cardNumber"
-              name="cardNumber"
-              required
-            />
+              <label for="cardNumber">Card number</label>
+              <input
+                  id="cardNumber"
+                  type="text"
+                  [(ngModel)]="cardNumber"
+                  name="cardNumber"
+                  required
+                  placeholder="Enter your card number"
+              />
           </div>
           <div class="form-group">
-            <label for="salt">Pin</label>
-            <input
-              id="salt"
-              type="text"
-              [(ngModel)]="salt"
-              name="salt"
-              required
-            />
+              <label for="salt">Pin</label>
+              <input
+                  id="salt"
+                  type="password"
+                  [(ngModel)]="salt"
+                  name="salt"
+                  required
+                  placeholder="Enter your PIN"
+              />
           </div>
-          <button type="submit">Submit payment</button>
-        </form>
-      </div>
+          <button type="submit" class="submit-button">Submit payment</button>
+      </form>
+  </div>
 </div>
