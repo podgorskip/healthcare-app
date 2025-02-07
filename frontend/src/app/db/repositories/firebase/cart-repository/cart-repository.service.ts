@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { getDatabase, ref, set, get, push } from 'firebase/database';
+import { getDatabase, ref, set, get, push, onValue } from 'firebase/database';
 import { Observable } from 'rxjs';
 import { CartRepositoryInterface } from '../../../interfaces/CartRepositoryInterface';
 import { Item } from '../../../../model/Item';
@@ -112,6 +112,24 @@ export class FirebaseCartRepository implements CartRepositoryInterface {
         return push(cartRef, cartData)
         .then((ref) => resolve(ref))
         .catch((error) => reject(error));
+    });
+  }
+
+  startListeningCartUpdate(id: string): Observable<Item[]> {
+    const cartRef = ref(this.db, `${this.dbPath}/${id}/items`);
+    
+    return new Observable((observer) => {
+      const unsubscribe = onValue(cartRef, (snapshot) => {
+        if (snapshot.exists()) {
+          observer.next(snapshot.val());
+        } else {
+          observer.next([]);
+        }
+      }, (error) => {
+        observer.error(`Error listening to cart updates: ${error}`);
+      });
+
+      return () => unsubscribe();
     });
   }
 }

@@ -8,4 +8,6 @@ export interface CartRepositoryInterface {
     removeItem(id: string): Observable<any>;
 
     getCart(id: string): Observable<Item[]>;
+
+    startListeningCartUpdate(id: string): Observable<Item[]>;
 }
