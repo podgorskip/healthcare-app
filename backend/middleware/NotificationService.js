@@ -39,8 +39,22 @@ const notifyCancelVisit = (id, visit) => {
     }
 }
 
+const notifyCartUpdate = (id, cart) => {
+    const broadcast = getBroadcast();
+    if (broadcast) {
+        console.log(`Broadcasting to: cart-${id}`)
+        broadcast({
+            type: `cart-${id}`,
+            data: { cart }
+        });
+    } else {
+        console.error('Broadcast function not initialized');
+    }
+}
+
 module.exports = {
     notifyAvailabilityUpdate,
     notifyVisitUpdate,
-    notifyCancelVisit
+    notifyCancelVisit,
+    notifyCartUpdate
 };

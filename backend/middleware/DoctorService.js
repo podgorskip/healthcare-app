@@ -123,11 +123,7 @@ exports.addAvailabilityForDoctor = async (id, type, availabilities) => {
                   },
                   cancelled: false,
                 });
-                
-                console.log(scheduledVisits);
-                
-                console.log(scheduledVisits);
-
+              
                 for (const visit of scheduledVisits) {
                     const conflictingSlots = visit.date.filter((visitSlot) => {
                         const visitHour = visitSlot.hour;

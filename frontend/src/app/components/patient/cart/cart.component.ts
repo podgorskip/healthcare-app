@@ -27,6 +27,7 @@ export class CartComponent implements OnInit, OnDestroy {
   
   isConfirmingPayment: boolean = false;
   patient!: Patient;
+  items: Item[] = [];
   selectedItems: Item[] = [];
 
   constructor(
@@ -117,8 +118,19 @@ export class CartComponent implements OnInit, OnDestroy {
         if (user) {
           this.patientService.getPatientById(user.id).subscribe({
             next: (patient) => {
-              console.log(patient)
-              this.patient = patient
+              if (patient) {
+                this.patient = patient;
+                this.items = patient.cart.items || [];
+                this.cartService.startListeningCartUpdate(this.patient.cart.id).subscribe({
+                  next: (items) => {
+                    if (items) {
+                      this.items = items;
+                      console.log(items)
+                    }
+                  },
+                  error: (err) => console.log(`Failed to fetch updated items: ${err}`)
+                })
+              }
             }
           })
         }

@@ -3,12 +3,11 @@ const Item = require('../models/Item');
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const Patient = require('../models/Patient');
+const { notifyCartUpdate } = require('./NotificationService');
 
 exports.addItemToCart = async (id, itemData) => {
   try {
     const cart = await Cart.findById(id);
-
-    new Error()
 
     if (!cart) {
       throw new Error('Cart not found for the user');
@@ -33,10 +32,16 @@ exports.addItemToCart = async (id, itemData) => {
       doctor
     })
 
-    return item.save().then((savedItem) => {
+    const savedItem = item.save().then((savedItem) => {
       cart.items.push(savedItem._id);
       return cart.save();
     })
+
+    const patient = await Patient.findOne({ cart: id }).populate('user');
+    const items = await this.getCartItems(patient.user._id);
+
+    notifyCartUpdate(id, items);
+    return savedItem;
 
   } catch (error) {
     console.error('Error adding item:', error);
@@ -45,27 +50,29 @@ exports.addItemToCart = async (id, itemData) => {
 };
 
 exports.removeItemFromCart = async (id) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+
   try {
-    const deletedItem = await Item.findOneAndDelete({ _id: id }, { session });
+    const cart = await Cart.findOne({ items: id });
+    if (!cart) {
+      throw new Error('Item not found in any cart');
+    }
+
+    const deletedItem = await Item.findOneAndDelete({ _id: id });
     if (!deletedItem) {
       throw new Error('Item not found');
     }
 
-    await Cart.updateMany(
-      { items: id },
-      { $pull: { items: id } },
-      { session }
-    );
+    cart.items.pull(id);
+    await cart.save();
 
-    await session.commitTransaction();
+    const patient = await Patient.findOne({ cart: cart._id }).populate('user');
+    const items = await this.getCartItems(patient.user._id);
+
+    notifyCartUpdate(cart._id, items.filter(i => i._id !== id));
+
   } catch (error) {
-    await session.abortTransaction();
     console.error('Error removing item:', error);
     throw new Error('Error removing item from cart: ' + error.message);
-  } finally {
-    session.endSession();
   }
 };
 

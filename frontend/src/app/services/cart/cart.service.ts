@@ -26,4 +26,9 @@ export class CartService {
   getCart = (id: string): Observable<Item[]> => {
     return this.cartRepository.getCart(id);
   }
+
+  startListeningCartUpdate(id: string): Observable<Item[]> {
+    console.log(`.startListeningCartUpdate - invoked, cart id=${id}`);
+    return this.cartRepository.startListeningCartUpdate(id);
+  }
 }
