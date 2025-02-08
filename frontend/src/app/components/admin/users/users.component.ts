@@ -3,28 +3,31 @@ import { UserService } from '../../../services/user/user.service';
 import { User } from '../../../model/User';
 import { Subject, takeUntil } from 'rxjs';
 import { NgFor } from '@angular/common';
-import { response } from 'express';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-users',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, FormsModule],
   providers: [UserService],
   templateUrl: './users.component.html',
-  styleUrl: './users.component.css'
+  styleUrls: ['./users.component.css']
 })
 export class UsersComponent implements OnInit, OnDestroy {
   private unsubscribe$ = new Subject<void>();
-  users?: User[];
+  users: User[] = [];
+  filteredUsers: User[] = [];
+  searchTerm: string = '';
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService) {}
 
   ngOnInit(): void {
     this.userService.users$.pipe(takeUntil(this.unsubscribe$)).subscribe({
       next: (users) => {
         this.users = users;
+        this.filteredUsers = users; 
       }
-    })
+    });
   }
 
   ngOnDestroy(): void {
@@ -33,20 +36,20 @@ export class UsersComponent implements OnInit, OnDestroy {
   }
 
   banIcon = (banned: boolean | undefined): string => {
-    if (banned) return 'assets/locked.png';
-    else return 'assets/unlocked.png';
+    return banned ? 'assets/locked.png' : 'assets/unlocked.png';
   }
 
   toggleUserBan = (id: string): void => {
-    const userIndex = this.users?.findIndex((user) => user.id === id);
-    if (userIndex !== undefined && userIndex >= 0) {
-      const user = this.users![userIndex];
+    const userIndex = this.users.findIndex((user) => user.id === id);
+    if (userIndex >= 0) {
+      const user = this.users[userIndex];
       const updatedUser = { ...user, banned: !user.banned };
       this.users = [
-        ...this.users!.slice(0, userIndex),
+        ...this.users.slice(0, userIndex),
         updatedUser,
-        ...this.users!.slice(userIndex + 1),
+        ...this.users.slice(userIndex + 1),
       ];
+      this.filterUsers(); 
 
       this.userService.toggleUserBan(id).subscribe({
         next: (response) => {
@@ -54,9 +57,18 @@ export class UsersComponent implements OnInit, OnDestroy {
         },
         error: (error) => {
           console.error('Error toggling user ban:', error);
-          this.users![userIndex] = user;
-        },
+          this.users[userIndex] = user; 
+        }
       });
     }
   };
+
+  filterUsers(): void {
+    this.filteredUsers = this.users.filter((user) => {
+      const matchesSearch = `${user.firstName} ${user.lastName}`
+        .toLowerCase()
+        .includes(this.searchTerm.toLowerCase());
+      return matchesSearch;
+    });
+  }
 }

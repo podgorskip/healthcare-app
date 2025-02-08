@@ -48,6 +48,10 @@ textarea {
     gap: 0.5em;
 }
 
+textarea {
+    outline: rgb(116, 116, 116); 
+}
+
 .comment img {
     width: 20px;
     height: 20px;

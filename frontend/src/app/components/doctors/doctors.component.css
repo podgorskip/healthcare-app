@@ -65,3 +65,7 @@
     transform: scale(1.0); 
     border: 1px solid rgb(30, 30, 30);
 }
+
+.delete-doctor {
+    width: 12px;
+}

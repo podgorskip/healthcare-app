@@ -3,8 +3,11 @@
 }
 
 .role {
-    text-transform: lowercase;
-    text-transform: capitalize;
+    text-transform: lowercase !important;
+}
+
+.role::first-letter {
+    text-transform: uppercase !important;
 }
 
 img {
@@ -18,8 +21,9 @@ img:hover {
 
 .user-list {
     display: grid;
-    grid-template-columns: repeat(4, auto);
-    gap: 1em;
+    grid-template-columns: repeat(3, auto);
+    column-gap: 1.5em;
+    row-gap: 1em;
 }
 
 .user {
@@ -29,4 +33,21 @@ img:hover {
     align-items: center;
     border: 1px solid rgb(200, 200, 200);
     border-radius: 5px;
+}
+
+.filters input {
+    width: 32%;
+    margin-bottom: 2em;
+}
+
+.name {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: rgb(116, 116, 116);
+    margin-bottom: 0.5em;
+}
+
+.description {
+    font-size: 0.9em;
+    margin-bottom: 1.5em;
 }

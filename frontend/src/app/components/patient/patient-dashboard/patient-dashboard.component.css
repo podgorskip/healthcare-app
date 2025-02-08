@@ -9,7 +9,6 @@
 }
 
 .reminders {
-    height: 100vh;
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -49,8 +48,8 @@
 .visit h6 {
     grid-column: 1 / -1;
     font-size: 1.1em;
-    font-weight: 550;
-    color: rgb(76, 76, 76);
+    font-weight: 500;
+    color: rgb(151, 151, 151);
     margin-bottom: 1em;
 }
 

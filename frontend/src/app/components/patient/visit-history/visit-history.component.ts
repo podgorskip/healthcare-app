@@ -74,4 +74,8 @@ export class VisitHistoryComponent implements OnInit {
   isUserBanned = (): boolean => {
     return this.user?.banned ? this.user.banned : false;
   }
+
+  get lastThreeVisits() {
+    return this.visits.slice(-3).reverse();
+  }
 }

@@ -1,12 +1,24 @@
 <div class="users">
     <h3>Users</h3>
+    <p class="description">Manage users. Blocked user cannot review visits and comment. </p>
+    
+    <div class="filters">
+      <input
+        type="text"
+        placeholder="Search by name..."
+        [(ngModel)]="searchTerm"
+        (input)="filterUsers()"
+      />
+    </div>
+  
     <div class="user-list">
-        <div *ngFor="let user of users" class="user">
-            <div>
-                <p>{{user.firstName}} {{user.lastName}}</p>
-                <p class="role">{{user.role}}</p>
-            </div>
-            <img src={{banIcon(user.banned)}} (click)="toggleUserBan(user.id)">
+      <div *ngFor="let user of filteredUsers" class="user">
+        <div>
+          <p class="name">{{ user.firstName }} {{ user.lastName }}</p>
+          <p class="role">{{ user.role }}</p>
         </div>
+        <img [src]="banIcon(user.banned)" (click)="toggleUserBan(user.id)" alt="Ban Icon">
+      </div>
     </div>
 </div>
+  

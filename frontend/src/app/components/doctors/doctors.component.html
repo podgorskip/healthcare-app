@@ -17,7 +17,7 @@
                     <p>{{doctor.phoneNo}}</p>
                 </div>
                 <img src="assets/schedule.png" (click)="onScheduleClick(doctor.user.id)" *ngIf="Authorization.isPatient(authenticatedUser?.role)">
-                <img src="assets/trash-1.png" (click)="onDoctorDelete(doctor.id)" *ngIf="Authorization.isAdmin(authenticatedUser?.role)">
+                <img src="assets/trash-1.png" (click)="onDoctorDelete(doctor.id)" *ngIf="Authorization.isAdmin(authenticatedUser?.role)" class="delete-doctor">
             </div>
         </div>
     </div>

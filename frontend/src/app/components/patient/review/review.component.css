@@ -5,7 +5,7 @@
 
 .stars {
     display: flex;
-    gap: 0.1em;
+    gap: 0.15em;
 }
   
 .stars img {
@@ -28,6 +28,8 @@ textarea {
     padding: 5px;
     margin-top: 5px;
     border: 1px solid #ccc;
+    outline: rgb(0, 0, 0);
+    font-size: 0.9em;
 }
   
 .submit-button {
@@ -40,7 +42,11 @@ textarea {
 }
 
 h6 {
-    font-size: 1.1em;
+    font-size: 0.9em;
     margin-bottom: 1em;
+}
+
+label {
+    font-size: 0.9em;
 }
   

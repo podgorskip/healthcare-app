@@ -344,6 +344,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     if (this.currentHoveredSlot?.day.getTime() === day.getTime() && this.currentHoveredSlot?.hour === hour && this.getSlotInfo(day, hour).visit && !this.getShouldSchedule()) {
       this.showDetails = true;
+      console.log('opened')
     }
   }
   
@@ -351,6 +352,17 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.currentHoveredSlot = null;
     this.showDetails = false;
   }  
+
+  openPopup(visit: any): void {
+    console.log('opened')
+    this.visitDetails = visit; // Populate the visit details
+    this.showDetails = true;  // Show the popup
+  }
+
+  // Close the popup
+  closePopup(): void {
+    this.showDetails = false;  // Hide the popup
+  }
 
   private cacheTooltips(): void {
     this.slotInfoCache = new Map();

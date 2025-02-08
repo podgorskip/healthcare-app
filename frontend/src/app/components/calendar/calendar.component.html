@@ -4,14 +4,16 @@
       <button (click)="goToPreviousWeek()">Previous week</button>
       <button (click)="goToNextWeek()">Next week</button>
     </div>
-      <div *ngIf="showDetails" class="popup">
-        <div class="popup-content">
-          <p>{{visitDetails?.firstName}} {{visitDetails?.lastName}}</p>
-          <p>Age {{visitDetails?.age}}, {{visitDetails?.sex}}</p>
-          <p>{{visitDetails?.type }}</p>
-          <p>Details: {{ visitDetails?.details }}</p>
-        </div>
+
+    <div *ngIf="showDetails" class="overlay" (click)="closePopup()"></div>
+    <div *ngIf="showDetails" class="popup">
+      <div class="popup-content">
+        <p class="first-name">{{ visitDetails?.firstName }} {{ visitDetails?.lastName }}</p>
+        <p>Age {{ visitDetails?.age }}, {{ visitDetails?.sex }}</p>
+        <p>{{ visitDetails?.type }}</p>
+        <p>Details: {{ visitDetails?.details }}</p>
       </div>
+    </div>
     <div class="scroll-container" #scrollContainer>
       <table>
         <thead>
