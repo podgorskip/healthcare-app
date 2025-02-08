@@ -10,8 +10,5 @@ export const environment = {
     },
     mongoConfig: {
         baseUrl: "http://localhost:3000/api"
-    },
-    jsonConfig: {
-        baseUrl: "http://localhost:3001"
     }
 }
