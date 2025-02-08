@@ -1,4 +1,4 @@
-# **Healthcarre appointment system**
+# **Healthcare appointment system**
 
 ## **Table of contents**
 1. [Project overview](#project-overview)
@@ -12,7 +12,7 @@
 
 ## **Project overview**
 
-This project is a web-based **Healthcarre appointment system** that facilitates interaction between doctors, patients, and an admin. The system provides different roles with unique functionalities such as managing doctor schedules, scheduling appointments, leaving reviews, and managing the system through admin privileges.
+This project is a web-based **Healthcare appointment system** that facilitates interaction between doctors, patients, and an admin. The system provides different roles with unique functionalities such as managing doctor schedules, scheduling appointments, leaving reviews, and managing the system through admin privileges.
 
 ---
 
