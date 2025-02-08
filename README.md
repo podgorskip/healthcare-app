@@ -1,77 +1,18 @@
 # **Healthcarre appointment system**
 
 ## **Table of contents**
-1. [Project overview](#project-overview)  
-2. [Features](#features)  
-3. [Technology stack](#technology-stack)
-4. [Project structure](#project-structure)  
-5. [Backend setup](#backend-setup)  
-6. [Frontend setup](#frontend-setup)  
-7. [Database](#database)  
-8. [API Endpoints](#api-endpoints)  
-9. [Libraries used](#libraries-used)  
+1. [Project overview](#project-overview)
+2. [Technology stack](#technology-stack) 
+3. [Features](#features)
+4. [Setup](#setup)
+6. [API Endpoints](#api-endpoints)  
+7. [Libraries](#libraries)  
 
 ---
 
 ## **Project overview**
 
 This project is a web-based **Healthcarre appointment system** that facilitates interaction between doctors, patients, and an admin. The system provides different roles with unique functionalities such as managing doctor schedules, scheduling appointments, leaving reviews, and managing the system through admin privileges.
-
----
-
-## **Features**
-
-### **Patient**
-- **Browse doctors and reviews and schedule visits** (with a cart and payment process simulation). <br><br>
-  <img src="https://github.com/user-attachments/assets/135e690e-089b-4bae-aa94-2733c6e0b84f" alt="doctors" width="1470"/>
-
-  <img src="https://github.com/user-attachments/assets/9cd70334-83c5-457e-8484-7200e6874c37" alt="cart-2" width="1470"/>
-  <img src="https://github.com/user-attachments/assets/d2357ccf-cce7-4a97-9fbc-69c2ad067600" alt="payment" width="1470"/>
-
-- **Schedule visits.** <br><br>
-  Scheduler panel uses **web sockets** for real-time updates when doctors specify absence - slots are immediately marked as unavailable. <br><br>
-
-  <img src="https://github.com/user-attachments/assets/655f754b-98d2-4980-bc44-964068537a70" alt="scheduler-1" width="1470"/>
-  <img src="https://github.com/user-attachments/assets/5c6ac425-16e5-45bf-970c-b39261f48840" alt="scheduler-2" width="1470"/>
-  <img width="1470" alt="scheduler-3" src="https://github.com/user-attachments/assets/e12510d5-44e7-43d0-affe-f0615d548845" />
-  
-- **Check historical visits and scheduled visits.** <br><br>
-  <img width="1470" alt="history-1" src="https://github.com/user-attachments/assets/f87de412-45e0-475b-a747-36c6577d9d00" />
-
-- **Leave reviews** (only allowed if they have visited the doctor). <br><br>
-  <img width="1470" alt="history-2" src="https://github.com/user-attachments/assets/9abbf605-9e6c-4918-8e9a-7a73aa3996f5" />
-
-- **Add comments on reviews.** <br><br>
-  <img width="1470" alt="comment" src="https://github.com/user-attachments/assets/8c947f39-d6e8-4442-bfd3-01500a409175" />
-
-- **View a dashboard with alerts** related to their visits and appointments. <br><br>
-  This dashboard uses **web sockets** for real-time updates when doctors specify absence, which intersects with scheduled visits. <br><br>
-
-  <img width="1470" alt="dashboard-1" src="https://github.com/user-attachments/assets/032f41ea-d32b-45bd-a0ae-b30b53ac2264" />
-  <img width="1470" alt="alert" src="https://github.com/user-attachments/assets/357ff104-2581-4dc6-b75f-2bfb581e2a24" />
-  
-### **Doctor** 
-- **Respond to comments in reviews.**
-- **Add presence/absence to their calendar** (absence overrides presence). <br><br>
-  <img width="1470" alt="calendar-1" src="https://github.com/user-attachments/assets/d1f82956-c038-41f3-9678-244ccdac8ac7" />
-  <img width="1470" alt="calendar-2" src="https://github.com/user-attachments/assets/f35614ca-a3f5-407e-b160-c06705742ef7" />
-  <img width="1470" alt="availability-1" src="https://github.com/user-attachments/assets/e0aefdaa-5f7d-49e0-b8cf-b0f567db8020" />
-  <img width="1470" alt="availability-2" src="https://github.com/user-attachments/assets/2e45436d-79b7-439c-bdcf-477ff374e6a1" />
-
-### **Admin**
-- **Ban users.** <br><br>
-  <img width="1470" alt="users" src="https://github.com/user-attachments/assets/31d97011-9cdf-4535-b5a5-93c1062ee16f" />
-
-- **Remove comments.**
-- **Change the database type** (MongoDB/Firebase).
-  
-- **Add and remove doctors.** <br><br>
-  <img width="1470" alt="doctor-creator" src="https://github.com/user-attachments/assets/770f3e14-0237-48c3-89c3-a78b6fd7067e" />
-  <img width="1470" alt="doctors-admin" src="https://github.com/user-attachments/assets/52b5f872-8867-419b-a405-52f4a40b2a7c" />
-
-### **Authentication** <br><br>
-  <img src="https://github.com/user-attachments/assets/46145df3-398b-43cc-8dff-2726f236ecc1" alt="sign-in" width="1470"/>
-  <img src="https://github.com/user-attachments/assets/2e1e7e8b-1f9d-4e2a-be16-922f0e713268" alt="sign-up" width="1470"/>
 
 ---
 
@@ -90,34 +31,53 @@ This project is a web-based **Healthcarre appointment system** that facilitates 
 - bcrypt.js for password hashing  
 
 ### **Database**
-- MongoDB (with an option to switch to Firebase)
-
+- **MongoDB** <br>
+  Used as the primary database for storing user, doctor, and appointment data.
+  Ensure your connection string is correctly configured in the .env file. <br><br>
+- **Firebase** (Optional) <br>
+  Admins can switch to Firebase for specific functionalities, with seamless integration through @angular/fire.
+  
 ---
 
-## **Project structure**
+## **Features**
 
-- **/backend**: contains the Node.js backend application.
-- **/frontend**: contains the Angular frontend application.
-- **docker-compose.yml**: Docker Compose file used to configure and run both the frontend and backend services.
+### **Patient**
+- Browse doctors and reviews and schedule visits (with a cart and payment process simulation).
+- Schedule visits. <br>
+  Panel uses **web sockets** for real-time updates when doctors specify absence - slots are immediately marked as unavailable. <br>
+- Check historical visits and scheduled visits.
+- Leave reviews (only allowed if they have visited the doctor).
+- Add comments on reviews.
+- View a dashboard with alerts related to their visits and appointments.  <br>
+  This dashboard uses **web sockets** for real-time updates when doctors specify absence, which intersects with scheduled visits.
 
-### Prerequisites
+![patient-panel](https://github.com/user-attachments/assets/89892318-057e-432a-b4a6-26db81d62b61)
 
-Before you begin, ensure you have the following installed:
+### **Doctor** 
+- Respond to comments in reviews.
+- Add presence/absence to their calendar (absence overrides presence).
 
-- Docker
-- Docker Compose
+![doctor-panel](https://github.com/user-attachments/assets/aa7fe866-4fba-4799-af58-ddfdb24d7f95)
+
+### **Admin**
+- Ban users.
+- Remove comments.
+- Change the database type (MongoDB/Firebase).  
+- Add and remove doctors.
+
+![admin](https://github.com/user-attachments/assets/28957dc2-2ee3-4c67-9397-9d28d0e09fb0)
+
+---
 
 ## **Setup**
 1. Clone the repository:
    ```bash
    git clone https://github.com/podgorskip/healthcare-app
    cd healthcare-app
-2. Build the Docker images
-   Run the following command to build the images for both the backend and frontend services:
+2. Build the Docker images 
    ```bash 
    docker-compose build
 4. Run the application
-   Once the images are built, you can run the application with Docker Compose:
    ```bash
    docker-compose up
 5. Stopping the application
@@ -127,20 +87,31 @@ Before you begin, ensure you have the following installed:
    
 ### **Backend setup**
 
-1. Create a .env file with the following variables:
+1. Create a **.env** file with the following variables:
    ```bash
    MONGO_URI=
    SECRET_KEY=
    REFRESH_SECRET_KEY=
 
-## **Database**
+### **Frontend setup**
 
-### **MongoDB**
-Used as the primary database for storing user, doctor, and appointment data.
-Ensure your connection string is correctly configured in the .env file.
+1. Create a **environment.ts** file inside **environments** directory:
+   ```typescript
+   export const environment = {
+      production: true,
+      firebaseConfig: {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: ""
+      },
+      mongoConfig: {
+        baseUrl: "http://localhost:3000/api"
+      }
+    }
 
-### **Firebase (Optional)**
-Admins can switch to Firebase for specific functionalities, with seamless integration through @angular/fire.
 
 ## **API Endpoints** 
 
